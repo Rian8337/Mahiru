@@ -18,6 +18,7 @@ import {
     Modes,
     ModPrecise,
     ModUtil,
+    PreciseDroidHitWindow,
     Precision,
     RankedStatus,
     ScoreRank,
@@ -642,12 +643,12 @@ export abstract class BeatmapManager extends Manager {
                     // Special case for OD. The Precise mod changes the hit window and not the OD itself, but we must
                     // map the hit window back to the original hit window for the user to understand the difficulty
                     // increase of the mod.
-                    const greatWindow = new DroidHitWindow(
+                    const { greatWindow } = new PreciseDroidHitWindow(
                         modifiedDifficulty.od,
-                    ).hitWindowFor300(true);
+                    );
 
                     modifiedDifficulty.od =
-                        DroidHitWindow.hitWindow300ToOD(greatWindow);
+                        DroidHitWindow.greatWindowToOD(greatWindow);
                 }
 
                 const modifiedCS = NumberHelper.round(modifiedDifficulty.cs, 2);

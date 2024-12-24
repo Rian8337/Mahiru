@@ -2,10 +2,12 @@ import {
     Beatmap,
     BeatmapDifficulty,
     DroidHitWindow,
+    HitWindow,
     Mod,
     Modes,
     ModPrecise,
     ModUtil,
+    PreciseDroidHitWindow,
     RGBColor,
     Slider,
     Spinner,
@@ -33,12 +35,7 @@ export class TimingDistributionChart {
     /**
      * The hit window.
      */
-    private readonly hitWindow: DroidHitWindow;
-
-    /**
-     * Whether the Precise mod was used.
-     */
-    private readonly isPrecise: boolean;
+    private readonly hitWindow: HitWindow;
 
     private canvas?: Canvas;
     private chartBarInterval = 0;
@@ -71,8 +68,9 @@ export class TimingDistributionChart {
 
         ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, mods);
 
-        this.hitWindow = new DroidHitWindow(difficulty.od);
-        this.isPrecise = mods.some((m) => m instanceof ModPrecise);
+        this.hitWindow = mods.some((m) => m instanceof ModPrecise)
+            ? new PreciseDroidHitWindow(difficulty.od)
+            : new DroidHitWindow(difficulty.od);
     }
 
     /**
@@ -121,9 +119,7 @@ export class TimingDistributionChart {
             return;
         }
 
-        const hitWindow300 = this.hitWindow.hitWindowFor300(this.isPrecise);
-        const hitWindow100 = this.hitWindow.hitWindowFor100(this.isPrecise);
-        const hitWindow50 = this.hitWindow.hitWindowFor50(this.isPrecise);
+        const { greatWindow, okWindow, mehWindow } = this.hitWindow;
 
         const hitValues: Record<number, number> = {};
         let maxAccuracy = 0;
@@ -143,8 +139,8 @@ export class TimingDistributionChart {
             if (
                 object instanceof Slider &&
                 !(
-                    -hitWindow50 > objectData.accuracy ||
-                    objectData.accuracy > Math.min(hitWindow50, object.duration)
+                    -mehWindow > objectData.accuracy ||
+                    objectData.accuracy > Math.min(mehWindow, object.duration)
                 )
             ) {
                 continue;
@@ -198,20 +194,20 @@ export class TimingDistributionChart {
 
         // Draw hit boundary bars.
         this.drawBoundaryBar(
-            hitWindow300,
-            Math.floor(hitWindow300 / this.chartBarInterval),
+            greatWindow,
+            Math.floor(greatWindow / this.chartBarInterval),
             this.hitWindow300Color,
         );
 
         this.drawBoundaryBar(
-            hitWindow100,
-            Math.floor(hitWindow100 / this.chartBarInterval),
+            okWindow,
+            Math.floor(okWindow / this.chartBarInterval),
             this.hitWindow100Color,
         );
 
         this.drawBoundaryBar(
-            hitWindow50,
-            Math.floor(hitWindow50 / this.chartBarInterval),
+            mehWindow,
+            Math.floor(mehWindow / this.chartBarInterval),
             this.hitWindow50Color,
         );
     }
@@ -440,9 +436,9 @@ export class TimingDistributionChart {
         time = Math.abs(time);
 
         switch (true) {
-            case time <= this.hitWindow.hitWindowFor300(this.isPrecise):
+            case time <= this.hitWindow.greatWindow:
                 return this.hitWindow300Color;
-            case time <= this.hitWindow.hitWindowFor100(this.isPrecise):
+            case time <= this.hitWindow.okWindow:
                 return this.hitWindow100Color;
             default:
                 return this.hitWindow50Color;

@@ -2,6 +2,7 @@ import { NumberHelper } from "@utils/helpers/NumberHelper";
 import {
     BeatmapMetadata,
     DroidHitWindow,
+    HitWindow,
     Interpolation,
     Modes,
     PlaceableHitObject,
@@ -96,20 +97,16 @@ export class MissInformation {
     readonly cursorGroups: CursorOccurrenceGroup[][];
 
     /**
-     * The hit window of the object.
-     */
-    readonly hitWindow: DroidHitWindow;
-
-    /**
-     * Whether the Precise mod was used.
-     */
-    readonly isPrecise: boolean;
-
-    /**
      * Whether the canvas for this miss information has been generated.
      */
     get isGenerated(): boolean {
         return this.canvas !== undefined;
+    }
+
+    private get hitWindow(): HitWindow | null {
+        return this.object instanceof Slider
+            ? this.object.head.hitWindow
+            : this.object.hitWindow;
     }
 
     private canvas?: Canvas;
@@ -139,7 +136,6 @@ export class MissInformation {
      * @param cursorGroups The cursor groups to draw.
      * @param approachRateTime The AR of the beatmap, in milliseconds.
      * @param hitWindow The hit window of the object.
-     * @param isPrecise Whether the Precise mod was used.
      * @param closestCursorPosition The cursor position at the closest hit to the object.
      * @param closestHit The closest hit to the object.
      */
@@ -155,8 +151,6 @@ export class MissInformation {
         previousObjects: PlaceableHitObject[],
         previousObjectData: ReplayObjectData[],
         cursorGroups: CursorOccurrenceGroup[][],
-        hitWindow: DroidHitWindow,
-        isPrecise: boolean,
         verdict?: string,
         closestCursorPosition?: Vector2,
         closestHit?: number,
@@ -175,8 +169,6 @@ export class MissInformation {
         this.previousObjects = previousObjects;
         this.previousObjectData = previousObjectData;
         this.cursorGroups = cursorGroups;
-        this.hitWindow = hitWindow;
-        this.isPrecise = isPrecise;
 
         if (this.closestHit) {
             this.closestHit /= clockRate;
@@ -511,7 +503,7 @@ export class MissInformation {
      * Draws the hit error bar to the canvas.
      */
     private drawHitErrorBar(): void {
-        if (!this.canvas) {
+        if (!this.canvas || !this.hitWindow) {
             return;
         }
 
@@ -528,7 +520,7 @@ export class MissInformation {
         const calculateDrawDistance = (ms: number): number => {
             const maxDrawDistance = Playfield.baseSize.x / 1.25;
             // The highest hit window the player can achieve with mods.
-            const maxMs = new DroidHitWindow(0).hitWindowFor50();
+            const maxMs = new DroidHitWindow(0).mehWindow;
 
             return (ms / maxMs) * maxDrawDistance;
         };
@@ -554,12 +546,9 @@ export class MissInformation {
         };
 
         // Draw from hit 50 -> hit 100 -> hit 300 range.
-        drawBar(this.hitWindow.hitWindowFor50(this.isPrecise), HitResult.meh);
-        drawBar(this.hitWindow.hitWindowFor100(this.isPrecise), HitResult.good);
-        drawBar(
-            this.hitWindow.hitWindowFor300(this.isPrecise),
-            HitResult.great,
-        );
+        drawBar(this.hitWindow.mehWindow, HitResult.meh);
+        drawBar(this.hitWindow.okWindow, HitResult.good);
+        drawBar(this.hitWindow.greatWindow, HitResult.great);
 
         // Draw middle line.
         context.lineWidth = Playfield.baseSize.x / 100;
@@ -595,8 +584,7 @@ export class MissInformation {
             if (
                 prevObject instanceof Slider &&
                 objectData.accuracy ===
-                    Math.floor(this.hitWindow.hitWindowFor50(this.isPrecise)) +
-                        13
+                    Math.floor(this.hitWindow.mehWindow) + 13
             ) {
                 continue;
             }
@@ -636,6 +624,7 @@ export class MissInformation {
     private drawCursorGroups(): void {
         if (
             !this.canvas ||
+            !this.hitWindow ||
             this.cursorGroups.length === 0 ||
             this.object instanceof Spinner
         ) {
@@ -661,20 +650,23 @@ export class MissInformation {
 
         const applyHitColor = (hitTime: number): void => {
             const hitAccuracy = hitTime - this.object.startTime;
+            const { hitWindow } =
+                this.object instanceof Slider ? this.object.head : this.object;
+
+            if (!hitWindow) {
+                return;
+            }
 
             switch (true) {
-                case hitAccuracy <=
-                    this.hitWindow.hitWindowFor300(this.isPrecise):
+                case hitAccuracy <= hitWindow.greatWindow:
                     context.fillStyle = greatColor;
                     context.strokeStyle = greatColor;
                     break;
-                case hitAccuracy <=
-                    this.hitWindow.hitWindowFor100(this.isPrecise):
+                case hitAccuracy <= hitWindow.okWindow:
                     context.fillStyle = goodColor;
                     context.strokeStyle = goodColor;
                     break;
-                case hitAccuracy <=
-                    this.hitWindow.hitWindowFor50(this.isPrecise):
+                case hitAccuracy <= hitWindow.mehWindow:
                     context.fillStyle = mehColor;
                     context.strokeStyle = mehColor;
                     break;
@@ -769,17 +761,10 @@ export class MissInformation {
                                     (cursorDownTime - prevOccurrence.time) /
                                     (occurrence.time - prevOccurrence.time);
 
-                                const cursorPosition = new Vector2(
-                                    Interpolation.lerp(
-                                        prevOccurrence.position.x,
-                                        occurrence.position.x,
-                                        t,
-                                    ),
-                                    Interpolation.lerp(
-                                        prevOccurrence.position.y,
-                                        occurrence.position.y,
-                                        t,
-                                    ),
+                                const cursorPosition = Interpolation.lerp(
+                                    prevOccurrence.position,
+                                    occurrence.position,
+                                    t,
                                 );
 
                                 const cursorDrawPosition =
@@ -857,21 +842,13 @@ export class MissInformation {
 
                                 switch (true) {
                                     case timeOffset <=
-                                        this.hitWindow.hitWindowFor300(
-                                            this.isPrecise,
-                                        ):
+                                        this.hitWindow.greatWindow:
                                         context.strokeStyle = greatArrowColor;
                                         break;
-                                    case timeOffset <=
-                                        this.hitWindow.hitWindowFor100(
-                                            this.isPrecise,
-                                        ):
+                                    case timeOffset <= this.hitWindow.okWindow:
                                         context.strokeStyle = goodArrowColor;
                                         break;
-                                    case timeOffset <=
-                                        this.hitWindow.hitWindowFor50(
-                                            this.isPrecise,
-                                        ):
+                                    case timeOffset <= this.hitWindow.mehWindow:
                                         context.strokeStyle = mehArrowColor;
                                         break;
                                     default:

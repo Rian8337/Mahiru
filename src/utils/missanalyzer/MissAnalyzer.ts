@@ -1,14 +1,15 @@
 import {
     Beatmap,
-    DroidHitWindow,
+    Circle,
     IModApplicableToDroid,
     Interpolation,
     Mod,
     Modes,
     ModHardRock,
-    ModPrecise,
     ModUtil,
     PlaceableHitObject,
+    Slider,
+    SliderHead,
     Spinner,
     Vector2,
 } from "@rian8337/osu-base";
@@ -46,21 +47,6 @@ export class MissAnalyzer {
     private readonly mods: (Mod & IModApplicableToDroid)[];
 
     /**
-     * The hit window of the replay.
-     */
-    private readonly hitWindow: DroidHitWindow;
-
-    /**
-     * The hit window 50 of the replay.
-     */
-    private readonly hitWindow50: number;
-
-    /**
-     * Whether the Precise mod was used.
-     */
-    private readonly isPrecise: boolean;
-
-    /**
      * The speed multiplier of the beatmap.
      */
     private readonly overallSpeedMultiplier: number;
@@ -88,11 +74,6 @@ export class MissAnalyzer {
         this.objects = this.beatmap.hitObjects.objects;
         this.data = data;
         this.mods = mods;
-
-        this.isPrecise = mods.some((m) => m instanceof ModPrecise);
-        this.hitWindow = new DroidHitWindow(this.beatmap.difficulty.od);
-        this.hitWindow50 = this.hitWindow.hitWindowFor50(this.isPrecise);
-
         this.overallSpeedMultiplier =
             ModUtil.calculateRateWithMods(mods) * customSpeedMultiplier;
     }
@@ -170,8 +151,6 @@ export class MissAnalyzer {
                 previousObjects.reverse(),
                 previousObjectData.reverse(),
                 cursorGroups,
-                this.hitWindow,
-                this.isPrecise,
                 verdict,
                 cursorPosition,
                 closestHit,
@@ -194,6 +173,10 @@ export class MissAnalyzer {
 
             const object = this.objects[i];
 
+            if (!object.hitWindow) {
+                continue;
+            }
+
             if (object instanceof Spinner) {
                 // Spinner misses are simple. They just didn't spin enough.
                 missInformations.push(
@@ -211,7 +194,7 @@ export class MissAnalyzer {
             for (let j = 0; j < this.data.cursorMovement.length; ++j) {
                 const cursorOccurrenceInfo =
                     this.getCursorOccurrenceClosestToObject(
-                        object,
+                        object instanceof Slider ? object.head : object,
                         j,
                         i > 0 &&
                             this.data.hitObjectData[i - 1].result ===
@@ -224,7 +207,7 @@ export class MissAnalyzer {
 
                 if (
                     Math.abs(cursorOccurrenceInfo.closestHit) <
-                        this.hitWindow50 &&
+                        object.hitWindow.mehWindow &&
                     Math.abs(cursorOccurrenceInfo.closestHit) <
                         Math.abs(closestHit)
                 ) {
@@ -261,10 +244,14 @@ export class MissAnalyzer {
      * the cursor is the closest to the object, `null` if not found.
      */
     private getCursorOccurrenceClosestToObject(
-        object: PlaceableHitObject,
+        object: Circle | SliderHead,
         cursorIndex: number,
         includeNotelockVerdict: boolean,
     ): { position: Vector2; closestHit: number; verdict: string } | null {
+        if (!object.hitWindow) {
+            return null;
+        }
+
         const cursorData = this.data.cursorMovement[cursorIndex];
 
         // Limit to cursor occurrences within this distance.
@@ -273,8 +260,10 @@ export class MissAnalyzer {
         let closestHit = Number.POSITIVE_INFINITY;
         let closestCursorPosition: Vector2 | null = null;
 
-        const minAllowableTapTime = object.startTime - this.hitWindow50;
-        const maxAllowableTapTime = object.startTime + this.hitWindow50;
+        const minAllowableTapTime =
+            object.startTime - object.hitWindow.mehWindow;
+        const maxAllowableTapTime =
+            object.startTime + object.hitWindow.mehWindow;
 
         const acceptDistance = (distance: number): boolean => {
             if (distance > closestDistance) {

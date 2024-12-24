@@ -31,6 +31,7 @@ import {
     ModHidden,
     ModPrecise,
     ModUtil,
+    PreciseDroidHitWindow,
     ScoreRank,
     Slider,
     SliderNestedHitObject,
@@ -339,11 +340,12 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         realOldStatistics,
     );
 
-    const realHitWindow = new DroidHitWindow(realDifficulty.od);
-    const realIsPrecise = realMods.some((m) => m instanceof ModPrecise);
+    const realHitWindow = realMods.some((m) => m instanceof ModPrecise)
+        ? new PreciseDroidHitWindow(realDifficulty.od)
+        : new DroidHitWindow(realDifficulty.od);
 
-    const realHitWindow300 = realHitWindow.hitWindowFor300(realIsPrecise);
-    const realHitWindow100 = realHitWindow.hitWindowFor100(realIsPrecise);
+    const realHitWindow300 = realHitWindow.greatWindow;
+    const realHitWindow100 = realHitWindow.okWindow;
 
     const simulatedDifficulty = new BeatmapDifficulty();
     simulatedDifficulty.od = beatmap.od;
@@ -357,17 +359,15 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         realOldStatistics,
     );
 
-    const simulatedHitWindow = new DroidHitWindow(simulatedDifficulty.od);
-    const simulatedIsPrecise = simulatedMods.some(
+    const simulatedHitWindow = simulatedMods.some(
         (m) => m instanceof ModPrecise,
-    );
+    )
+        ? new PreciseDroidHitWindow(simulatedDifficulty.od)
+        : new DroidHitWindow(simulatedDifficulty.od);
 
-    const simulatedHitWindow300 =
-        simulatedHitWindow.hitWindowFor300(simulatedIsPrecise);
-    const simulatedHitWindow100 =
-        simulatedHitWindow.hitWindowFor100(simulatedIsPrecise);
-    const simulatedHitWindow50 =
-        simulatedHitWindow.hitWindowFor50(simulatedIsPrecise);
+    const simulatedHitWindow300 = simulatedHitWindow.greatWindow;
+    const simulatedHitWindow100 = simulatedHitWindow.okWindow;
+    const simulatedHitWindow50 = simulatedHitWindow.mehWindow;
 
     const spinnerRotationsNeeded = 2 + (2 * simulatedDifficulty.od) / 10;
 
