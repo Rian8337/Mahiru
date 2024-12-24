@@ -35,6 +35,7 @@ import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { RecentPlay } from "@database/utils/aliceDb/RecentPlay";
 import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
 import { DroidHelper } from "./DroidHelper";
+import { BeatmapLeaderboardSortMode } from "@enums/interactions/BeatmapLeaderboardSortMode";
 
 /**
  * A helper for displaying scores to a user.
@@ -206,6 +207,7 @@ export abstract class ScoreDisplayHelper {
         interaction: RepliableInteraction,
         hash: string,
         page: number = 1,
+        order: BeatmapLeaderboardSortMode = BeatmapLeaderboardSortMode.score,
         cacheBeatmapToChannel: boolean = true,
     ): Promise<void> {
         await InteractionHelper.deferReply(interaction);
@@ -247,6 +249,7 @@ export abstract class ScoreDisplayHelper {
         // Check first page first for score availability
         const firstPageScores = await DroidHelper.getBeatmapLeaderboard(
             beatmapInfo?.hash ?? hash!,
+            order,
         );
 
         if (!firstPageScores[0]) {
@@ -365,6 +368,7 @@ export abstract class ScoreDisplayHelper {
                 leaderboardCache.get(actualPage) ??
                 (await DroidHelper.getBeatmapLeaderboard(
                     beatmapInfo?.hash ?? hash!,
+                    order,
                     page,
                 ));
 

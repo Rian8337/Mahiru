@@ -42,6 +42,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         interaction,
         beatmapInfo.hash,
         1,
+        undefined,
         false,
     );
 };

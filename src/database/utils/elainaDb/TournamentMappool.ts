@@ -181,6 +181,7 @@ export class TournamentMappool extends Manager {
         while (
             (retrievedScores = await DroidHelper.getBeatmapLeaderboard(
                 pickData.hash,
+                undefined,
                 page++,
             )).length > 0
         ) {

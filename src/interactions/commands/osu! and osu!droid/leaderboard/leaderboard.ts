@@ -2,6 +2,7 @@ import { ApplicationCommandOptionType } from "discord.js";
 import { CommandCategory } from "@enums/core/CommandCategory";
 import { SlashCommand } from "structures/core/SlashCommand";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
+import { BeatmapLeaderboardSortMode } from "@enums/interactions/BeatmapLeaderboardSortMode";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     CommandHelper.runSlashSubcommandFromInteraction(interaction);
@@ -29,6 +30,22 @@ export const config: SlashCommand["config"] = {
                     type: ApplicationCommandOptionType.Integer,
                     description: "The page of the leaderboard. Defaults to 1.",
                     minValue: 1,
+                },
+                {
+                    name: "order",
+                    type: ApplicationCommandOptionType.Integer,
+                    description:
+                        "The sorting order of the leaderboard. Defaults to score.",
+                    choices: [
+                        {
+                            name: "Score",
+                            value: BeatmapLeaderboardSortMode.score,
+                        },
+                        {
+                            name: "Performance Points",
+                            value: BeatmapLeaderboardSortMode.pp,
+                        },
+                    ],
                 },
             ],
         },

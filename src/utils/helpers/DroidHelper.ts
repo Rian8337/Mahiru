@@ -14,6 +14,7 @@ import { OnlinePlayerRank } from "@structures/utils/OnlinePlayerRank";
 import { readFile, stat } from "fs/promises";
 import { ApplicationCommandOptionChoiceData } from "discord.js";
 import { DatabaseManager } from "@database/DatabaseManager";
+import { BeatmapLeaderboardSortMode } from "@enums/interactions/BeatmapLeaderboardSortMode";
 
 /**
  * A helper for osu!droid related requests.
@@ -31,6 +32,7 @@ export abstract class DroidHelper {
      */
     static async getBeatmapLeaderboard(
         hash: string,
+        order: BeatmapLeaderboardSortMode = BeatmapLeaderboardSortMode.score,
         page: number = 1,
         scoresPerPage: number = 100,
     ): Promise<Score[]> {
@@ -38,8 +40,17 @@ export abstract class DroidHelper {
             const apiRequestBuilder = new DroidAPIRequestBuilder()
                 .setEndpoint("scoresearchv2.php")
                 .addParameter("hash", hash)
-                .addParameter("page", Math.max(0, page - 1))
-                .addParameter("order", "pp");
+                .addParameter("page", Math.max(0, page - 1));
+
+            switch (order) {
+                case BeatmapLeaderboardSortMode.score:
+                    apiRequestBuilder.addParameter("order", "score");
+                    break;
+
+                case BeatmapLeaderboardSortMode.pp:
+                    apiRequestBuilder.addParameter("order", "pp");
+                    break;
+            }
 
             const result = await apiRequestBuilder.sendRequest();
 
@@ -77,7 +88,7 @@ export abstract class DroidHelper {
                 score.hash as hash,
                 score.pp as pp
                 FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.score)} score, ${constructOfficialDatabaseTable(OfficialDatabaseTables.user)} user
-                WHERE score.hash = ? AND score.score > 0 AND user.id = score.uid ORDER BY score.pp DESC LIMIT ? OFFSET ?;`,
+                WHERE score.hash = ? AND score.score > 0 AND user.id = score.uid ORDER BY score.score DESC${order === BeatmapLeaderboardSortMode.pp ? ", score.pp DESC" : ""} LIMIT ? OFFSET ?;`,
             [hash, scoresPerPage, (page - 1) * scoresPerPage],
         );
 

@@ -6,6 +6,7 @@ import { LeaderboardLocalization } from "@localization/interactions/commands/osu
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { ScoreDisplayHelper } from "@utils/helpers/ScoreDisplayHelper";
+import { BeatmapLeaderboardSortMode } from "@enums/interactions/BeatmapLeaderboardSortMode";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new LeaderboardLocalization(
@@ -19,6 +20,10 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     let hash = BeatmapManager.getChannelLatestBeatmap(interaction.channelId);
 
     const page = interaction.options.getInteger("page") ?? 1;
+    const order = <BeatmapLeaderboardSortMode>(
+        (interaction.options.getInteger("order") ??
+            BeatmapLeaderboardSortMode.score)
+    );
 
     if (!beatmapID && !hash) {
         return InteractionHelper.reply(interaction, {
@@ -54,5 +59,5 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         });
     }
 
-    ScoreDisplayHelper.showBeatmapLeaderboard(interaction, hash, page);
+    ScoreDisplayHelper.showBeatmapLeaderboard(interaction, hash, page, order);
 };
