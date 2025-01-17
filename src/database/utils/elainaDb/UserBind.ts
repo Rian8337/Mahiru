@@ -217,27 +217,17 @@ export class UserBind extends Manager implements DatabaseUserBind {
     }
 
     /**
-     * Moves the bind of a bound osu!droid account in this Discord account to another
-     * Discord account.
+     * Moves the bind of this Discord account to another Discord account.
      *
-     * @param uid The uid of the osu!droid account.
      * @param to The ID of the Discord account to move to.
      * @param language The locale of the user who attempted to move the bind. Defaults to English.
      * @returns An object containing information about the operation.
      */
     async moveBind(
-        uid: number,
         to: Snowflake,
         language: Language = "en",
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
-
-        if (this.uid !== uid) {
-            return this.createOperationResult(
-                false,
-                localization.getTranslation("uidNotBindedToAccount"),
-            );
-        }
 
         if (this.discordid === to) {
             return this.createOperationResult(
@@ -294,6 +284,8 @@ export class UserBind extends Manager implements DatabaseUserBind {
             );
         }
 
+        const currentId = this.discordid;
+
         await this.bindDb.updateOne(
             { discordid: this.discordid },
             { $set: { discordid: to } },
@@ -302,7 +294,7 @@ export class UserBind extends Manager implements DatabaseUserBind {
         this.discordid = to;
 
         return DatabaseManager.aliceDb.collections.playerInfo.updateOne(
-            { uid: uid },
+            { discordid: currentId },
             { $set: { discordid: to } },
         );
     }
