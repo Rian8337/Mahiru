@@ -10,7 +10,7 @@ import { PrototypePPEntry } from "@structures/pp/PrototypePPEntry";
 import { RecalculationQueue } from "@structures/pp/RecalculationQueue";
 import { Manager } from "@utils/base/Manager";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
-import { Collection, CommandInteraction } from "discord.js";
+import { Collection, CommandInteraction, hyperlink } from "discord.js";
 import { BeatmapManager } from "./BeatmapManager";
 import { PPProcessorRESTManager } from "./PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
@@ -262,7 +262,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                                     this.calculationSuccessResponse,
                                 ),
                                 interaction.user.toString(),
-                                `uid ${uid}`,
+                                `uid ${hyperlink(uid.toString(), `https://droidpp.osudroid.moe/prototype/profile/${uid}/${reworkType}`)}`,
                             ),
                         });
                     } else if (result.failed()) {
