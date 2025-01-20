@@ -95,7 +95,7 @@ export const run: EventUtil["run"] = async (
         if (interaction.channel.isDMBased()) {
             logMessage += ` (DM)`;
         } else {
-            logMessage += ` #${interaction.channel.name}`;
+            logMessage += ` (#${interaction.channel.name})`;
         }
     }
 
