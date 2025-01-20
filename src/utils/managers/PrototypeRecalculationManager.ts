@@ -26,12 +26,19 @@ import consola from "consola";
  */
 export abstract class PrototypeRecalculationManager extends Manager {
     /**
-     * Recalculation queue for per-user prototype recalculation, mapped by user ID.
+     * Recalculation queue for per-player prototype recalculation, mapped by user ID.
      */
-    private static readonly recalculationQueue = new Collection<
+    private static readonly _recalculationQueue = new Collection<
         number,
         RecalculationQueue
     >();
+
+    /**
+     * Recalculation queue for per-player prototype recalculation, mapped by user ID.
+     */
+    static get recalculationQueue(): ReadonlyMap<number, RecalculationQueue> {
+        return this._recalculationQueue;
+    }
 
     private static readonly calculationSuccessResponse: keyof PrototypeRecalculationManagerStrings =
         "recalculationSuccessful";
@@ -46,15 +53,18 @@ export abstract class PrototypeRecalculationManager extends Manager {
      * @param interaction The interaction that queued the user.
      * @param userId The ID of the queued user.
      * @param reworkType The rework type of the prototype.
+     * @param notifyOnComplete Whether to notify the user when the recalculation is complete.
      */
     static queue(
         interaction: CommandInteraction,
         uid: number,
         reworkType: string,
+        notifyOnComplete: boolean,
     ): void {
-        this.recalculationQueue.set(uid, {
+        this._recalculationQueue.set(uid, {
             interaction: interaction,
             reworkType: reworkType,
+            notifyOnComplete: notifyOnComplete,
         });
 
         this.beginPrototypeRecalculation();
@@ -235,35 +245,44 @@ export abstract class PrototypeRecalculationManager extends Manager {
 
         this.calculationIsProgressing = true;
 
-        while (this.recalculationQueue.size > 0) {
-            const uid = this.recalculationQueue.firstKey()!;
-            const queue = this.recalculationQueue.first()!;
-            const { interaction, reworkType } = queue;
+        while (this._recalculationQueue.size > 0) {
+            const uid = this._recalculationQueue.firstKey()!;
+            const queue = this._recalculationQueue.first()!;
+            const { interaction, reworkType, notifyOnComplete } = queue;
 
             const localization = this.getLocalization(
                 CommandHelper.getUserPreferredLocale(interaction),
             );
 
-            this.recalculationQueue.delete(uid);
-
-            if (!interaction.channel?.isSendable()) {
-                continue;
-            }
-
             try {
                 const result = await this.calculatePlayer(uid, reworkType);
 
-                if (result.isSuccessful()) {
-                    await interaction.channel.send({
-                        content: MessageCreator.createAccept(
-                            localization.getTranslation(
-                                this.calculationSuccessResponse,
+                if (notifyOnComplete && interaction.channel?.isSendable()) {
+                    if (result.isSuccessful()) {
+                        await interaction.channel.send({
+                            content: MessageCreator.createAccept(
+                                localization.getTranslation(
+                                    this.calculationSuccessResponse,
+                                ),
+                                interaction.user.toString(),
+                                `uid ${uid}`,
                             ),
-                            interaction.user.toString(),
-                            `uid ${uid}`,
-                        ),
-                    });
-                } else if (result.failed()) {
+                        });
+                    } else if (result.failed()) {
+                        await interaction.channel.send({
+                            content: MessageCreator.createReject(
+                                localization.getTranslation(
+                                    this.calculationFailedResponse,
+                                ),
+                                interaction.user.toString(),
+                                `uid ${uid}`,
+                                result.reason,
+                            ),
+                        });
+                    }
+                }
+            } catch (e) {
+                if (notifyOnComplete && interaction.channel?.isSendable()) {
                     await interaction.channel.send({
                         content: MessageCreator.createReject(
                             localization.getTranslation(
@@ -271,21 +290,12 @@ export abstract class PrototypeRecalculationManager extends Manager {
                             ),
                             interaction.user.toString(),
                             `uid ${uid}`,
-                            result.reason,
+                            <string>e,
                         ),
                     });
                 }
-            } catch (e) {
-                await interaction.channel.send({
-                    content: MessageCreator.createReject(
-                        localization.getTranslation(
-                            this.calculationFailedResponse,
-                        ),
-                        interaction.user.toString(),
-                        `user ${interaction.user.id}`,
-                        <string>e,
-                    ),
-                });
+            } finally {
+                this._recalculationQueue.delete(uid);
             }
         }
 

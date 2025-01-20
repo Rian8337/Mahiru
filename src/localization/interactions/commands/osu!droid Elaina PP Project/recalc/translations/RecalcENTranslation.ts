@@ -17,5 +17,6 @@ export class RecalcENTranslation extends Translation<RecalcStrings> {
         userQueued: "Successfully queued %s for recalculation.",
         fullRecalcInProgress: "Successfully started recalculation.",
         fullRecalcSuccess: "%s, recalculation done!",
+        userQueueList: "Recalculation Queue",
     };
 }

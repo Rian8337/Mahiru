@@ -1,35 +1,10 @@
-import {
-    ApplicationCommandOptionType,
-    GuildMember,
-    InteractionContextType,
-} from "discord.js";
+import { ApplicationCommandOptionType } from "discord.js";
 import { CommandCategory } from "@enums/core/CommandCategory";
 import { SlashCommand } from "structures/core/SlashCommand";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { Constants } from "@core/Constants";
-import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
-import { MessageCreator } from "@utils/creators/MessageCreator";
-import { PPHelper } from "@utils/helpers/PPHelper";
-import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
-    if (
-        !CommandHelper.isExecutedByBotOwner(interaction) &&
-        !(<GuildMember>interaction.member).roles.cache.has(
-            PPHelper.ppModeratorRole,
-        )
-    ) {
-        interaction.ephemeral = true;
-
-        return InteractionHelper.reply(interaction, {
-            content: MessageCreator.createReject(
-                new ConstantsLocalization(
-                    CommandHelper.getLocale(interaction),
-                ).getTranslation(Constants.noPermissionReject),
-            ),
-        });
-    }
-
     CommandHelper.runSlashSubcommandFromInteraction(
         interaction,
         CommandHelper.getLocale(interaction),
@@ -55,6 +30,12 @@ export const config: SlashCommand["config"] = {
                     description: "The rework type of the prototype.",
                     required: true,
                     autocomplete: true,
+                },
+                {
+                    name: "notifyoncomplete",
+                    type: ApplicationCommandOptionType.Boolean,
+                    description:
+                        "Whether you want to be notified when the recalculation is complete. Defaults to false.",
                 },
                 {
                     name: "user",
@@ -104,6 +85,11 @@ export const config: SlashCommand["config"] = {
                 },
             ],
         },
+        {
+            name: "queue",
+            description: "Displays the current recalculation queue.",
+            type: ApplicationCommandOptionType.Subcommand,
+        },
     ],
     example: [
         {
@@ -122,7 +108,11 @@ export const config: SlashCommand["config"] = {
             ],
             description: "will recalculate Rian8337's scores.",
         },
+        {
+            command: "recalc queue",
+            arguments: [],
+            description: "will display the current recalculation queue.",
+        },
     ],
     permissions: ["Special"],
-    contexts: [InteractionContextType.Guild],
 };

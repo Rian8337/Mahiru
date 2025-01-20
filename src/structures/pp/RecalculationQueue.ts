@@ -13,4 +13,9 @@ export interface RecalculationQueue {
      * The rework type of the prototype.
      */
     readonly reworkType: string;
+
+    /**
+     * Whether to notify the user when the recalculation is complete.
+     */
+    readonly notifyOnComplete: boolean;
 }

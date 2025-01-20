@@ -7,7 +7,7 @@ import { ConstantsLocalization } from "@localization/core/constants/ConstantsLoc
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
-import { PrototypeRecalculationManager } from "@utils/managers/RecalculationManager";
+import { PrototypeRecalculationManager } from "@utils/managers/PrototypeRecalculationManager";
 import { FindOptions } from "mongodb";
 import { DatabaseUserBind } from "structures/database/elainaDb/DatabaseUserBind";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
@@ -20,6 +20,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const discordid = interaction.options.getUser("user")?.id;
     let uid = interaction.options.getInteger("uid");
     const username = interaction.options.getString("username");
+    const notifyOnComplete =
+        interaction.options.getBoolean("notifyoncomplete") ?? false;
 
     if ([discordid, uid, username].filter(Boolean).length > 1) {
         interaction.ephemeral = true;
@@ -101,7 +103,12 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         });
     }
 
-    PrototypeRecalculationManager.queue(interaction, uid, reworkType);
+    PrototypeRecalculationManager.queue(
+        interaction,
+        uid,
+        reworkType,
+        notifyOnComplete,
+    );
 
     InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
@@ -109,4 +116,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             `uid ${uid}`,
         ),
     });
+};
+
+export const config: SlashSubcommand["config"] = {
+    cooldown: 3,
 };

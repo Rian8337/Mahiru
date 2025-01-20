@@ -13,6 +13,7 @@ export interface RecalcStrings {
     readonly userQueued: string;
     readonly fullRecalcInProgress: string;
     readonly fullRecalcSuccess: string;
+    readonly userQueueList: string;
 }
 
 /**

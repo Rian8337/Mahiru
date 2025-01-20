@@ -6,7 +6,7 @@ import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { consola } from "consola";
-import { PrototypeRecalculationManager } from "@utils/managers/RecalculationManager";
+import { PrototypeRecalculationManager } from "@utils/managers/PrototypeRecalculationManager";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!interaction.channel?.isSendable()) {
