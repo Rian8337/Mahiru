@@ -90,6 +90,7 @@ export abstract class RecalculationManager extends Manager {
                             projection: {
                                 _id: 0,
                                 uid: 1,
+                                username: 1,
                             },
                         },
                     );
