@@ -181,7 +181,7 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
         const prototypeEntries = await this.collection
             .find(
                 { scanDone: { $ne: true }, reworkType: reworkType },
-                { projection: { _id: 0, discordid: 1, pptotal: 1 } },
+                { projection: { _id: 0, uid: 1, pptotal: 1 } },
             )
             .sort({ pptotal: -1 })
             .limit(amount)
