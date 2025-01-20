@@ -44,14 +44,6 @@ export class PrototypePP extends Manager {
     uid: number;
 
     /**
-     * The UID of osu!droid accounts that are bound to the user.
-     *
-     * A user can only bind up to 2 osu!droid accounts, therefore
-     * the maximum length of this array will never exceed 2.
-     */
-    previous_bind: number[];
-
-    /**
      * The username of the account.
      */
     username: string;
@@ -84,7 +76,6 @@ export class PrototypePP extends Manager {
         this.pptotal = data.pptotal;
         this.prevpptotal = data.prevpptotal;
         this.uid = data.uid;
-        this.previous_bind = data.previous_bind ?? [];
         this.username = data.username;
         this.scanDone = data.scanDone;
         this.reworkType = data.reworkType;

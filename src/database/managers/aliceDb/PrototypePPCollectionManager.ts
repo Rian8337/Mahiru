@@ -32,7 +32,6 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
             uid: 0,
             username: "",
             scanDone: false,
-            previous_bind: [],
         };
     }
 

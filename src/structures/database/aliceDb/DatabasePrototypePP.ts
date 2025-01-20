@@ -38,14 +38,6 @@ export interface DatabasePrototypePP extends BaseDocument {
     uid: number;
 
     /**
-     * The UID of osu!droid accounts that are bound to the user.
-     *
-     * A user can only bind up to 2 osu!droid accounts, therefore
-     * the maximum length of this array will never exceed 2.
-     */
-    previous_bind: number[];
-
-    /**
      * The username of the account.
      */
     username: string;
