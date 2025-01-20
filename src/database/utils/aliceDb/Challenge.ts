@@ -58,7 +58,7 @@ import { createHash } from "crypto";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { CompleteCalculationAttributes } from "@structures/difficultyattributes/CompleteCalculationAttributes";
 import { DroidPerformanceAttributes } from "@structures/difficultyattributes/DroidPerformanceAttributes";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
 import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";

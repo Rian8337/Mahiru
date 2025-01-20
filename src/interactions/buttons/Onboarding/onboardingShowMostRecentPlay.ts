@@ -10,7 +10,7 @@ import { DroidHelper } from "@utils/helpers/DroidHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { Modes } from "@rian8337/osu-base";
 import { Player, Score } from "@rian8337/osu-droid-utilities";
 import { InteractionReplyOptions } from "discord.js";

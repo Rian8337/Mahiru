@@ -9,7 +9,7 @@ import { YouTubeRESTManager } from "@utils/managers/YouTubeRESTManager";
 import { Modes } from "@rian8337/osu-base";
 import { YoutubeBeatmapFinderLocalization } from "@localization/events/messageCreate/youtubeBeatmapFinder/YoutubeBeatmapFinderLocalization";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 
 export const run: EventUtil["run"] = async (_, message: Message) => {

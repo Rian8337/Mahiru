@@ -10,7 +10,7 @@ import { Message, EmbedBuilder, bold, underline } from "discord.js";
 import { MapInfo, Modes, ModUtil } from "@rian8337/osu-base";
 import { UserBeatmapCalculationLocalization } from "@localization/events/messageCreate/userBeatmapCalculation/UserBeatmapCalculationLocalization";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { PPHelper } from "@utils/helpers/PPHelper";
 

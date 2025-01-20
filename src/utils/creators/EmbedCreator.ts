@@ -64,7 +64,7 @@ import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { DroidPerformanceAttributes } from "@structures/difficultyattributes/DroidPerformanceAttributes";
 import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
 import { CompleteCalculationAttributes } from "@structures/difficultyattributes/CompleteCalculationAttributes";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { RecentPlay } from "@database/utils/aliceDb/RecentPlay";
 import { NormalEmbedOptions } from "@structures/utils/NormalEmbedOptions";

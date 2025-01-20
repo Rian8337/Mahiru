@@ -16,7 +16,7 @@ import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { Language } from "@localization/base/Language";
 import { NumberHelper } from "@utils/helpers/NumberHelper";
 import { DiscordBackendRESTManager } from "@utils/managers/DiscordBackendRESTManager";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
 import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";

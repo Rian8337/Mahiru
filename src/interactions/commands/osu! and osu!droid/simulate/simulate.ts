@@ -17,7 +17,7 @@ import { NumberHelper } from "@utils/helpers/NumberHelper";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import {
     Accuracy,
     BeatmapDifficulty,

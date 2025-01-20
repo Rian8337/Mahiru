@@ -16,7 +16,7 @@ import { StringHelper } from "@utils/helpers/StringHelper";
 import { LocaleHelper } from "@utils/helpers/LocaleHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { BeatmapDifficultyHelper } from "@utils/helpers/BeatmapDifficultyHelper";
 import { DroidHelper } from "@utils/helpers/DroidHelper";

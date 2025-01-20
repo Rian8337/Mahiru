@@ -13,7 +13,7 @@ import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
 

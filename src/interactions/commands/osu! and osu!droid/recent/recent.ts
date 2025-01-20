@@ -20,7 +20,7 @@ import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
 import { Modes } from "@rian8337/osu-base";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { RecentPlay } from "@database/utils/aliceDb/RecentPlay";
 import { ScoreHelper } from "@utils/helpers/ScoreHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";

@@ -28,7 +28,7 @@ import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { CompleteCalculationAttributes } from "@structures/difficultyattributes/CompleteCalculationAttributes";
 import { DroidPerformanceAttributes } from "@structures/difficultyattributes/DroidPerformanceAttributes";
 import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { PPHelper } from "@utils/helpers/PPHelper";
 import { RebalanceDroidPerformanceAttributes } from "@structures/difficultyattributes/RebalanceDroidPerformanceAttributes";
 import { ResponseDifficultyAttributes } from "@structures/difficultyattributes/ResponseDifficultyAttributes";

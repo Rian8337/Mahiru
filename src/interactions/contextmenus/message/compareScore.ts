@@ -13,7 +13,7 @@ import { GuildMember, InteractionReplyOptions } from "discord.js";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
 
 export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {

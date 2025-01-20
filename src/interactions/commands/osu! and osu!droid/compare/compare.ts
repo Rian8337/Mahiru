@@ -20,7 +20,7 @@ import { ConstantsLocalization } from "@localization/core/constants/ConstantsLoc
 import { Modes } from "@rian8337/osu-base";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
-import { PPProcessorRESTManager } from "@utils/managers/DPPProcessorRESTManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
