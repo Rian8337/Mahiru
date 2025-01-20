@@ -101,7 +101,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         });
     }
 
-    PrototypeRecalculationManager.queue(uid, reworkType);
+    PrototypeRecalculationManager.queue(interaction, uid, reworkType);
 
     InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(

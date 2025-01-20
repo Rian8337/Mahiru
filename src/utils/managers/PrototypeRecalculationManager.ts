@@ -1,13 +1,16 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import { Language } from "@localization/base/Language";
-import { PrototypeRecalculationManagerLocalization } from "@localization/utils/managers/PrototypeRecalculationManager/PrototypeRecalculationManagerLocalization";
+import {
+    PrototypeRecalculationManagerLocalization,
+    PrototypeRecalculationManagerStrings,
+} from "@localization/utils/managers/PrototypeRecalculationManager/PrototypeRecalculationManagerLocalization";
 import { OperationResult } from "@structures/core/OperationResult";
 import { PPEntry } from "@structures/pp/PPEntry";
 import { PrototypePPEntry } from "@structures/pp/PrototypePPEntry";
 import { RecalculationQueue } from "@structures/pp/RecalculationQueue";
 import { Manager } from "@utils/base/Manager";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
-import { Collection } from "discord.js";
+import { Collection, CommandInteraction } from "discord.js";
 import { BeatmapManager } from "./BeatmapManager";
 import { PPProcessorRESTManager } from "./PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
@@ -15,6 +18,8 @@ import { Modes, Accuracy, MathUtils } from "@rian8337/osu-base";
 import { NumberHelper } from "@utils/helpers/NumberHelper";
 import { PPHelper } from "@utils/helpers/PPHelper";
 import consola from "consola";
+import { CommandHelper } from "@utils/helpers/CommandHelper";
+import { MessageCreator } from "@utils/creators/MessageCreator";
 
 /**
  * A manager for prototype dpp calculations.
@@ -35,6 +40,11 @@ export abstract class PrototypeRecalculationManager extends Manager {
         return this._recalculationQueue;
     }
 
+    private static readonly calculationSuccessResponse: keyof PrototypeRecalculationManagerStrings =
+        "recalculationSuccessful";
+    private static readonly calculationFailedResponse: keyof PrototypeRecalculationManagerStrings =
+        "recalculationFailed";
+
     private static calculationIsProgressing = false;
 
     /**
@@ -42,10 +52,14 @@ export abstract class PrototypeRecalculationManager extends Manager {
      *
      * @param userId The ID of the queued user.
      * @param reworkType The rework type of the prototype.
-     * @param notifyOnComplete Whether to notify the user when the recalculation is complete.
      */
-    static queue(uid: number, reworkType: string): void {
+    static queue(
+        interaction: CommandInteraction,
+        uid: number,
+        reworkType: string,
+    ): void {
         this._recalculationQueue.set(uid, {
+            interaction: interaction,
             uid: uid,
             reworkType: reworkType,
         });
@@ -231,12 +245,52 @@ export abstract class PrototypeRecalculationManager extends Manager {
         while (this._recalculationQueue.size > 0) {
             const uid = this._recalculationQueue.firstKey()!;
             const queue = this._recalculationQueue.first()!;
-            const { reworkType } = queue;
+            const { interaction, reworkType } = queue;
+
+            const localization = this.getLocalization(
+                CommandHelper.getUserPreferredLocale(interaction),
+            );
 
             try {
-                await this.calculatePlayer(uid, reworkType);
-            } catch (e: unknown) {
-                this.client.emit("error", e as Error);
+                const result = await this.calculatePlayer(uid, reworkType);
+
+                if (interaction.channel?.isSendable()) {
+                    if (result.isSuccessful()) {
+                        await interaction.channel.send({
+                            content: MessageCreator.createAccept(
+                                localization.getTranslation(
+                                    this.calculationSuccessResponse,
+                                ),
+                                interaction.user.toString(),
+                                `uid ${uid}`,
+                            ),
+                        });
+                    } else if (result.failed()) {
+                        await interaction.channel.send({
+                            content: MessageCreator.createReject(
+                                localization.getTranslation(
+                                    this.calculationFailedResponse,
+                                ),
+                                interaction.user.toString(),
+                                `uid ${uid}`,
+                                result.reason,
+                            ),
+                        });
+                    }
+                }
+            } catch (e) {
+                if (interaction.channel?.isSendable()) {
+                    await interaction.channel.send({
+                        content: MessageCreator.createReject(
+                            localization.getTranslation(
+                                this.calculationFailedResponse,
+                            ),
+                            interaction.user.toString(),
+                            `uid ${uid}`,
+                            <string>e,
+                        ),
+                    });
+                }
             } finally {
                 this._recalculationQueue.delete(uid);
             }
