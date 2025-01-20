@@ -9,7 +9,7 @@ import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { Snowflake } from "discord.js";
 import { ObjectId } from "mongodb";
 import { consola } from "consola";
-import { Accuracy, Modes } from "@rian8337/osu-base";
+import { Accuracy, MathUtils, Modes } from "@rian8337/osu-base";
 import { Player } from "@rian8337/osu-droid-utilities";
 import { UserBindLocalization } from "@localization/database/utils/elainaDb/UserBind/UserBindLocalization";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
@@ -173,10 +173,9 @@ export class UserBind extends Manager implements DatabaseUserBind {
                     rebalAttribs.attributes.difficulty.speedNoteCount,
                 liveTapPenalty: params.tapPenalty,
                 rebalanceTapPenalty: rebalParams.tapPenalty,
-                averageBPM:
-                    60000 /
-                    4 /
+                averageBPM: MathUtils.millisecondsToBPM(
                     rebalAttribs.attributes.difficulty.averageSpeedDeltaTime,
+                ),
             };
 
             consola.info(
