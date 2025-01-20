@@ -3,6 +3,7 @@ import {
     InteractionResponse,
     Message,
     MessageComponentInteraction,
+    MessageFlags,
     RepliableInteraction,
 } from "discord.js";
 
@@ -18,11 +19,14 @@ export abstract class InteractionHelper {
      */
     static async deferReply(
         interaction: RepliableInteraction,
-        ephemeral?: boolean
+        ephemeral?: boolean,
     ): Promise<InteractionResponse | void> {
         if (!interaction.deferred && !interaction.replied) {
             return interaction.deferReply({
-                ephemeral: ephemeral ?? interaction.ephemeral ?? false,
+                flags:
+                    ephemeral || interaction.ephemeral
+                        ? MessageFlags.Ephemeral
+                        : undefined,
             });
         }
     }
@@ -33,7 +37,7 @@ export abstract class InteractionHelper {
      * @param interaction The interaction to defer.
      */
     static async deferUpdate(
-        interaction: MessageComponentInteraction
+        interaction: MessageComponentInteraction,
     ): Promise<InteractionResponse | void> {
         if (!interaction.deferred && !interaction.replied) {
             return interaction.deferUpdate();
@@ -49,7 +53,7 @@ export abstract class InteractionHelper {
      */
     static async reply(
         interaction: RepliableInteraction,
-        reply: InteractionEditReplyOptions
+        reply: InteractionEditReplyOptions,
     ): Promise<Message> {
         // Reset message components
         reply.components ??= [];
@@ -59,12 +63,18 @@ export abstract class InteractionHelper {
         if (interaction.deferred || interaction.replied) {
             message = await interaction.editReply(reply);
         } else {
-            message = await interaction.reply({
+            const callback = await interaction.reply({
                 ...reply,
                 content: reply.content ?? undefined,
-                fetchReply: true,
-                ephemeral: interaction.ephemeral ?? false,
+                flags: interaction.ephemeral
+                    ? MessageFlags.Ephemeral
+                    : undefined,
+                withResponse: true,
             });
+
+            // Guaranteed to be non-null for initial interaction replies.
+            // See https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-callback-interaction-callback-resource-object.
+            message = callback.resource!.message!;
         }
 
         return message;
@@ -79,7 +89,7 @@ export abstract class InteractionHelper {
      */
     static async update(
         interaction: MessageComponentInteraction,
-        response: InteractionEditReplyOptions
+        response: InteractionEditReplyOptions,
     ): Promise<Message> {
         // Reset message components
         response.components ??= [];
