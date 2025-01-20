@@ -1,18 +1,13 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import { Language } from "@localization/base/Language";
-import {
-    PrototypeRecalculationManagerLocalization,
-    PrototypeRecalculationManagerStrings,
-} from "@localization/utils/managers/PrototypeRecalculationManager/PrototypeRecalculationManagerLocalization";
+import { PrototypeRecalculationManagerLocalization } from "@localization/utils/managers/PrototypeRecalculationManager/PrototypeRecalculationManagerLocalization";
 import { OperationResult } from "@structures/core/OperationResult";
 import { PPEntry } from "@structures/pp/PPEntry";
 import { PrototypePPEntry } from "@structures/pp/PrototypePPEntry";
 import { RecalculationQueue } from "@structures/pp/RecalculationQueue";
 import { Manager } from "@utils/base/Manager";
-import { MessageCreator } from "@utils/creators/MessageCreator";
-import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
-import { Collection, CommandInteraction } from "discord.js";
+import { Collection } from "discord.js";
 import { BeatmapManager } from "./BeatmapManager";
 import { PPProcessorRESTManager } from "./PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
@@ -40,31 +35,19 @@ export abstract class PrototypeRecalculationManager extends Manager {
         return this._recalculationQueue;
     }
 
-    private static readonly calculationSuccessResponse: keyof PrototypeRecalculationManagerStrings =
-        "recalculationSuccessful";
-    private static readonly calculationFailedResponse: keyof PrototypeRecalculationManagerStrings =
-        "recalculationFailed";
-
     private static calculationIsProgressing = false;
 
     /**
      * Queues a user for prototype recalculation.
      *
-     * @param interaction The interaction that queued the user.
      * @param userId The ID of the queued user.
      * @param reworkType The rework type of the prototype.
      * @param notifyOnComplete Whether to notify the user when the recalculation is complete.
      */
-    static queue(
-        interaction: CommandInteraction,
-        uid: number,
-        reworkType: string,
-        notifyOnComplete: boolean,
-    ): void {
+    static queue(uid: number, reworkType: string): void {
         this._recalculationQueue.set(uid, {
-            interaction: interaction,
+            uid: uid,
             reworkType: reworkType,
-            notifyOnComplete: notifyOnComplete,
         });
 
         this.beginPrototypeRecalculation();
@@ -248,52 +231,12 @@ export abstract class PrototypeRecalculationManager extends Manager {
         while (this._recalculationQueue.size > 0) {
             const uid = this._recalculationQueue.firstKey()!;
             const queue = this._recalculationQueue.first()!;
-            const { interaction, reworkType, notifyOnComplete } = queue;
-
-            const localization = this.getLocalization(
-                CommandHelper.getUserPreferredLocale(interaction),
-            );
+            const { reworkType } = queue;
 
             try {
-                const result = await this.calculatePlayer(uid, reworkType);
-
-                if (notifyOnComplete && interaction.channel?.isSendable()) {
-                    if (result.isSuccessful()) {
-                        await interaction.channel.send({
-                            content: MessageCreator.createAccept(
-                                localization.getTranslation(
-                                    this.calculationSuccessResponse,
-                                ),
-                                interaction.user.toString(),
-                                `uid ${uid}`,
-                            ),
-                        });
-                    } else if (result.failed()) {
-                        await interaction.channel.send({
-                            content: MessageCreator.createReject(
-                                localization.getTranslation(
-                                    this.calculationFailedResponse,
-                                ),
-                                interaction.user.toString(),
-                                `uid ${uid}`,
-                                result.reason,
-                            ),
-                        });
-                    }
-                }
-            } catch (e) {
-                if (notifyOnComplete && interaction.channel?.isSendable()) {
-                    await interaction.channel.send({
-                        content: MessageCreator.createReject(
-                            localization.getTranslation(
-                                this.calculationFailedResponse,
-                            ),
-                            interaction.user.toString(),
-                            `uid ${uid}`,
-                            <string>e,
-                        ),
-                    });
-                }
+                await this.calculatePlayer(uid, reworkType);
+            } catch (e: unknown) {
+                this.client.emit("error", e as Error);
             } finally {
                 this._recalculationQueue.delete(uid);
             }

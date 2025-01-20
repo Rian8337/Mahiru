@@ -32,12 +32,6 @@ export const config: SlashCommand["config"] = {
                     autocomplete: true,
                 },
                 {
-                    name: "notifyoncomplete",
-                    type: ApplicationCommandOptionType.Boolean,
-                    description:
-                        "Whether you want to be notified when the recalculation is complete. Defaults to false.",
-                },
-                {
                     name: "user",
                     type: ApplicationCommandOptionType.User,
                     description: "The user to recalculate.",

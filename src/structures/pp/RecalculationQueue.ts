@@ -1,21 +1,14 @@
-import { CommandInteraction } from "discord.js";
-
 /**
  * Represents a recalculation queue entry.
  */
 export interface RecalculationQueue {
     /**
-     * The interaction that triggered the recalculation.
+     * The uid of the player.
      */
-    readonly interaction: CommandInteraction;
+    readonly uid: number;
 
     /**
      * The rework type of the prototype.
      */
     readonly reworkType: string;
-
-    /**
-     * Whether to notify the user when the recalculation is complete.
-     */
-    readonly notifyOnComplete: boolean;
 }

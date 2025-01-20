@@ -20,8 +20,6 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const discordid = interaction.options.getUser("user")?.id;
     let uid = interaction.options.getInteger("uid");
     const username = interaction.options.getString("username");
-    const notifyOnComplete =
-        interaction.options.getBoolean("notifyoncomplete") ?? false;
 
     if ([discordid, uid, username].filter(Boolean).length > 1) {
         interaction.ephemeral = true;
@@ -103,12 +101,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         });
     }
 
-    PrototypeRecalculationManager.queue(
-        interaction,
-        uid,
-        reworkType,
-        notifyOnComplete,
-    );
+    PrototypeRecalculationManager.queue(uid, reworkType);
 
     InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
