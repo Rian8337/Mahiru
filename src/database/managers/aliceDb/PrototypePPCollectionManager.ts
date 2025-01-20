@@ -4,8 +4,6 @@ import { DatabaseCollectionManager } from "../DatabaseCollectionManager";
 import {
     ApplicationCommandOptionChoiceData,
     Collection as DiscordCollection,
-    Snowflake,
-    User,
 } from "discord.js";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
 import { OperationResult } from "@structures/core/OperationResult";
@@ -32,35 +30,6 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
             username: "",
             scanDone: false,
         };
-    }
-
-    /**
-     * Gets the prototype droid performance points (dpp) information of a Discord user.
-     *
-     * @param user The user.
-     * @param reworkType The rework type.
-     */
-    getFromUser(user: User, reworkType: string): Promise<PrototypePP | null>;
-
-    /**
-     * Gets the prototype droid performance points (dpp) information of a Discord user.
-     *
-     * @param userId The ID of the user.
-     * @param reworkType The rework type.
-     */
-    getFromUser(
-        userId: Snowflake,
-        reworkType: string,
-    ): Promise<PrototypePP | null>;
-
-    getFromUser(
-        userOrId: User | Snowflake,
-        reworkType: string,
-    ): Promise<PrototypePP | null> {
-        return this.getOne({
-            discordid: userOrId instanceof User ? userOrId.id : userOrId,
-            reworkType: reworkType,
-        });
     }
 
     /**
@@ -167,7 +136,7 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
     /**
      * Gets unscanned players based on the given amount.
      *
-     * The data returned will only consist of `discordid` and `pptotal`. You should
+     * The data returned will only consist of `uid` and `pptotal`. You should
      * then retrieve player data from bind database to perform recalculation.
      *
      * @param amount The amount of unscanned players to retrieve.

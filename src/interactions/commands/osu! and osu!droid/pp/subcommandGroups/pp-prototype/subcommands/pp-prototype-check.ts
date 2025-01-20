@@ -13,6 +13,8 @@ import { SlashSubcommand } from "structures/core/SlashSubcommand";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { PPLocalization } from "@localization/interactions/commands/osu!droid Elaina PP Project/pp/PPLocalization";
 import { ProfileManager } from "@utils/managers/ProfileManager";
+import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
+import { Constants } from "@core/Constants";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new PPLocalization(
@@ -57,15 +59,35 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         case !!uid:
             ppInfo = await dbManager.getFromUid(uid!, reworkType);
             break;
+
         case !!username:
             ppInfo = await dbManager.getFromUsername(username!, reworkType);
             break;
-        default:
-            // If no arguments are specified, default to self
-            ppInfo = await dbManager.getFromUser(
-                discordid ?? interaction.user.id,
-                reworkType,
-            );
+
+        default: {
+            const bindInfo =
+                await DatabaseManager.elainaDb.collections.userBind.getFromUser(
+                    // If no arguments are specified, default to self
+                    discordid ?? interaction.user.id,
+                    { projection: { _id: 0, uid: 1 } },
+                );
+
+            if (!bindInfo) {
+                return InteractionHelper.reply(interaction, {
+                    content: MessageCreator.createReject(
+                        new ConstantsLocalization(
+                            localization.language,
+                        ).getTranslation(
+                            discordid
+                                ? Constants.userNotBindedReject
+                                : Constants.selfNotBindedReject,
+                        ),
+                    ),
+                });
+            }
+
+            ppInfo = await dbManager.getFromUid(bindInfo.uid, reworkType);
+        }
     }
 
     if (!ppInfo) {
