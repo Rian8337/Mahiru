@@ -6,6 +6,7 @@ import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { consola } from "consola";
+import { PrototypeRecalculationManager } from "@utils/managers/RecalculationManager";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!interaction.channel?.isSendable()) {
@@ -70,28 +71,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         ).first())
     ) {
         consola.info(
-            `Now calculating ID ${player.discordid} for rework ${reworkType}`,
+            `Now calculating player ${player.uid} for rework ${reworkType}`,
         );
 
-        const bindInfo =
-            await DatabaseManager.elainaDb.collections.userBind.getFromUser(
-                player.discordid,
-                {
-                    projection: {
-                        _id: 0,
-                        discordid: 1,
-                        uid: 1,
-                        username: 1,
-                    },
-                },
-            );
-
-        if (!bindInfo) {
-            await prototypeDbManager.deleteOne({ discordid: player.discordid });
-            continue;
-        }
-
-        await bindInfo.calculatePrototypeDPP(reworkType);
+        await PrototypeRecalculationManager.calculatePlayer(
+            player.uid,
+            reworkType,
+        );
 
         consola.info(
             `${++calculatedCount} players recalculated for rework ${reworkType}`,

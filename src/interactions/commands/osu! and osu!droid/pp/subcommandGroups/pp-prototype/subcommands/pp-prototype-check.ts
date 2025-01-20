@@ -4,7 +4,7 @@ import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
-import { bold, GuildMember, userMention } from "discord.js";
+import { bold, GuildMember, hyperlink } from "discord.js";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
@@ -12,6 +12,7 @@ import { LocaleHelper } from "@utils/helpers/LocaleHelper";
 import { SlashSubcommand } from "structures/core/SlashSubcommand";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { PPLocalization } from "@localization/interactions/commands/osu!droid Elaina PP Project/pp/PPLocalization";
+import { ProfileManager } from "@utils/managers/ProfileManager";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new PPLocalization(
@@ -86,10 +87,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     embed.setDescription(
         `${bold(
-            `${StringHelper.formatString(
+            StringHelper.formatString(
                 localization.getTranslation("ppProfileTitle"),
-                userMention(ppInfo.discordid),
-            )} (${ppInfo.username})`,
+                hyperlink(
+                    ppInfo.username,
+                    ProfileManager.getProfileLink(ppInfo.uid),
+                ),
+            ),
         )}\n` +
             `${localization.getTranslation("reworkTypeEmbedDescription")}: ${bold(reworkInfo.name)}\n` +
             `${localization.getTranslation("totalPP")}: ${bold(

@@ -1,4 +1,3 @@
-import { Snowflake } from "discord.js";
 import { PrototypePPEntry } from "@structures/pp/PrototypePPEntry";
 import { BaseDocument } from "../BaseDocument";
 
@@ -6,11 +5,6 @@ import { BaseDocument } from "../BaseDocument";
  * Represents the prototype droid performance point (dpp) entry of an osu!droid account.
  */
 export interface DatabasePrototypePP extends BaseDocument {
-    /**
-     * The Discord ID bound to the osu!droid account.
-     */
-    discordid: Snowflake;
-
     /**
      * The epoch time at which the account is last
      * recalculated, in milliseconds.

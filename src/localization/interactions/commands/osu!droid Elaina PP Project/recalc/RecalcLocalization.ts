@@ -5,6 +5,7 @@ import { RecalcESTranslation } from "./translations/RecalcESTranslation";
 import { RecalcKRTranslation } from "./translations/RecalcKRTranslation";
 
 export interface RecalcStrings {
+    readonly playerNotFound: string;
     readonly tooManyOptions: string;
     readonly reworkNameMissing: string;
     readonly reworkTypeNotCurrent: string;

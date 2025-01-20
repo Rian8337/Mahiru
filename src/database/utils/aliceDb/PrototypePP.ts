@@ -4,19 +4,12 @@ import { PrototypePPEntry } from "@structures/pp/PrototypePPEntry";
 import { Manager } from "@utils/base/Manager";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
 import { ObjectId } from "bson";
-import { Collection, Snowflake } from "discord.js";
-
-// TODO: remove previous_bind references
+import { Collection } from "discord.js";
 
 /**
  * Represents the prototype performance points information of an osu!droid account.
  */
 export class PrototypePP extends Manager {
-    /**
-     * The Discord ID bound to the osu!droid account.
-     */
-    discordid: Snowflake;
-
     /**
      * The epoch time at which the account is last
      * recalculated, in milliseconds.
@@ -70,7 +63,6 @@ export class PrototypePP extends Manager {
         super();
 
         this._id = data._id;
-        this.discordid = data.discordid;
         this.lastUpdate = data.lastUpdate;
         this.pp = ArrayHelper.arrayToCollection(data.pp ?? [], "hash");
         this.pptotal = data.pptotal;

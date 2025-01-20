@@ -6,6 +6,8 @@ import { RecalcStrings } from "../RecalcLocalization";
  */
 export class RecalcENTranslation extends Translation<RecalcStrings> {
     override readonly translations: RecalcStrings = {
+        playerNotFound:
+            "I'm sorry, I cannot find the player that you are looking for!",
         tooManyOptions:
             "I'm sorry, you can only either specify a uid, user, or username! You cannot mix them!",
         reworkNameMissing: "I'm sorry, you did not specify a rework name!",

@@ -6,6 +6,8 @@ import { RecalcStrings } from "../RecalcLocalization";
  */
 export class RecalcESTranslation extends Translation<RecalcStrings> {
     override readonly translations: RecalcStrings = {
+        playerNotFound:
+            "Lo siento, no puedo encontrar al jugador que estas buscando!",
         tooManyOptions:
             "Lo siento, solo puedes especificar un uid, usuario o nick! No puedes combinarlos!",
         reworkNameMissing: "",

@@ -7,9 +7,10 @@ import { ConstantsLocalization } from "@localization/core/constants/ConstantsLoc
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
-import { RecalculationManager } from "@utils/managers/RecalculationManager";
+import { PrototypeRecalculationManager } from "@utils/managers/RecalculationManager";
 import { FindOptions } from "mongodb";
 import { DatabaseUserBind } from "structures/database/elainaDb/DatabaseUserBind";
+import { DroidHelper } from "@utils/helpers/DroidHelper";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new RecalcLocalization(
@@ -17,7 +18,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     );
 
     const discordid = interaction.options.getUser("user")?.id;
-    const uid = interaction.options.getInteger("uid");
+    let uid = interaction.options.getInteger("uid");
     const username = interaction.options.getString("username");
 
     if ([discordid, uid, username].filter(Boolean).length > 1) {
@@ -47,52 +48,65 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         });
     }
 
-    let bindInfo: UserBind | null;
+    if (!uid) {
+        let bindInfo: UserBind | null;
 
-    const findOptions: FindOptions<DatabaseUserBind> = {
-        projection: {
-            _id: 0,
-            uid: 1,
-        },
-    };
+        const findOptions: FindOptions<DatabaseUserBind> = {
+            projection: {
+                _id: 0,
+                uid: 1,
+            },
+        };
 
-    switch (true) {
-        case !!uid:
-            bindInfo = await dbManager.getFromUid(uid!, findOptions);
-            break;
-        case !!username:
-            bindInfo = await dbManager.getFromUsername(username!, findOptions);
-            break;
-        default:
-            // If no arguments are specified, default to self
-            bindInfo = await dbManager.getFromUser(
-                discordid ?? interaction.user.id,
-                findOptions,
-            );
+        switch (true) {
+            case !!username:
+                bindInfo = await dbManager.getFromUsername(
+                    username!,
+                    findOptions,
+                );
+                break;
+
+            default:
+                // If no arguments are specified, default to self
+                bindInfo = await dbManager.getFromUser(
+                    discordid ?? interaction.user.id,
+                    findOptions,
+                );
+        }
+
+        if (!bindInfo) {
+            return InteractionHelper.reply(interaction, {
+                content: MessageCreator.createReject(
+                    new ConstantsLocalization(
+                        localization.language,
+                    ).getTranslation(
+                        username || discordid
+                            ? Constants.userNotBindedReject
+                            : Constants.selfNotBindedReject,
+                    ),
+                ),
+            });
+        }
+
+        uid = bindInfo.uid;
     }
 
-    if (!bindInfo) {
+    const player = await DroidHelper.getPlayer(uid, ["id"]);
+
+    if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                new ConstantsLocalization(localization.language).getTranslation(
-                    uid || username || discordid
-                        ? Constants.userNotBindedReject
-                        : Constants.selfNotBindedReject,
-                ),
+                localization.getTranslation("playerNotFound"),
             ),
         });
     }
 
-    RecalculationManager.queuePrototype(
-        interaction,
-        bindInfo.discordid,
-        reworkType,
-    );
+    PrototypeRecalculationManager.queue(interaction, uid, reworkType);
 
     InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
             localization.getTranslation("userQueued"),
-            `uid ${bindInfo.uid}`,
+            `uid ${uid}`,
         ),
     });
 };

@@ -23,7 +23,6 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
 
     override get defaultDocument(): DatabasePrototypePP {
         return {
-            discordid: "",
             lastUpdate: Date.now(),
             pp: [],
             pptotal: 0,
@@ -113,7 +112,7 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
      */
     async getLeaderboard(
         reworkType: string,
-    ): Promise<DiscordCollection<Snowflake, PrototypePP>> {
+    ): Promise<DiscordCollection<number, PrototypePP>> {
         const prototypeEntries = await this.collection
             .find(
                 { reworkType: reworkType },
@@ -133,7 +132,7 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
 
         return ArrayHelper.arrayToCollection(
             prototypeEntries.map((v) => new PrototypePP(v)),
-            "discordid",
+            "uid",
         );
     }
 
@@ -178,7 +177,7 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
     async getUnscannedPlayers(
         amount: number,
         reworkType: string,
-    ): Promise<DiscordCollection<Snowflake, PrototypePP>> {
+    ): Promise<DiscordCollection<number, PrototypePP>> {
         const prototypeEntries = await this.collection
             .find(
                 { scanDone: { $ne: true }, reworkType: reworkType },
@@ -190,7 +189,7 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
 
         return ArrayHelper.arrayToCollection(
             prototypeEntries.map((v) => new PrototypePP(v)),
-            "discordid",
+            "uid",
         );
     }
 

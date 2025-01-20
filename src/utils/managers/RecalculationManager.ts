@@ -1,42 +1,44 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import { Language } from "@localization/base/Language";
 import {
-    RecalculationManagerLocalization,
-    RecalculationManagerStrings,
-} from "@localization/utils/managers/RecalculationManager/RecalculationManagerLocalization";
-import { RecalculationQueue } from "@structures/pp/PrototypeRecalculationQueue";
+    PrototypeRecalculationManagerLocalization,
+    PrototypeRecalculationManagerStrings,
+} from "@localization/utils/managers/PrototypeRecalculationManager/PrototypeRecalculationManagerLocalization";
+import { OperationResult } from "@structures/core/OperationResult";
+import { PPEntry } from "@structures/pp/PPEntry";
+import { PrototypePPEntry } from "@structures/pp/PrototypePPEntry";
+import { RecalculationQueue } from "@structures/pp/RecalculationQueue";
 import { Manager } from "@utils/base/Manager";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { Collection, Snowflake, CommandInteraction } from "discord.js";
+import { DroidHelper } from "@utils/helpers/DroidHelper";
+import { Collection, CommandInteraction } from "discord.js";
+import { BeatmapManager } from "./BeatmapManager";
+import { PPProcessorRESTManager } from "./PPProcessorRESTManager";
+import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
+import { Modes, Accuracy, MathUtils } from "@rian8337/osu-base";
+import { NumberHelper } from "@utils/helpers/NumberHelper";
+import { PPHelper } from "@utils/helpers/PPHelper";
+import consola from "consola";
 
 /**
- * A manager for dpp recalculations.
+ * A manager for prototype dpp calculations.
  */
-export abstract class RecalculationManager extends Manager {
-    /**
-     * Recalculation queue for per-user recalculation, mapped by user ID.
-     */
-    private static readonly recalculationQueue = new Collection<
-        Snowflake,
-        CommandInteraction
-    >();
-
+export abstract class PrototypeRecalculationManager extends Manager {
     /**
      * Recalculation queue for per-user prototype recalculation, mapped by user ID.
      */
-    private static readonly prototypeRecalculationQueue = new Collection<
-        Snowflake,
+    private static readonly recalculationQueue = new Collection<
+        number,
         RecalculationQueue
     >();
 
-    private static readonly calculationSuccessResponse: keyof RecalculationManagerStrings =
+    private static readonly calculationSuccessResponse: keyof PrototypeRecalculationManagerStrings =
         "recalculationSuccessful";
-    private static readonly calculationFailedResponse: keyof RecalculationManagerStrings =
+    private static readonly calculationFailedResponse: keyof PrototypeRecalculationManagerStrings =
         "recalculationFailed";
 
     private static calculationIsProgressing = false;
-    private static prototypeCalculationIsProgressing = false;
 
     /**
      * Queues a user for prototype recalculation.
@@ -45,12 +47,12 @@ export abstract class RecalculationManager extends Manager {
      * @param userId The ID of the queued user.
      * @param reworkType The rework type of the prototype.
      */
-    static queuePrototype(
+    static queue(
         interaction: CommandInteraction,
-        userId: Snowflake,
+        uid: number,
         reworkType: string,
     ): void {
-        this.prototypeRecalculationQueue.set(userId, {
+        this.recalculationQueue.set(uid, {
             interaction: interaction,
             reworkType: reworkType,
         });
@@ -59,58 +61,197 @@ export abstract class RecalculationManager extends Manager {
     }
 
     /**
+     * Calculates a player's dpp into the prototype dpp database.
+     *
+     * @param uid The uid of the player.
+     * @param reworkType The rework type of the prototype.
+     * @returns The operation result.
+     */
+    static async calculatePlayer(
+        uid: number,
+        reworkType: string,
+    ): Promise<OperationResult> {
+        const player = await DroidHelper.getPlayer(uid, ["id", "username"]);
+
+        if (!player) {
+            return this.createOperationResult(false, "Player not found");
+        }
+
+        const currentList: PPEntry[] = [];
+        const newList: PrototypePPEntry[] = [];
+
+        const topScores = await DroidHelper.getTopScores(uid);
+
+        if (!topScores) {
+            return this.createOperationResult(
+                false,
+                "Failed to fetch top scores",
+            );
+        }
+
+        for (const score of topScores) {
+            const beatmapInfo = await BeatmapManager.getBeatmap(score.hash, {
+                checkFile: false,
+            });
+
+            if (!beatmapInfo) {
+                continue;
+            }
+
+            const liveAttribs =
+                await PPProcessorRESTManager.getOnlineScoreAttributes(
+                    score.uid,
+                    score.hash,
+                    Modes.droid,
+                    PPCalculationMethod.live,
+                );
+
+            if (!liveAttribs) {
+                continue;
+            }
+
+            const rebalAttribs =
+                await PPProcessorRESTManager.getOnlineScoreAttributes(
+                    score.uid,
+                    score.hash,
+                    Modes.droid,
+                    PPCalculationMethod.rebalance,
+                );
+
+            if (!rebalAttribs) {
+                continue;
+            }
+
+            const { performance: perfResult, params } = liveAttribs.attributes;
+            const { performance: rebalPerfResult, params: rebalParams } =
+                rebalAttribs.attributes;
+
+            const accuracy = new Accuracy(params.accuracy);
+
+            const currentEntry: PPEntry = {
+                uid: score.uid,
+                hash: beatmapInfo.hash,
+                title: beatmapInfo.fullTitle,
+                pp: NumberHelper.round(perfResult.total, 2),
+                mods: liveAttribs.attributes.difficulty.mods,
+                accuracy: NumberHelper.round(accuracy.value() * 100, 2),
+                combo: params.combo,
+                miss: accuracy.nmiss,
+            };
+
+            const prototypeEntry: PrototypePPEntry = {
+                uid: score.uid,
+                hash: beatmapInfo.hash,
+                title: beatmapInfo.fullTitle,
+                pp: NumberHelper.round(rebalPerfResult.total, 2),
+                newAim: NumberHelper.round(rebalPerfResult.aim, 2),
+                newTap: NumberHelper.round(rebalPerfResult.tap, 2),
+                newAccuracy: NumberHelper.round(rebalPerfResult.accuracy, 2),
+                newVisual: NumberHelper.round(rebalPerfResult.visual, 2),
+                prevPP: NumberHelper.round(perfResult.total, 2),
+                prevAim: NumberHelper.round(perfResult.aim, 2),
+                prevTap: NumberHelper.round(perfResult.tap, 2),
+                prevAccuracy: NumberHelper.round(perfResult.accuracy, 2),
+                prevVisual: NumberHelper.round(perfResult.visual, 2),
+                mods: rebalAttribs.attributes.difficulty.mods,
+                accuracy: NumberHelper.round(accuracy.value() * 100, 2),
+                combo: params.combo,
+                miss: accuracy.nmiss,
+                speedMultiplier:
+                    rebalParams.customSpeedMultiplier !== 1
+                        ? rebalParams.customSpeedMultiplier
+                        : undefined,
+                calculatedUnstableRate: rebalPerfResult.calculatedUnstableRate,
+                estimatedUnstableRate: NumberHelper.round(
+                    rebalPerfResult.deviation * 10,
+                    2,
+                ),
+                estimatedSpeedUnstableRate: NumberHelper.round(
+                    rebalPerfResult.tapDeviation * 10,
+                    2,
+                ),
+                overallDifficulty:
+                    rebalAttribs.attributes.difficulty.overallDifficulty,
+                hit300: accuracy.n300,
+                hit100: accuracy.n100,
+                hit50: accuracy.n50,
+                aimSliderCheesePenalty: rebalPerfResult.aimSliderCheesePenalty,
+                flashlightSliderCheesePenalty:
+                    rebalPerfResult.flashlightSliderCheesePenalty,
+                visualSliderCheesePenalty:
+                    rebalPerfResult.visualSliderCheesePenalty,
+                speedNoteCount:
+                    rebalAttribs.attributes.difficulty.speedNoteCount,
+                liveTapPenalty: params.tapPenalty,
+                rebalanceTapPenalty: rebalParams.tapPenalty,
+                averageBPM: MathUtils.millisecondsToBPM(
+                    rebalAttribs.attributes.difficulty.averageSpeedDeltaTime,
+                ),
+            };
+
+            consola.info(
+                `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP} ⮕  ${prototypeEntry.pp}`,
+            );
+
+            currentList.push(currentEntry);
+            newList.push(prototypeEntry);
+        }
+
+        currentList.sort((a, b) => b.pp - a.pp);
+        newList.sort((a, b) => b.pp - a.pp);
+
+        const currentTotal =
+            PPHelper.calculateFinalPerformancePoints(currentList);
+        const newTotal = PPHelper.calculateFinalPerformancePoints(newList);
+
+        consola.info(`${currentTotal.toFixed(2)} ⮕  ${newTotal.toFixed(2)}`);
+
+        return DatabaseManager.aliceDb.collections.prototypePP.updateOne(
+            {
+                uid: uid,
+                reworkType: reworkType,
+            },
+            {
+                $set: {
+                    pp: [...newList.values()],
+                    pptotal: newTotal,
+                    prevpptotal: currentTotal,
+                    lastUpdate: Date.now(),
+                    username: player.username,
+                    scanDone: true,
+                },
+            },
+            { upsert: true },
+        );
+    }
+
+    /**
      * Begins a prototype recalculation if one has not been started yet.
      */
     private static async beginPrototypeRecalculation(): Promise<void> {
-        if (this.prototypeCalculationIsProgressing) {
+        if (this.calculationIsProgressing) {
             return;
         }
 
-        this.prototypeCalculationIsProgressing = true;
+        this.calculationIsProgressing = true;
 
-        while (this.prototypeRecalculationQueue.size > 0) {
-            const calculatedUser = this.prototypeRecalculationQueue.firstKey()!;
-            const queue = this.prototypeRecalculationQueue.first()!;
+        while (this.recalculationQueue.size > 0) {
+            const uid = this.recalculationQueue.firstKey()!;
+            const queue = this.recalculationQueue.first()!;
             const { interaction, reworkType } = queue;
+
             const localization = this.getLocalization(
                 CommandHelper.getUserPreferredLocale(interaction),
             );
 
-            this.prototypeRecalculationQueue.delete(calculatedUser);
+            this.recalculationQueue.delete(uid);
 
             if (!interaction.channel?.isSendable()) {
                 continue;
             }
 
             try {
-                const bindInfo =
-                    await DatabaseManager.elainaDb.collections.userBind.getFromUser(
-                        calculatedUser,
-                        {
-                            projection: {
-                                _id: 0,
-                                uid: 1,
-                                username: 1,
-                            },
-                        },
-                    );
-
-                if (!bindInfo) {
-                    await interaction.channel.send({
-                        content: MessageCreator.createReject(
-                            localization.getTranslation(
-                                this.calculationFailedResponse,
-                            ),
-                            interaction.user.toString(),
-                            `user ${calculatedUser}`,
-                            localization.getTranslation("userNotBinded"),
-                        ),
-                    });
-
-                    continue;
-                }
-
-                const result = await bindInfo.calculatePrototypeDPP(reworkType);
+                const result = await this.calculatePlayer(uid, reworkType);
 
                 if (result.isSuccessful()) {
                     await interaction.channel.send({
@@ -119,7 +260,7 @@ export abstract class RecalculationManager extends Manager {
                                 this.calculationSuccessResponse,
                             ),
                             interaction.user.toString(),
-                            `uid ${bindInfo.uid}`,
+                            `uid ${uid}`,
                         ),
                     });
                 } else if (result.failed()) {
@@ -129,7 +270,7 @@ export abstract class RecalculationManager extends Manager {
                                 this.calculationFailedResponse,
                             ),
                             interaction.user.toString(),
-                            `uid ${bindInfo.uid}`,
+                            `uid ${uid}`,
                             result.reason,
                         ),
                     });
@@ -141,14 +282,14 @@ export abstract class RecalculationManager extends Manager {
                             this.calculationFailedResponse,
                         ),
                         interaction.user.toString(),
-                        `user ${calculatedUser}`,
+                        `user ${interaction.user.id}`,
                         <string>e,
                     ),
                 });
             }
         }
 
-        this.prototypeCalculationIsProgressing = false;
+        this.calculationIsProgressing = false;
     }
 
     /**
@@ -158,7 +299,7 @@ export abstract class RecalculationManager extends Manager {
      */
     private static getLocalization(
         language: Language,
-    ): RecalculationManagerLocalization {
-        return new RecalculationManagerLocalization(language);
+    ): PrototypeRecalculationManagerLocalization {
+        return new PrototypeRecalculationManagerLocalization(language);
     }
 }
