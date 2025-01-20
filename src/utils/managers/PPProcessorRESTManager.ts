@@ -419,6 +419,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
      * @param hash The MD5 hash of the beatmap in the score.
      * @param mode The gamemode to calculate.
      * @param calculationMethod The calculation method to use.
+     * @param calculateBestPPScore Whether to calculate the score with the best PP instead of the best score. Defaults to `false`.
      * @param generateStrainChart Whether to generate a strain chart.
      * @returns The difficulty and performance attributes, `null` if the attributes cannot be retrieved.
      */
@@ -427,6 +428,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         hash: string,
         mode: Modes.droid,
         calculationMethod: PPCalculationMethod.live,
+        calculateBestPPScore?: boolean,
         generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
@@ -443,6 +445,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
      * @param hash The MD5 hash of the beatmap in the score.
      * @param mode The gamemode to calculate.
      * @param calculationMethod The calculation method to use.
+     * @param calculateBestPPScore Whether to calculate the score with the best PP instead of the best score. Defaults to `false`.
      * @param generateStrainChart Whether to generate a strain chart.
      * @returns The difficulty and performance attributes, `null` if the attributes cannot be retrieved.
      */
@@ -451,6 +454,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         hash: string,
         mode: Modes.droid,
         calculationMethod: PPCalculationMethod.rebalance,
+        calculateBestPPScore?: boolean,
         generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
@@ -467,6 +471,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
      * @param hash The MD5 hash of the beatmap in the score.
      * @param mode The gamemode to calculate.
      * @param calculationMethod The calculation method to use.
+     * @param calculateBestPPScore Whether to calculate the score with the best PP instead of the best score. Defaults to `false`.
      * @param generateStrainChart Whether to generate a strain chart.
      * @returns The difficulty and performance attributes, `null` if the attributes cannot be retrieved.
      */
@@ -475,6 +480,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         hash: string,
         mode: Modes.osu,
         calculationMethod: PPCalculationMethod.live,
+        calculateBestPPScore?: boolean,
         generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
@@ -491,6 +497,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
      * @param hash The MD5 hash of the beatmap in the score.
      * @param mode The gamemode to calculate.
      * @param calculationMethod The calculation method to use.
+     * @param calculateBestPPScore Whether to calculate the score with the best PP instead of the best score. Defaults to `false`.
      * @param generateStrainChart Whether to generate a strain chart.
      * @returns The difficulty and performance attributes, `null` if the attributes cannot be retrieved.
      */
@@ -499,6 +506,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         hash: string,
         mode: Modes.osu,
         calculationMethod: PPCalculationMethod.rebalance,
+        calculateBestPPScore?: boolean,
         generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
@@ -513,6 +521,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         hash: string,
         mode: Modes,
         calculationMethod: PPCalculationMethod,
+        calculateBestPPScore?: boolean,
         generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
@@ -528,6 +537,10 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         url.searchParams.set("hash", hash);
         url.searchParams.set("gamemode", mode);
         url.searchParams.set("calculationmethod", calculationMethod.toString());
+
+        if (calculateBestPPScore) {
+            url.searchParams.set("usebestpp", "1");
+        }
 
         if (generateStrainChart) {
             url.searchParams.set("generatestrainchart", "1");

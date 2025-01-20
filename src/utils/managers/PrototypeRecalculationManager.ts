@@ -111,6 +111,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     score.hash,
                     Modes.droid,
                     PPCalculationMethod.live,
+                    true,
                 );
 
             if (!liveAttribs) {
@@ -123,6 +124,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     score.hash,
                     Modes.droid,
                     PPCalculationMethod.rebalance,
+                    true,
                 );
 
             if (!rebalAttribs) {
