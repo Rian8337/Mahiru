@@ -1,6 +1,6 @@
 {
   "name": "mahiru",
-  "version": "2024.1109.0",
+  "version": "2025.120.0",
   "description": "A Discord bot.",
   "main": "dist/main.js",
   "scripts": {
