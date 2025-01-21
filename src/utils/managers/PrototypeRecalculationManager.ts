@@ -17,7 +17,6 @@ import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { Modes, Accuracy, MathUtils } from "@rian8337/osu-base";
 import { NumberHelper } from "@utils/helpers/NumberHelper";
 import { PPHelper } from "@utils/helpers/PPHelper";
-import consola from "consola";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 
@@ -198,9 +197,9 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 ),
             };
 
-            consola.info(
-                `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP} ⮕  ${prototypeEntry.pp}`,
-            );
+            // consola.info(
+            //     `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP} ⮕  ${prototypeEntry.pp}`,
+            // );
 
             currentList.push(currentEntry);
             newList.push(prototypeEntry);
@@ -213,7 +212,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
             PPHelper.calculateFinalPerformancePoints(currentList);
         const newTotal = PPHelper.calculateFinalPerformancePoints(newList);
 
-        consola.info(`${currentTotal.toFixed(2)} ⮕  ${newTotal.toFixed(2)}`);
+        // consola.info(`${currentTotal.toFixed(2)} ⮕  ${newTotal.toFixed(2)}`);
 
         return DatabaseManager.aliceDb.collections.prototypePP.updateOne(
             {
