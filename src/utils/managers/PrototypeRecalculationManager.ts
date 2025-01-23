@@ -19,6 +19,8 @@ import { NumberHelper } from "@utils/helpers/NumberHelper";
 import { PPHelper } from "@utils/helpers/PPHelper";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { MessageCreator } from "@utils/creators/MessageCreator";
+import { Config } from "@core/Config";
+import consola from "consola";
 
 /**
  * A manager for prototype dpp calculations.
@@ -197,9 +199,11 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 ),
             };
 
-            // consola.info(
-            //     `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP} ⮕  ${prototypeEntry.pp}`,
-            // );
+            if (Config.isDebug) {
+                consola.info(
+                    `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP} ⮕  ${prototypeEntry.pp}`,
+                );
+            }
 
             currentList.push(currentEntry);
             newList.push(prototypeEntry);
@@ -212,7 +216,11 @@ export abstract class PrototypeRecalculationManager extends Manager {
             PPHelper.calculateFinalPerformancePoints(currentList);
         const newTotal = PPHelper.calculateFinalPerformancePoints(newList);
 
-        // consola.info(`${currentTotal.toFixed(2)} ⮕  ${newTotal.toFixed(2)}`);
+        if (Config.isDebug) {
+            consola.info(
+                `${currentTotal.toFixed(2)} ⮕  ${newTotal.toFixed(2)}`,
+            );
+        }
 
         return DatabaseManager.aliceDb.collections.prototypePP.updateOne(
             {
