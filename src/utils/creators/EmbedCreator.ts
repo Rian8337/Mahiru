@@ -142,6 +142,7 @@ export abstract class EmbedCreator {
         });
 
         const totalDifficulty = beatmapInfo.totalDifficulty ?? 0;
+        const mods = calculationParams?.toDifficultyCalculationOptions().mods;
 
         embed
             .setAuthor({
@@ -152,7 +153,7 @@ export abstract class EmbedCreator {
                 BeatmapManager.showStatistics(
                     beatmapInfo,
                     0,
-                    calculationParams?.mods,
+                    mods,
                     calculationParams?.customSpeedMultiplier,
                 ),
             )
@@ -160,14 +161,14 @@ export abstract class EmbedCreator {
                 BeatmapManager.showStatistics(
                     beatmapInfo,
                     1,
-                    calculationParams?.mods,
+                    mods,
                     calculationParams?.customSpeedMultiplier,
                 ) +
                     "\n" +
                     BeatmapManager.showStatistics(
                         beatmapInfo,
                         2,
-                        calculationParams?.mods,
+                        mods,
                         calculationParams?.customSpeedMultiplier,
                     ),
             )
@@ -180,7 +181,7 @@ export abstract class EmbedCreator {
                     value: BeatmapManager.showStatistics(
                         beatmapInfo,
                         3,
-                        calculationParams?.mods,
+                        mods,
                         calculationParams?.customSpeedMultiplier,
                     ),
                 },
@@ -191,7 +192,7 @@ export abstract class EmbedCreator {
                     value: BeatmapManager.showStatistics(
                         beatmapInfo,
                         4,
-                        calculationParams?.mods,
+                        mods,
                         calculationParams?.customSpeedMultiplier,
                     ),
                 },
@@ -202,7 +203,7 @@ export abstract class EmbedCreator {
                     value: BeatmapManager.showStatistics(
                         beatmapInfo,
                         5,
-                        calculationParams?.mods,
+                        mods,
                         calculationParams?.customSpeedMultiplier,
                     ),
                 },
@@ -210,13 +211,13 @@ export abstract class EmbedCreator {
                     name: BeatmapManager.showStatistics(
                         beatmapInfo,
                         6,
-                        calculationParams?.mods,
+                        mods,
                         calculationParams?.customSpeedMultiplier,
                     ),
                     value: BeatmapManager.showStatistics(
                         beatmapInfo,
                         7,
-                        calculationParams?.mods,
+                        mods,
                         calculationParams?.customSpeedMultiplier,
                     ),
                 },
@@ -367,7 +368,12 @@ export abstract class EmbedCreator {
                 ...calculationParams.accuracy,
                 nobjects: beatmap.objects,
             });
-            const { accuracy, mods, customSpeedMultiplier } = calculationParams;
+            const { accuracy, customSpeedMultiplier } = calculationParams;
+
+            // Use mods from `DifficultyCalculationOptions` to have forced difficulty statistics converted.
+            const mods =
+                calculationParams.toDifficultyCalculationOptions().mods ??
+                calculationParams.mods;
 
             embed
                 .setColor(

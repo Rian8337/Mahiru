@@ -171,7 +171,10 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             embedOptions.files = [];
 
             const embed = EmbedBuilder.from(embedOptions.embeds![0]);
-            const { mods, customSpeedMultiplier } = calcParams;
+            const { customSpeedMultiplier } = calcParams;
+            const mods =
+                calcParams.toDifficultyCalculationOptions().mods ??
+                calcParams.mods;
 
             const speedMultiplier =
                 ModUtil.calculateRateWithMods(mods) * customSpeedMultiplier;
