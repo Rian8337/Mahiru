@@ -14,7 +14,7 @@ import { Collection, CommandInteraction, hyperlink } from "discord.js";
 import { BeatmapManager } from "./BeatmapManager";
 import { PPProcessorRESTManager } from "./PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { Modes, Accuracy, MathUtils } from "@rian8337/osu-base";
+import { Modes, Accuracy } from "@rian8337/osu-base";
 import { NumberHelper } from "@utils/helpers/NumberHelper";
 import { PPHelper } from "@utils/helpers/PPHelper";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
@@ -194,9 +194,6 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     rebalAttribs.attributes.difficulty.speedNoteCount,
                 liveTapPenalty: params.tapPenalty,
                 rebalanceTapPenalty: rebalParams.tapPenalty,
-                averageBPM: MathUtils.millisecondsToBPM(
-                    rebalAttribs.attributes.difficulty.averageSpeedDeltaTime,
-                ),
             };
 
             if (Config.isDebug) {
