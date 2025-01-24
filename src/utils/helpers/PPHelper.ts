@@ -208,7 +208,9 @@ export abstract class PPHelper {
     static getDroidDifficultyAttributesInfo(
         attributes:
             | DroidDifficultyAttributes
-            | ResponseDifficultyAttributes<DroidDifficultyAttributes>,
+            | ResponseDifficultyAttributes<DroidDifficultyAttributes>
+            | RebalanceDroidDifficultyAttributes
+            | ResponseDifficultyAttributes<RebalanceDroidDifficultyAttributes>,
     ): string {
         let string: string = `${attributes.starRating.toFixed(2)} stars (`;
         const starRatingDetails: string[] = [];

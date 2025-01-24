@@ -199,7 +199,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                       >droidCalcResult.attributes.difficulty,
                   )
                 : PPHelper.getDroidDifficultyAttributesInfo(
-                      droidCalcResult.attributes.difficulty,
+                      <ResponseDifficultyAttributes<DroidDifficultyAttributes>>(
+                          droidCalcResult.attributes.difficulty
+                      ),
                   )
         }`;
         string += `\n${localization.getTranslation(
