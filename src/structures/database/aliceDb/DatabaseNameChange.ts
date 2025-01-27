@@ -11,11 +11,6 @@ export interface DatabaseNameChange extends BaseDocument {
     discordid: Snowflake;
 
     /**
-     * The new username that was requested by the Discord user.
-     */
-    new_username: string | null;
-
-    /**
      * The UID of the osu!droid account.
      */
     uid: number;
@@ -25,11 +20,6 @@ export interface DatabaseNameChange extends BaseDocument {
      * another name change, in seconds.
      */
     cooldown: number;
-
-    /**
-     * Whether the name change request has been processed.
-     */
-    isProcessed: boolean;
 
     /**
      * The usernames that the osu!droid account has had in the past.

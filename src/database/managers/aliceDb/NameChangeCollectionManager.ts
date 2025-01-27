@@ -1,7 +1,7 @@
 import { NameChange } from "@database/utils/aliceDb/NameChange";
 import { DatabaseNameChange } from "structures/database/aliceDb/DatabaseNameChange";
 import { DatabaseCollectionManager } from "../DatabaseCollectionManager";
-import { Collection as DiscordCollection, Snowflake, User } from "discord.js";
+import { Snowflake, User } from "discord.js";
 import { OperationResult } from "structures/core/OperationResult";
 
 /**
@@ -19,8 +19,6 @@ export class NameChangeCollectionManager extends DatabaseCollectionManager<
         return {
             cooldown: Math.floor(Date.now() / 1000),
             discordid: "",
-            isProcessed: false,
-            new_username: "",
             previous_usernames: [],
             uid: 0,
         };
@@ -56,38 +54,27 @@ export class NameChangeCollectionManager extends DatabaseCollectionManager<
     }
 
     /**
-     * Gets name change requests that are currently active.
-     */
-    getActiveNameChangeRequests(): Promise<
-        DiscordCollection<number, NameChange>
-    > {
-        return this.get("uid", { isProcessed: false });
-    }
-
-    /**
-     * Requests a name change.
+     * Adds a previous username of a player as their username history.
      *
-     * @param discordId The Discord ID of the player.
      * @param uid The uid of the player.
-     * @param newUsername The new username that is requested by the player.
+     * @param username The username to add.
      * @returns An object containing information about the operation.
      */
-    requestNameChange(
+    addPreviousUsername(
         discordId: Snowflake,
         uid: number,
-        newUsername: string,
+        username: string,
+        newCooldown: number,
     ): Promise<OperationResult> {
         return this.updateOne(
             { uid: uid },
             {
+                $push: { previous_usernames: username },
                 $set: {
-                    new_username: newUsername,
-                    cooldown: Math.floor(Date.now() / 1000) + 86400 * 30,
-                    isProcessed: false,
+                    cooldown: Math.floor(newCooldown / 1000),
                 },
                 $setOnInsert: {
                     discordid: discordId,
-                    previous_usernames: [],
                 },
             },
             { upsert: true },

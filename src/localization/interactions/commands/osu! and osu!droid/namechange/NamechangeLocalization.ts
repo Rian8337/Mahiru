@@ -6,30 +6,19 @@ import { NamechangeKRTranslation } from "./translations/NamechangeKRTranslation"
 
 export interface NamechangeStrings {
     readonly userNotBindedToUid: string;
-    readonly noActiveRequest: string;
     readonly invalidUid: string;
-    readonly uidHasNoActiveRequest: string;
-    readonly userHasNoActiveRequest: string;
     readonly newNameAlreadyTaken: string;
-    readonly activeRequestExists: string;
+    readonly droidServerRequestFailed: string;
     readonly requestCooldownNotExpired: string;
     readonly currentBindedAccountDoesntExist: string;
     readonly newUsernameContainsInvalidCharacters: string;
     readonly newUsernameTooLong: string;
-    readonly emailNotEqualToBindedAccount: string;
-    readonly requestSuccess: string;
+    readonly changeSuccess: string;
     readonly userHasNoHistory: string;
-    readonly acceptFailed: string;
-    readonly acceptSuccess: string;
-    readonly cancelFailed: string;
-    readonly cancelSuccess: string;
-    readonly denyFailed: string;
-    readonly denySuccess: string;
     readonly nameHistoryForUid: string;
-    readonly nameHistory: string;
-    readonly nameChangeRequestList: string;
-    readonly discordAccount: string;
-    readonly usernameRequested: string;
+    readonly requestDetails: string;
+    readonly currentUsername: string;
+    readonly requestedUsername: string;
     readonly creationDate: string;
 }
 
