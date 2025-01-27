@@ -1,15 +1,9 @@
-import { Snowflake } from "discord.js";
 import { BaseDocument } from "../BaseDocument";
 
 /**
  * Represents an osu!droid name change request.
  */
 export interface DatabaseNameChange extends BaseDocument {
-    /**
-     * The Discord ID of the user who requested the name change.
-     */
-    discordid: Snowflake;
-
     /**
      * The UID of the osu!droid account.
      */

@@ -85,11 +85,6 @@ export class UserBind extends Manager implements DatabaseUserBind {
             );
         }
 
-        await DatabaseManager.aliceDb.collections.nameChange.updateOne(
-            { discordid: this.discordid },
-            { $set: { discordid: to } },
-        );
-
         // Append the Discord account's account transfer information.
         const transferInfo =
             await DatabaseManager.aliceDb.collections.accountTransfer.getFromDiscordId(

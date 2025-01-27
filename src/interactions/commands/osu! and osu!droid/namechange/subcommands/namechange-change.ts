@@ -45,6 +45,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const nameChange =
         await DatabaseManager.aliceDb.collections.nameChange.getFromUid(
             bindInfo.uid,
+            { projection: { _id: 0, cooldown: 1 } },
         );
 
     if (nameChange && nameChange.cooldown > Math.floor(Date.now() / 1000)) {
@@ -135,7 +136,6 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const newCooldown = new Date(Date.now() + 86400 * 30 * 1000);
 
     await DatabaseManager.aliceDb.collections.nameChange.addPreviousUsername(
-        interaction.user.id,
         bindInfo.uid,
         newUsername,
         newCooldown.getTime(),
