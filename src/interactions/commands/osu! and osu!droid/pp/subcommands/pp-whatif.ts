@@ -115,7 +115,10 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     let playIndex = 0;
 
     // When pp is null, the play will always be inserted in that index, so we can stop there.
-    while (ppValue > (topScores[playIndex].pp ?? Number.POSITIVE_INFINITY)) {
+    while (
+        playIndex < topScores.length &&
+        ppValue > (topScores[playIndex].pp ?? Number.POSITIVE_INFINITY)
+    ) {
         ++playIndex;
     }
 
