@@ -59,7 +59,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const onPageChange: OnButtonPageChange = async (_, page) => {
         embed.addFields({
             name: StringHelper.formatString(
-                localization.getTranslation("nameHistory"),
+                localization.getTranslation("nameHistoryForUid"),
                 uid.toString(),
             ),
             value: nameChange.previous_usernames
