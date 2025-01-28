@@ -39,10 +39,7 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
      * @param reworkType The rework type.
      */
     getFromUid(uid: number, reworkType: string): Promise<PrototypePP | null> {
-        return this.getOne({
-            previous_bind: { $all: [uid] },
-            reworkType: reworkType,
-        });
+        return this.getOne({ uid: uid, reworkType: reworkType });
     }
 
     /**
