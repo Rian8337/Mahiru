@@ -14,6 +14,7 @@ export interface RecalcStrings {
     readonly fullRecalcInProgress: string;
     readonly fullRecalcSuccess: string;
     readonly userQueueList: string;
+    readonly playerIsArchived: string;
 }
 
 /**

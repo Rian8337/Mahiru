@@ -18,5 +18,6 @@ export class RecalcENTranslation extends Translation<RecalcStrings> {
         fullRecalcInProgress: "Successfully started recalculation.",
         fullRecalcSuccess: "%s, recalculation done!",
         userQueueList: "Recalculation Queue",
+        playerIsArchived: "I'm sorry, this player is archived!",
     };
 }

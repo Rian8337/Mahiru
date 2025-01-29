@@ -19,4 +19,5 @@ export interface OfficialDatabaseUser {
     readonly supporter: number;
     readonly banned: number;
     readonly restrict_mode: number;
+    readonly archived: number;
 }

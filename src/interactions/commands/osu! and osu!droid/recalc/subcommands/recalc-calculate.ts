@@ -11,6 +11,7 @@ import { PrototypeRecalculationManager } from "@utils/managers/PrototypeRecalcul
 import { FindOptions } from "mongodb";
 import { DatabaseUserBind } from "structures/database/elainaDb/DatabaseUserBind";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
+import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new RecalcLocalization(
@@ -91,12 +92,20 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         uid = bindInfo.uid;
     }
 
-    const player = await DroidHelper.getPlayer(uid, ["id"]);
+    const player = await DroidHelper.getPlayer(uid, ["id", "archived"]);
 
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 localization.getTranslation("playerNotFound"),
+            ),
+        });
+    }
+
+    if ((player as Pick<OfficialDatabaseUser, "archived"> | null)?.archived) {
+        return InteractionHelper.reply(interaction, {
+            content: MessageCreator.createReject(
+                localization.getTranslation("playerIsArchived"),
             ),
         });
     }
