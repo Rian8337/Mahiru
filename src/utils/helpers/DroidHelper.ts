@@ -274,7 +274,7 @@ export abstract class DroidHelper {
                 OfficialDatabaseTables.user,
             )} WHERE ${
                 typeof uidOrUsername === "number" ? "id" : "username"
-            } = ? AND banned = 0 AND restrict_mode = 0 AND archived = 0;`,
+            } = ? AND banned = 0 AND restrict_mode = 0;`,
             [uidOrUsername],
         );
 
