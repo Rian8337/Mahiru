@@ -73,7 +73,7 @@ export const config: SlashCommand["config"] = {
         {
             name: "from",
             required: true,
-            type: ApplicationCommandOptionType.Integer,
+            type: ApplicationCommandOptionType.User,
             description: "The user to switch the bind from.",
         },
         {
