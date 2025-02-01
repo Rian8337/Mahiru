@@ -9,7 +9,7 @@ import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 
-export const run: SlashCommand["run"] = async (client, interaction) => {
+export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new SwitchbindLocalization(
         CommandHelper.getLocale(interaction),
     );
@@ -85,7 +85,7 @@ export const config: SlashCommand["config"] = {
     ],
     example: [
         {
-            command: "switchbind from:51076 to:@Rian8337#0001",
+            command: "switchbind from:@neroyuki to:@Rian8337#0001",
             arguments: [
                 {
                     name: "from",

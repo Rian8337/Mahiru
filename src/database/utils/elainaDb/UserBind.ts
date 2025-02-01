@@ -86,13 +86,11 @@ export class UserBind extends Manager implements DatabaseUserBind {
         }
 
         // Append the Discord account's account transfer information.
-        const transferInfo =
-            await DatabaseManager.aliceDb.collections.accountTransfer.getFromDiscordId(
-                this.discordid,
-            );
+        const transferDb = DatabaseManager.aliceDb.collections.accountTransfer;
+        const transferInfo = await transferDb.getFromDiscordId(this.discordid);
 
         if (transferInfo) {
-            await DatabaseManager.aliceDb.collections.accountTransfer.updateOne(
+            await transferDb.updateOne(
                 { discordId: to },
                 {
                     $addToSet: {
@@ -109,9 +107,7 @@ export class UserBind extends Manager implements DatabaseUserBind {
             );
 
             // Remove the Discord account's account transfer information.
-            await DatabaseManager.aliceDb.collections.accountTransfer.deleteOne(
-                { discordId: this.discordid },
-            );
+            await transferDb.deleteOne({ discordId: this.discordid });
         }
 
         const currentId = this.discordid;
