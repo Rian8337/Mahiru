@@ -61,12 +61,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             const bindInfo =
                 await DatabaseManager.elainaDb.collections.userBind.getFromUser(
                     discordid ?? interaction.user.id,
-                    {
-                        projection: {
-                            _id: 0,
-                            uid: 1,
-                        },
-                    },
+                    { projection: { _id: 0, uid: 1 } },
                 );
 
             if (!bindInfo) {
@@ -114,10 +109,11 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     let playIndex = 0;
 
-    // When pp is null, the play will always be inserted in that index, so we can stop there.
     while (
         playIndex < topScores.length &&
-        ppValue > (topScores[playIndex].pp ?? Number.POSITIVE_INFINITY)
+        // When pp is null, the play will always be inserted in that index, so we can stop there.
+        topScores[playIndex].pp !== null &&
+        ppValue < topScores[playIndex].pp!
     ) {
         ++playIndex;
     }
