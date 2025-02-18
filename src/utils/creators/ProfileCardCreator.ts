@@ -380,7 +380,9 @@ export class ProfileCardCreator {
 
         this.context.fillStyle = "#000000";
         this.context.font =
-            this.detailed || this.template ? "bold 25px Exo" : "bold 20px Exo";
+            this.detailed || this.template
+                ? "bold 25px Exo, sans-serif"
+                : "bold 20px Exo, sans-serif";
         this.context.fillText(
             this.player.username,
             x,
