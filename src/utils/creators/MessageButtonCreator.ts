@@ -357,6 +357,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
 
                                 await i.editReply({
                                     ...options,
+                                    flags: undefined,
                                     files: [attachment],
                                 });
                             },
@@ -669,7 +670,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                 }
 
                 await onPageChange(options, currentPage, ...onPageChangeArgs);
-                await i.editReply(options);
+                await i.editReply({ ...options, flags: undefined });
             },
             async (c) => {
                 const index = (<ActionRowBuilder<ButtonBuilder>[]>(
