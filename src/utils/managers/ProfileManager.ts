@@ -8,6 +8,7 @@ import { PlayerInfo } from "@database/utils/aliceDb/PlayerInfo";
 import { Language } from "@localization/base/Language";
 import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
+import { join } from "path";
 
 /**
  * A manager for osu!droid accounts' profile.
@@ -17,12 +18,41 @@ export abstract class ProfileManager extends Manager {
      * Initializes the manager.
      */
     static override init(): void {
-        registerFont(`${process.cwd()}/files/fonts/Exo-Regular.ttf`, {
-            family: "Exo",
+        const fontPath = join(process.cwd(), "files", "fonts");
+
+        registerFont(join(fontPath, "Torus-Thin.otf"), {
+            family: "Torus",
+            weight: "100",
         });
-        registerFont(`${process.cwd()}/files/fonts/Exo-Bold.ttf`, {
-            family: "Exo",
-            weight: "bold",
+
+        registerFont(join(fontPath, "Torus-Light.otf"), {
+            family: "Torus",
+            weight: "300",
+        });
+
+        registerFont(join(fontPath, "Torus-Regular.otf"), {
+            family: "Torus",
+            weight: "400",
+        });
+
+        registerFont(join(fontPath, "Torus-SemiBold.otf"), {
+            family: "Torus",
+            weight: "600",
+        });
+
+        registerFont(join(fontPath, "Torus-SemiBold.otf"), {
+            family: "Torus",
+            weight: "700",
+        });
+
+        registerFont(join(fontPath, "Torus-Bold.otf"), {
+            family: "Torus",
+            weight: "800",
+        });
+
+        registerFont(join(fontPath, "Torus-Heavy.otf"), {
+            family: "Torus",
+            weight: "900",
         });
     }
 
@@ -60,12 +90,7 @@ export abstract class ProfileManager extends Manager {
             bindInfo =
                 await DatabaseManager.elainaDb.collections.userBind.getFromUid(
                     uid,
-                    {
-                        projection: {
-                            _id: 0,
-                            clan: 1,
-                        },
-                    },
+                    { projection: { _id: 0, clan: 1 } },
                 );
         }
 

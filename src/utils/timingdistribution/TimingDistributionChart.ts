@@ -350,7 +350,7 @@ export class TimingDistributionChart {
         // Draw offset text.
         context.save();
 
-        context.font = "10px bold Exo";
+        context.font = "10px bold Torus";
         context.fillStyle = "#ffffff";
         context.textAlign = "center";
         context.textBaseline = "middle";
@@ -382,7 +382,7 @@ export class TimingDistributionChart {
 
         context.save();
 
-        context.font = "14px bold Exo";
+        context.font = "14px bold Torus";
         context.fillStyle = "#ffffff";
         context.textAlign = "center";
         context.textBaseline = "middle";
@@ -405,7 +405,7 @@ export class TimingDistributionChart {
 
         context.save();
 
-        context.font = "10px bold Exo";
+        context.font = "10px bold Torus";
         context.fillStyle = "#ffffff";
         context.textAlign = "center";
         context.textBaseline = "middle";

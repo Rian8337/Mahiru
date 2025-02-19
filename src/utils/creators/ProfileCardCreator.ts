@@ -254,7 +254,9 @@ export class ProfileCardCreator {
                 this.context.textAlign = "center";
                 this.context.textBaseline = "middle";
                 this.context.font =
-                    this.detailed || this.template ? "18px Exo" : "16px Exo";
+                    this.detailed || this.template
+                        ? "18px Torus"
+                        : "16px Torus";
 
                 this.context.fillText(
                     location,
@@ -279,12 +281,12 @@ export class ProfileCardCreator {
 
         this.context.save();
 
-        this.context.globalAlpha = 0.9;
+        this.context.globalAlpha = 0.95;
         this.context.fillStyle = "#cccccc";
         this.context.fillRect(9, 164, 150, 30);
 
         this.context.globalAlpha = 1;
-        this.context.font = "bold 24px Exo";
+        this.context.font = "bold 24px Torus";
         switch (true) {
             case rank === 1:
                 this.context.fillStyle = "#0009cd";
@@ -349,7 +351,7 @@ export class ProfileCardCreator {
         this.context.fillStyle =
             this.playerInfo?.picture_config.textColor ?? "#000000";
         if (this.detailed || this.template) {
-            this.context.font = "19px Exo";
+            this.context.font = "19px Torus";
             this.context.fillText(
                 `${(progress * 100).toFixed(2)}%`,
                 279.5,
@@ -357,7 +359,7 @@ export class ProfileCardCreator {
             );
             this.context.fillText(`Lv${Math.floor(level)}`, 43, 221);
         } else {
-            this.context.font = "16px Exo";
+            this.context.font = "16px Torus";
             this.context.fillText(
                 `${(progress * 100).toFixed(2)}%`,
                 348.5,
@@ -381,8 +383,8 @@ export class ProfileCardCreator {
         this.context.fillStyle = "#000000";
         this.context.font =
             this.detailed || this.template
-                ? "bold 25px Exo, sans-serif"
-                : "bold 20px Exo, sans-serif";
+                ? "bold 25px Torus, sans-serif"
+                : "bold 20px Torus, sans-serif";
         this.context.fillText(
             this.player.username,
             x,
@@ -397,7 +399,7 @@ export class ProfileCardCreator {
         };
 
         this.context.font =
-            this.detailed || this.template ? "18px Exo" : "16px Exo";
+            this.detailed || this.template ? "18px Torus" : "16px Torus";
         this.context.fillText(
             `${this.localization.getTranslation(
                 "totalScore",
@@ -530,7 +532,7 @@ export class ProfileCardCreator {
 
         this.context.stroke();
 
-        this.context.font = "bold 12px Exo";
+        this.context.font = "bold 12px Torus";
         this.context.textAlign = "center";
         this.context.textBaseline = "middle";
 
@@ -561,7 +563,7 @@ export class ProfileCardCreator {
 
         this.context.drawImage(coinImage, 15, 255, 50, 50);
 
-        this.context.font = "18px Exo";
+        this.context.font = "18px Torus";
         this.context.textBaseline = "middle";
 
         this.context.fillText(

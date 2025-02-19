@@ -214,7 +214,7 @@ export class MissInformation {
         context.fillRect(0, 0, this.canvas.width, this.canvas.height);
         context.restore();
 
-        context.font = "28px Exo";
+        context.font = "28px Torus";
         context.textBaseline = "middle";
         context.fillText(
             `${this.metadata.artist} - ${this.metadata.title} [${this.metadata.version}]`,
@@ -489,7 +489,7 @@ export class MissInformation {
 
         // Finally, draw the index of the object.
         context.fillStyle = "#000000";
-        context.font = `bold ${Math.ceil(radius / 1.25)}px Exo`;
+        context.font = `bold ${Math.ceil(radius / 1.25)}px Torus`;
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillText(
