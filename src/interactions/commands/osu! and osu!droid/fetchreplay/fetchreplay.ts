@@ -183,6 +183,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     const json: ExportedReplayJSONV2 = {
         version: 2,
+        //@ts-expect-error: This is wrong. `perfect` should not exist in v2 replay.
         replaydata: {
             filename: `${data.folderName}\\/${data.fileName}`,
             playername: data.isReplayV3() ? data.playerName : username,
