@@ -491,12 +491,22 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
             // Misses and 300s have been handled. Now 50s and 100s.
             // Start with slider head first.
-            addSliderNestedResult(
-                object.nestedHitObjects[0],
-                -simulatedHitWindow50 <= hitAccuracy &&
-                    hitAccuracy <=
-                        Math.min(simulatedHitWindow50, object.duration),
-            );
+            if (
+                replay.data.replayVersion >= 6 ||
+                simulatedHitWindow50 <= object.duration
+            ) {
+                addSliderNestedResult(
+                    object.nestedHitObjects[0],
+                    -simulatedHitWindow50 <= hitAccuracy &&
+                        hitAccuracy <= simulatedHitWindow50,
+                );
+            } else if (hitAccuracy <= object.duration) {
+                // In replays older than version 6, when the 50 hit window is longer than the duration
+                // of the slider, the slider head is considered to *not* exist when it was not hit until
+                // the slider is over.
+                // It is a very weird behavior, but that's what it actually was...
+                addSliderNestedResult(object.nestedHitObjects[0], true);
+            }
 
             // Then, handle the slider ticks and repeats.
             for (let j = 1; j < object.nestedHitObjects.length - 1; ++j) {
