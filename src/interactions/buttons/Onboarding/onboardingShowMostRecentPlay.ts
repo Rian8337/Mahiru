@@ -129,6 +129,9 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
                 options,
                 beatmapInfo.beatmap,
                 replay.data,
+                score instanceof Score
+                    ? score.mods
+                    : DroidHelper.parseMods(score.mode).mods,
             );
         } else {
             InteractionHelper.reply(interaction, options);

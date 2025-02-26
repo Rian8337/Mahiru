@@ -245,6 +245,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             options,
             beatmapInfo.beatmap,
             replay.data,
+            score instanceof Score || score instanceof RecentPlay
+                ? score.mods
+                : DroidHelper.parseMods(score.mode).mods,
         );
     } else {
         InteractionHelper.reply(interaction, options);

@@ -11,7 +11,7 @@ import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { GuildMember } from "discord.js";
-import { Player } from "@rian8337/osu-droid-utilities";
+import { Player, Score } from "@rian8337/osu-droid-utilities";
 import { CompareLocalization } from "@localization/interactions/commands/osu! and osu!droid/compare/CompareLocalization";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
@@ -192,6 +192,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             options,
             beatmapInfo.beatmap,
             replay.data,
+            score instanceof Score
+                ? score.mods
+                : DroidHelper.parseMods(score.mode).mods,
         );
     } else {
         InteractionHelper.reply(interaction, options);

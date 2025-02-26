@@ -15,6 +15,7 @@ import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
+import { Score } from "@rian8337/osu-droid-utilities";
 
 export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
     const localization = new CompareScoreLocalization(
@@ -147,6 +148,9 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         options,
         beatmapInfo.beatmap,
         replay.data,
+        score instanceof Score
+            ? score.mods
+            : DroidHelper.parseMods(score.mode).mods,
     );
 };
 
