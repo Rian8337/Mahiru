@@ -138,10 +138,8 @@ export class TimingDistributionChart {
 
             if (
                 object instanceof Slider &&
-                !(
-                    -mehWindow > objectData.accuracy ||
-                    objectData.accuracy > Math.min(mehWindow, object.duration)
-                )
+                (-mehWindow > objectData.accuracy ||
+                    objectData.accuracy > Math.min(mehWindow, object.duration))
             ) {
                 continue;
             }
