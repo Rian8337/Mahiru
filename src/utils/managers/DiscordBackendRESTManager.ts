@@ -16,16 +16,16 @@ export abstract class DiscordBackendRESTManager extends RESTManager {
      * @param userId The ID of the user.
      */
     static updateMetadata(userId: string): Promise<RequestResponse> {
+        const formData = new FormData();
+        formData.append("userId", userId);
+        formData.append("key", process.env.DISCORD_OAUTH_BACKEND_INTERNAL_KEY!);
+
         return this.request(`${this.endpoint}update-metadata`, {
             method: "POST",
-            body: {
-                userId: userId,
-                key: process.env.DISCORD_OAUTH_BACKEND_INTERNAL_KEY,
-            },
+            body: formData,
             headers: {
                 "Content-Type": "application/json",
             },
-            json: true,
         });
     }
 }

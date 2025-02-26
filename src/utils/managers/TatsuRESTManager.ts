@@ -1,6 +1,5 @@
 import { TatsuAPIGuildMemberRanking } from "@structures/utils/TatsuAPIGuildMemberRanking";
 import { Snowflake } from "discord.js";
-import { RequestResponse } from "@rian8337/osu-base";
 import { RESTManager } from "./RESTManager";
 
 /**
@@ -18,11 +17,11 @@ export abstract class TatsuRESTManager extends RESTManager {
         guildId: Snowflake,
         userId: Snowflake,
     ): Promise<number | null> {
-        const result: RequestResponse = await this.request(
+        const result = await this.request(
             `https://api.tatsu.gg/v1/guilds/${guildId}/rankings/members/${userId}/all`,
             {
                 headers: {
-                    Authorization: process.env.TATSU_API_KEY,
+                    Authorization: process.env.TATSU_API_KEY!,
                 },
             },
         );
