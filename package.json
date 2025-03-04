@@ -80,32 +80,5 @@
     "@localization": "dist/localization",
     "@structures": "dist/structures",
     "@utils": "dist/utils"
-  },
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "es2021": true,
-      "node": true
-    },
-    "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended"
-    ],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "ecmaVersion": 2022,
-      "sourceType": "module"
-    },
-    "plugins": [
-      "@typescript-eslint"
-    ],
-    "rules": {
-      "@typescript-eslint/no-inferrable-types": "off",
-      "@typescript-eslint/no-non-null-assertion": "off",
-      "no-prototype-builtins": "off"
-    }
-  },
-  "prettier": {
-    "tabWidth": 4
   }
 }
