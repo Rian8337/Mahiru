@@ -46,29 +46,24 @@ export abstract class PunishmentManager extends Manager {
      */
     static async userCanTimeout(
         member: GuildMember,
-        duration: number,
+        duration: number
     ): Promise<boolean> {
         if (member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
             return true;
         }
 
-        const guildConfig: GuildPunishmentConfig | null =
+        const guildConfig =
             await DatabaseManager.aliceDb.collections.guildPunishmentConfig.getGuildConfig(
-                member.guild,
+                member.guild
             );
 
         if (!guildConfig) {
             return false;
         }
 
-        const allowedTimeoutRoles: Collection<
-            Snowflake,
-            RoleTimeoutPermission
-        > = guildConfig.allowedTimeoutRoles;
+        let maxDuration = Number.NEGATIVE_INFINITY;
 
-        let maxDuration: number = Number.NEGATIVE_INFINITY;
-
-        for (const allowedTimeoutRole of allowedTimeoutRoles.values()) {
+        for (const allowedTimeoutRole of guildConfig.allowedTimeoutRoles.values()) {
             if (!member.roles.cache.has(allowedTimeoutRole.id)) {
                 continue;
             }
@@ -102,9 +97,9 @@ export abstract class PunishmentManager extends Manager {
             return true;
         }
 
-        const guildConfig: GuildPunishmentConfig | null =
+        const guildConfig =
             await DatabaseManager.aliceDb.collections.guildPunishmentConfig.getGuildConfig(
-                member.guild,
+                member.guild
             );
 
         if (!guildConfig) {
@@ -120,7 +115,7 @@ export abstract class PunishmentManager extends Manager {
      * @param language The language to localize.
      */
     protected static getPunishmentManagerLocalization(
-        language: Language,
+        language: Language
     ): PunishmentManagerLocalization {
         return new PunishmentManagerLocalization(language);
     }
