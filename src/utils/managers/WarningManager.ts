@@ -47,56 +47,56 @@ export abstract class WarningManager extends PunishmentManager {
         points: number,
         duration: number,
         reason: string,
-        channelId: Snowflake = interaction.channelId!,
+        channelId: Snowflake = interaction.channelId!
     ): Promise<OperationResult> {
         if (!interaction.channel?.isSendable()) {
             return this.createOperationResult(
                 false,
-                "The channel is not sendable.",
+                "The channel is not sendable."
             );
         }
 
         const localization = this.getLocalization(
-            CommandHelper.getLocale(interaction),
+            CommandHelper.getLocale(interaction)
         );
 
         if (await this.userIsImmune(member)) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("userIsImmune"),
+                localization.getTranslation("userIsImmune")
             );
         }
 
         if (isNaN(duration)) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("invalidDuration"),
+                localization.getTranslation("invalidDuration")
             );
         }
 
         if (!NumberHelper.isNumberInRange(duration, 10800, 28 * 86400, true)) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("durationOutOfRange"),
+                localization.getTranslation("durationOutOfRange")
             );
         }
 
         if (!(await this.userCanWarn(<GuildMember>interaction.member))) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("notEnoughPermissionToWarn"),
+                localization.getTranslation("notEnoughPermissionToWarn")
             );
         }
 
         if (reason.length > 1500) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("reasonTooLong"),
+                localization.getTranslation("reasonTooLong")
             );
         }
 
         const guildConfig = await this.punishmentDb.getGuildConfig(
-            member.guild,
+            member.guild
         );
 
         const punishmentManagerLocalization =
@@ -106,8 +106,8 @@ export abstract class WarningManager extends PunishmentManager {
             return this.createOperationResult(
                 false,
                 punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotFoundReject,
-                ),
+                    this.logChannelNotFoundReject
+                )
             );
         }
 
@@ -117,13 +117,13 @@ export abstract class WarningManager extends PunishmentManager {
             return this.createOperationResult(
                 false,
                 punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotValidReject,
-                ),
+                    this.logChannelNotValidReject
+                )
             );
         }
 
         const warningId = await this.warningDb.getNewGlobalWarningId(
-            member.guild.id,
+            member.guild.id
         );
 
         const logLocalization = new WarningManagerLocalization("en");
@@ -140,7 +140,7 @@ export abstract class WarningManager extends PunishmentManager {
                 } | ${logLocalization.getTranslation("userId")}: ${
                     member.id
                 } | ${logLocalization.getTranslation(
-                    "channelId",
+                    "channelId"
                 )}: ${channelId}`,
             })
             .setTimestamp(new Date())
@@ -148,22 +148,22 @@ export abstract class WarningManager extends PunishmentManager {
                 `${bold(
                     `${member} ${StringHelper.formatString(
                         logLocalization.getTranslation("inChannel"),
-                        channelMention(channelId),
+                        channelMention(channelId)
                     )}: ${DateTimeFormatHelper.secondsToDHMS(
                         duration,
-                        logLocalization.language,
-                    )}`,
+                        logLocalization.language
+                    )}`
                 )}\n` +
                     `${bold(
-                        `${logLocalization.getTranslation("points")}: ${points}`,
+                        `${logLocalization.getTranslation("points")}: ${points}`
                     )}\n\n` +
                     `=========================\n\n` +
                     `${bold(logLocalization.getTranslation("reason"))}:\n` +
-                    reason,
+                    reason
             );
 
         const userLocalization = this.getLocalization(
-            CommandHelper.getUserPreferredLocale(member.id),
+            CommandHelper.getUserPreferredLocale(member.id)
         );
 
         const userWarningEmbed = new EmbedBuilder()
@@ -178,7 +178,7 @@ export abstract class WarningManager extends PunishmentManager {
                 } | ${userLocalization.getTranslation("userId")}: ${
                     member.id
                 } | ${userLocalization.getTranslation(
-                    "channelId",
+                    "channelId"
                 )}: ${channelId}`,
             })
             .setTimestamp(new Date())
@@ -186,20 +186,20 @@ export abstract class WarningManager extends PunishmentManager {
                 `${bold(
                     `${member} ${StringHelper.formatString(
                         userLocalization.getTranslation("inChannel"),
-                        channelMention(channelId),
+                        channelMention(channelId)
                     )}: ${DateTimeFormatHelper.secondsToDHMS(
                         duration,
-                        userLocalization.language,
-                    )}`,
+                        userLocalization.language
+                    )}`
                 )}\n\n` +
                     `${bold(
                         `${userLocalization.getTranslation(
-                            "points",
-                        )}: ${points}`,
+                            "points"
+                        )}: ${points}`
                     )}\n\n` +
                     `=========================\n\n` +
                     `${bold(userLocalization.getTranslation("reason"))}:\n` +
-                    reason,
+                    reason
             );
 
         const currentTime = Math.floor(Date.now() / 1000);
@@ -222,16 +222,16 @@ export abstract class WarningManager extends PunishmentManager {
                     member,
                     StringHelper.formatString(
                         userLocalization.getTranslation(
-                            "warnIssueUserNotification",
+                            "warnIssueUserNotification"
                         ),
-                        reason,
+                        reason
                     ),
-                    userWarningEmbed,
+                    userWarningEmbed
                 );
             } catch {
                 interaction.channel.send({
                     content: MessageCreator.createWarn(
-                        "A user has been warned, but their DMs are locked.",
+                        "A user has been warned, but their DMs are locked."
                     ),
                 });
             }
@@ -252,27 +252,27 @@ export abstract class WarningManager extends PunishmentManager {
     static async unissue(
         interaction: RepliableInteraction<"cached">,
         warning: Warning,
-        reason: string,
+        reason: string
     ): Promise<OperationResult> {
         if (!interaction.inCachedGuild()) {
             return this.createOperationResult(false, "User is not in a guild.");
         }
 
         const localization = this.getLocalization(
-            CommandHelper.getLocale(interaction),
+            CommandHelper.getLocale(interaction)
         );
 
         if (reason.length > 1500) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("reasonTooLong"),
+                localization.getTranslation("reasonTooLong")
             );
         }
 
         if (!(await this.userCanWarn(<GuildMember>interaction.member))) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("notEnoughPermissionToWarn"),
+                localization.getTranslation("notEnoughPermissionToWarn")
             );
         }
 
@@ -283,12 +283,12 @@ export abstract class WarningManager extends PunishmentManager {
         if (!member) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("userNotFoundInServer"),
+                localization.getTranslation("userNotFoundInServer")
             );
         }
 
         const guildConfig = await this.punishmentDb.getGuildConfig(
-            member.guild,
+            member.guild
         );
 
         const punishmentManagerLocalization =
@@ -298,8 +298,8 @@ export abstract class WarningManager extends PunishmentManager {
             return this.createOperationResult(
                 false,
                 punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotFoundReject,
-                ),
+                    this.logChannelNotFoundReject
+                )
             );
         }
 
@@ -309,8 +309,8 @@ export abstract class WarningManager extends PunishmentManager {
             return this.createOperationResult(
                 false,
                 punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotValidReject,
-                ),
+                    this.logChannelNotValidReject
+                )
             );
         }
 
@@ -326,7 +326,7 @@ export abstract class WarningManager extends PunishmentManager {
                 } | ${localization.getTranslation("userId")}: ${
                     member.id
                 } | ${localization.getTranslation(
-                    "channelId",
+                    "channelId"
                 )}: ${interaction.channelId!}`,
             })
             .setTimestamp(new Date())
@@ -334,11 +334,11 @@ export abstract class WarningManager extends PunishmentManager {
                 `${bold(
                     `${StringHelper.formatString(
                         localization.getTranslation("warningIssueInChannel"),
-                        channelMention(warning.channelId),
-                    )}`,
+                        channelMention(warning.channelId)
+                    )}`
                 )}\n\n` +
                     `${bold(
-                        localization.getTranslation("warnedUser"),
+                        localization.getTranslation("warnedUser")
                     )}: ${userMention(warning.discordId)} (${
                         warning.discordId
                     })\n` +
@@ -350,13 +350,13 @@ export abstract class WarningManager extends PunishmentManager {
                     }\n\n` +
                     `=========================\n\n` +
                     `${bold(
-                        localization.getTranslation("warningUnissueReason"),
+                        localization.getTranslation("warningUnissueReason")
                     )}:\n` +
-                    reason,
+                    reason
             );
 
         const userLocalization = this.getLocalization(
-            CommandHelper.getUserPreferredLocale(member.id),
+            CommandHelper.getUserPreferredLocale(member.id)
         );
 
         const userWarningEmbed = new EmbedBuilder()
@@ -371,7 +371,7 @@ export abstract class WarningManager extends PunishmentManager {
                 } | ${userLocalization.getTranslation("userId")}: ${
                     member.id
                 } | ${userLocalization.getTranslation(
-                    "channelId",
+                    "channelId"
                 )}: ${interaction.channelId!}`,
             })
             .setTimestamp(new Date())
@@ -379,22 +379,22 @@ export abstract class WarningManager extends PunishmentManager {
                 `${bold(
                     `${StringHelper.formatString(
                         userLocalization.getTranslation(
-                            "warningIssueInChannel",
+                            "warningIssueInChannel"
                         ),
-                        channelMention(warning.channelId),
-                    )}`,
+                        channelMention(warning.channelId)
+                    )}`
                 )}\n\n` +
                     `${bold(userLocalization.getTranslation("points"))}: ${
                         warning.points
                     }\n` +
                     `${bold(
-                        userLocalization.getTranslation("warningReason"),
+                        userLocalization.getTranslation("warningReason")
                     )}: ${warning.reason}\n` +
                     `=========================\n\n` +
                     `${bold(
-                        userLocalization.getTranslation("warningUnissueReason"),
+                        userLocalization.getTranslation("warningUnissueReason")
                     )}:\n` +
-                    reason,
+                    reason
             );
 
         const result = await this.warningDb.deleteOne({
@@ -407,11 +407,11 @@ export abstract class WarningManager extends PunishmentManager {
                     member,
                     StringHelper.formatString(
                         localization.getTranslation(
-                            "warnUnissueUserNotification",
+                            "warnUnissueUserNotification"
                         ),
-                        warning.globalId,
+                        warning.globalId
                     ),
-                    userWarningEmbed,
+                    userWarningEmbed
                 );
                 // eslint-disable-next-line no-empty
             } catch {}
@@ -435,14 +435,14 @@ export abstract class WarningManager extends PunishmentManager {
         interaction: RepliableInteraction<"cached">,
         fromUserId: Snowflake,
         toUserId: Snowflake,
-        reason?: string | null,
+        reason?: string | null
     ): Promise<OperationResult> {
         const localization = this.getLocalization(
-            CommandHelper.getLocale(interaction),
+            CommandHelper.getLocale(interaction)
         );
 
         const guildConfig = await this.punishmentDb.getGuildConfig(
-            interaction.guildId,
+            interaction.guildId
         );
 
         const punishmentManagerLocalization =
@@ -452,21 +452,21 @@ export abstract class WarningManager extends PunishmentManager {
             return this.createOperationResult(
                 false,
                 punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotFoundReject,
-                ),
+                    this.logChannelNotFoundReject
+                )
             );
         }
 
         const logChannel = await guildConfig.getGuildLogChannel(
-            interaction.guild,
+            interaction.guild
         );
 
         if (!logChannel?.isTextBased()) {
             return this.createOperationResult(
                 false,
                 punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotValidReject,
-                ),
+                    this.logChannelNotValidReject
+                )
             );
         }
 
@@ -478,21 +478,21 @@ export abstract class WarningManager extends PunishmentManager {
             .setTitle(localization.getTranslation("warningTransferred"))
             .setDescription(
                 `${bold(
-                    localization.getTranslation("fromUser"),
+                    localization.getTranslation("fromUser")
                 )}: ${userMention(fromUserId)} (${fromUserId})\n` +
                     `${bold(
-                        localization.getTranslation("toUser"),
+                        localization.getTranslation("toUser")
                     )}: ${userMention(toUserId)} (${toUserId})\n\n` +
                     `=========================\n\n` +
                     `${bold(localization.getTranslation("reason"))}:\n` +
-                    reason,
+                    reason
             );
 
         const result =
             await DatabaseManager.aliceDb.collections.userWarning.transferWarnings(
                 interaction.guildId!,
                 fromUserId,
-                toUserId,
+                toUserId
             );
 
         if (result.success) {
@@ -522,7 +522,7 @@ export abstract class WarningManager extends PunishmentManager {
     private static async notifyMember(
         member: GuildMember,
         content: string,
-        embed: EmbedBuilder,
+        embed: EmbedBuilder
     ): Promise<void> {
         await member.send({
             content: MessageCreator.createWarn(content),
@@ -536,7 +536,7 @@ export abstract class WarningManager extends PunishmentManager {
      * @param language The language to localize to.
      */
     private static getLocalization(
-        language: Language,
+        language: Language
     ): WarningManagerLocalization {
         return new WarningManagerLocalization(language);
     }
