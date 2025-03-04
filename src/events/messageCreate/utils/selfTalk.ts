@@ -1,4 +1,4 @@
-import { Attachment, Message, TextChannel } from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import { Config } from "@core/Config";
 import { EventUtil } from "structures/core/EventUtil";
 import { Constants } from "@core/Constants";
@@ -11,7 +11,7 @@ export const run: EventUtil["run"] = async (client, message: Message) => {
         return;
     }
 
-    const attachment: Attachment | undefined = message.attachments.first();
+    const attachment = message.attachments.first();
 
     (<TextChannel>await client.channels.fetch(Constants.mainServer)).send({
         content: message.content,

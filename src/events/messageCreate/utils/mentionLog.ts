@@ -40,7 +40,7 @@ export const run: EventUtil["run"] = async (client, message: Message) => {
         mentionedUsers.push(user);
     }
 
-    const embed: EmbedBuilder = EmbedCreator.createNormalEmbed({
+    const embed = EmbedCreator.createNormalEmbed({
         author: message.author,
         color: "#00cb16",
         footerText: `Author ID: ${message.author.id} | Channel ID: ${message.channel.id} | Message ID: ${message.id}`,

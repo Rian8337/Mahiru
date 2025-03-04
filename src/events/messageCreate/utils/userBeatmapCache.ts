@@ -3,7 +3,6 @@ import { EventUtil } from "structures/core/EventUtil";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { Message } from "discord.js";
-import { MapInfo } from "@rian8337/osu-base";
 
 export const run: EventUtil["run"] = async (_, message: Message) => {
     if (Config.maintenance || message.author.bot) {
@@ -19,13 +18,12 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             continue;
         }
 
-        const beatmapID: number = BeatmapManager.getBeatmapID(arg)[0];
+        const beatmapID = BeatmapManager.getBeatmapID(arg)[0];
 
         if (beatmapID) {
-            const beatmapInfo: MapInfo<false> | null =
-                await BeatmapManager.getBeatmap(beatmapID, {
-                    checkFile: false,
-                });
+            const beatmapInfo = await BeatmapManager.getBeatmap(beatmapID, {
+                checkFile: false,
+            });
 
             if (!beatmapInfo) {
                 continue;

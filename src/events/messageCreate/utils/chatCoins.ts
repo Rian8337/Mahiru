@@ -53,7 +53,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
         coinCooldown.delete(message.author.id);
     }, 10000);
 
-    const playerInfo: PlayerInfo | null =
+    const playerInfo =
         await DatabaseManager.aliceDb.collections.playerInfo.getFromUser(
             message.author,
             {

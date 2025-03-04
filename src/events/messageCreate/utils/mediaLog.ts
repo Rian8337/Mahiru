@@ -30,7 +30,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             continue;
         }
 
-        const embed: EmbedBuilder = EmbedCreator.createNormalEmbed({
+        const embed = EmbedCreator.createNormalEmbed({
             author: message.author,
             color: "#cb8900",
             footerText: `Author ID: ${message.author.id} | Channel ID: ${message.channel.id} | Message ID: ${message.id}`,
