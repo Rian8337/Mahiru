@@ -14,6 +14,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         CommandHelper.getLocale(interaction)
     );
 
+    await InteractionHelper.deferReply(interaction);
+
     const guildConfig =
         await DatabaseManager.aliceDb.collections.guildPunishmentConfig.getGuildConfig(
             interaction.guild,
