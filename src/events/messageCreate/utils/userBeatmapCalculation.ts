@@ -130,7 +130,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                 calcEmbedOptions.content = string;
             }
 
-            message.channel.send(calcEmbedOptions);
+            message.reply(calcEmbedOptions);
         } else if (beatmapsetId) {
             // Retrieve beatmap file one by one to not overcreate requests
             const beatmapInformations = await BeatmapManager.getBeatmaps(
@@ -262,7 +262,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                 });
             }
 
-            message.channel.send(embedOptions);
+            message.reply(embedOptions);
         }
     }
 };

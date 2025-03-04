@@ -92,7 +92,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
 
                 embed.spliceFields(0, embed.data.fields!.length);
 
-                message.channel.send(embedOptions);
+                message.reply(embedOptions);
             } else if (beatmapsetID) {
                 // Retrieve beatmap file one by one to not overcreate requests
                 const beatmapInformations = await BeatmapManager.getBeatmaps(
@@ -211,7 +211,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                     });
                 }
 
-                message.channel.send(embedOptions);
+                message.reply(embedOptions);
             }
 
             ++validCount;

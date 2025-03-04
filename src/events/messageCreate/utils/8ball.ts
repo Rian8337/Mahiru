@@ -98,7 +98,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
         `${bold("Q")}: ${message.content}\n${bold("A")}: ${answer}`,
     );
 
-    message.channel.send({
+    message.reply({
         embeds: [embed],
     });
 
