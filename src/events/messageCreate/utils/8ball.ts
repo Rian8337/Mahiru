@@ -3,21 +3,23 @@ import { Config } from "@core/Config";
 import { DatabaseManager } from "@database/DatabaseManager";
 import { EightBallResponseType } from "@enums/utils/EightBallResponseType";
 import { EventUtil } from "structures/core/EventUtil";
-import { DatabaseEightBallFilter } from "structures/database/aliceDb/DatabaseEightBallFilter";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
+import { EightBallFilter } from "@database/utils/aliceDb/EightBallFilter";
+
+let filter: EightBallFilter | undefined;
 
 /**
  * Gets the response type to a message.
  *
  * @param message The message to get the response type of.
- * @param filter The filter for 8ball.
  * @returns The response type.
  */
-function getResponseType(
-    message: Message,
-    filter: DatabaseEightBallFilter,
-): EightBallResponseType {
+function getResponseType(message: Message): EightBallResponseType {
+    if (!filter) {
+        return EightBallResponseType.noAnswer;
+    }
+
     function containsWord(words: string[]): boolean {
         return words.some(
             (w) => message.content.search(new RegExp(w, "i")) !== -1,
@@ -60,17 +62,14 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
         return;
     }
 
-    const res = (
-        await DatabaseManager.aliceDb.collections.eightBallFilter.get("name", {
-            name: "response",
-        })
-    ).first()!;
+    filter ??=
+        (await DatabaseManager.aliceDb.collections.eightBallFilter.getOne())!;
 
     const embed = EmbedCreator.createNormalEmbed({
         author: message.author,
         color: message.member?.displayColor,
     });
-    const responseType = getResponseType(message, res);
+    const responseType = getResponseType(message);
 
     let answer = "";
     switch (responseType) {
@@ -91,7 +90,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             break;
 
         default:
-            answer = ArrayHelper.getRandomArrayElement(res.response);
+            answer = ArrayHelper.getRandomArrayElement(filter.response);
     }
 
     if (!Config.botOwners.includes(message.author.id) && Math.random() < 0.1) {
