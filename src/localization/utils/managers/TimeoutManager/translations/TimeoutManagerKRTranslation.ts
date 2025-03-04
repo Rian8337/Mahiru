@@ -13,6 +13,8 @@ export class TimeoutManagerKRTranslation extends Translation<TimeoutManagerStrin
             "타임아웃 지속시간은 최소 30초에서 28일(4주)까지만 가능",
         notEnoughPermissionToTimeout:
             "%s 동안 타임아웃을 적용시킬 권한이 부족함",
+        permanentTimeoutRoleNotFound:
+            "영구 타임아웃 역할을 찾을 수 없음 또는 설정되지 않음",
         timeoutReasonTooLong: "타임아웃 이유가 너무 김 - 최대 1500자",
         timeoutExecuted: "타임아웃 실행됨",
         untimeoutExecuted: "타임아웃 해제 실행됨",

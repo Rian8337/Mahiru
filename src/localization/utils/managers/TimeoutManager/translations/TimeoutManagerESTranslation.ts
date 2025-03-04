@@ -13,6 +13,8 @@ export class TimeoutManagerESTranslation extends Translation<TimeoutManagerStrin
             "la duración de la restricción tiene un rango entre 30 segundos y 28 dias (4 semanas)",
         notEnoughPermissionToTimeout:
             "sin permisos suficiente para poder restringir por %s",
+        permanentTimeoutRoleNotFound:
+            "el rol de restricción permanente no se encontró o no esta configurado",
         timeoutReasonTooLong:
             "la razon de la restricción es muy largo; solo una 1500 caracteres máximo",
         timeoutExecuted: "Restricción satisfactoria",

@@ -12,6 +12,8 @@ export class TimeoutManagerENTranslation extends Translation<TimeoutManagerStrin
         timeoutDurationOutOfRange:
             "timeout duration must be between 30 seconds and 28 days (4 weeks)",
         notEnoughPermissionToTimeout: "not enough permission to timeout for %s",
+        permanentTimeoutRoleNotFound:
+            "permanent timeout role not found or not configured",
         timeoutReasonTooLong:
             "timeout reason is too long; maximum is 1500 characters",
         timeoutExecuted: "Timeout executed",

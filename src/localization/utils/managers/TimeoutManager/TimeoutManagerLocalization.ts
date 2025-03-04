@@ -2,7 +2,6 @@ import { Localization } from "@localization/base/Localization";
 import { Translations } from "@localization/base/Translations";
 import { TimeoutManagerENTranslation } from "./translations/TimeoutManagerENTranslation";
 import { TimeoutManagerESTranslation } from "./translations/TimeoutManagerESTranslation";
-import { TimeoutManagerIDTranslation } from "./translations/TimeoutManagerIDTranslation";
 import { TimeoutManagerKRTranslation } from "./translations/TimeoutManagerKRTranslation";
 
 export interface TimeoutManagerStrings {
@@ -11,6 +10,7 @@ export interface TimeoutManagerStrings {
     readonly invalidTimeoutDuration: string;
     readonly timeoutDurationOutOfRange: string;
     readonly notEnoughPermissionToTimeout: string;
+    readonly permanentTimeoutRoleNotFound: string;
     readonly timeoutReasonTooLong: string;
     readonly timeoutExecuted: string;
     readonly untimeoutExecuted: string;
@@ -33,7 +33,6 @@ export class TimeoutManagerLocalization extends Localization<TimeoutManagerStrin
     > = {
         en: new TimeoutManagerENTranslation(),
         kr: new TimeoutManagerKRTranslation(),
-        id: new TimeoutManagerIDTranslation(),
         es: new TimeoutManagerESTranslation(),
     };
 }

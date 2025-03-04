@@ -5,7 +5,13 @@ import { RoleTimeoutPermission } from "structures/moderation/RoleTimeoutPermissi
 import { Manager } from "@utils/base/Manager";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
 import { ObjectId } from "bson";
-import { Collection, Guild, GuildBasedChannel, Snowflake } from "discord.js";
+import {
+    Collection,
+    Guild,
+    GuildBasedChannel,
+    Role,
+    Snowflake,
+} from "discord.js";
 
 /**
  * Represents a guild's punishment configuration.
@@ -46,7 +52,7 @@ export class GuildPunishmentConfig extends Manager {
 
     constructor(
         data: DatabaseGuildPunishmentConfig = DatabaseManager.aliceDb
-            ?.collections.guildPunishmentConfig.defaultDocument ?? {},
+            ?.collections.guildPunishmentConfig.defaultDocument ?? {}
     ) {
         super();
 
@@ -55,7 +61,7 @@ export class GuildPunishmentConfig extends Manager {
         this.logChannel = data.logChannel;
         this.allowedTimeoutRoles = ArrayHelper.arrayToCollection(
             data.allowedTimeoutRoles ?? [],
-            "id",
+            "id"
         );
         this.immuneTimeoutRoles = data.immuneTimeoutRoles ?? [];
         this.permanentTimeoutRole = data.permanentTimeoutRole;
@@ -72,13 +78,27 @@ export class GuildPunishmentConfig extends Manager {
     }
 
     /**
+     * Obtains the permanent timeout role for this guild.
+     *
+     * @param guild The guild instance.
+     * @returns The permanent timeout role, `null` if not found.
+     */
+    getPermanentTimeoutRole(guild: Guild): Promise<Role | null> {
+        if (!this.permanentTimeoutRole) {
+            return Promise.resolve(null);
+        }
+
+        return guild.roles.fetch(this.permanentTimeoutRole);
+    }
+
+    /**
      * Sets the permanent timeout role for this guild.
      *
      * @param id The ID of the role to set as the permanent timeout role. Set to `null` to remove the permanent timeout role.
      * @returns An object containing information about the operation.
      */
     async setPermanentTimeoutRole(
-        id: Snowflake | null,
+        id: Snowflake | null
     ): Promise<OperationResult> {
         if (this.permanentTimeoutRole === (id ?? undefined)) {
             return this.createOperationResult(true);
@@ -87,12 +107,12 @@ export class GuildPunishmentConfig extends Manager {
         if (id) {
             return this.db.updateOne(
                 { guildID: this.guildID },
-                { $set: { permanentTimeoutRole: id } },
+                { $set: { permanentTimeoutRole: id } }
             );
         } else {
             return this.db.updateOne(
                 { guildID: this.guildID },
-                { $unset: { permanentTimeoutRole: "" } },
+                { $unset: { permanentTimeoutRole: "" } }
             );
         }
     }
@@ -116,7 +136,7 @@ export class GuildPunishmentConfig extends Manager {
                 $addToSet: {
                     immuneTimeoutRoles: roleId,
                 },
-            },
+            }
         );
     }
 
@@ -141,7 +161,7 @@ export class GuildPunishmentConfig extends Manager {
                 $pull: {
                     immuneTimeoutRoles: roleId,
                 },
-            },
+            }
         );
     }
 
@@ -153,7 +173,7 @@ export class GuildPunishmentConfig extends Manager {
      */
     async grantTimeoutPermission(
         roleId: Snowflake,
-        maxTime: number,
+        maxTime: number
     ): Promise<OperationResult> {
         const roleTimeoutPermission = this.allowedTimeoutRoles.get(roleId);
 
@@ -169,7 +189,7 @@ export class GuildPunishmentConfig extends Manager {
                 $set: {
                     allowedTimeoutRoles: [...this.allowedTimeoutRoles.values()],
                 },
-            },
+            }
         );
     }
 
@@ -190,7 +210,7 @@ export class GuildPunishmentConfig extends Manager {
                 $set: {
                     allowedTimeoutRoles: [...this.allowedTimeoutRoles.values()],
                 },
-            },
+            }
         );
     }
 }

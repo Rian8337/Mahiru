@@ -70,7 +70,10 @@ export abstract class TimeoutManager extends PunishmentManager {
             );
         }
 
-        if (!NumberHelper.isNumberInRange(duration, 30, 28 * 86400, true)) {
+        if (
+            duration !== Number.POSITIVE_INFINITY &&
+            !NumberHelper.isNumberInRange(duration, 30, 28 * 86400, true)
+        ) {
             return this.createOperationResult(
                 false,
                 localization.getTranslation("timeoutDurationOutOfRange")
@@ -87,7 +90,9 @@ export abstract class TimeoutManager extends PunishmentManager {
                 false,
                 StringHelper.formatString(
                     localization.getTranslation("notEnoughPermissionToTimeout"),
-                    DateTimeFormatHelper.secondsToDHMS(duration, language)
+                    Number.isFinite(duration)
+                        ? DateTimeFormatHelper.secondsToDHMS(duration, language)
+                        : "indefinitely"
                 )
             );
         }
@@ -126,7 +131,18 @@ export abstract class TimeoutManager extends PunishmentManager {
             );
         }
 
-        await member.timeout(duration * 1000, reason);
+        if (Number.isFinite(duration)) {
+            await member.timeout(duration * 1000, reason);
+        } else {
+            if (!guildConfig.permanentTimeoutRole) {
+                return this.createOperationResult(
+                    false,
+                    localization.getTranslation("permanentTimeoutRoleNotFound")
+                );
+            }
+
+            await member.roles.add(guildConfig.permanentTimeoutRole, reason);
+        }
 
         const logLocalization = new TimeoutManagerLocalization("en");
 
@@ -149,10 +165,14 @@ export abstract class TimeoutManager extends PunishmentManager {
                     `${member} ${StringHelper.formatString(
                         logLocalization.getTranslation("inChannel"),
                         channelMention(channelId)
-                    )}: ${DateTimeFormatHelper.secondsToDHMS(
-                        duration,
-                        language
-                    )}`
+                    )}: ${
+                        Number.isFinite(duration)
+                            ? DateTimeFormatHelper.secondsToDHMS(
+                                  duration,
+                                  language
+                              )
+                            : "Indefinite"
+                    }`
                 )}\n\n` +
                     `=========================\n\n` +
                     `${bold(logLocalization.getTranslation("reason"))}:\n` +
@@ -182,10 +202,14 @@ export abstract class TimeoutManager extends PunishmentManager {
                     `${member} ${StringHelper.formatString(
                         userLocalization.getTranslation("inChannel"),
                         channelMention(channelId)
-                    )}: ${DateTimeFormatHelper.secondsToDHMS(
-                        duration,
-                        userLocalization.language
-                    )}`
+                    )}: ${
+                        Number.isFinite(duration)
+                            ? DateTimeFormatHelper.secondsToDHMS(
+                                  duration,
+                                  userLocalization.language
+                              )
+                            : "Indefinite"
+                    }`
                 )}\n\n` +
                     `=========================\n\n` +
                     `${bold(userLocalization.getTranslation("reason"))}:\n` +
