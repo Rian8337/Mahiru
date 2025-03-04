@@ -21,6 +21,14 @@ export class SettingsKRTranslation extends Translation<SettingsStrings> {
             "성공적으로 %s 역할에 타임아웃 권한을 부여했어요.",
         revokeTimeoutPermissionSuccess:
             "성공적으로 %s 역할의 타임아웃 권한을 제거했어요.",
+        setPermanentTimeoutRoleFailed:
+            "죄송해요, 이 서버에 영구 타임아웃 역할을 설정할 수 없었어요: %s.",
+        setPermanentTimeoutRoleSuccess:
+            "성공적으로 이 서버에 영구 타임아웃 역할을 `%s`로 설정했어요.",
+        unsetPermanentTimeoutRoleFailed:
+            "죄송해요, 이 서버에 영구 타임아웃 역할을 제거할 수 없었어요: %s.",
+        unsetPermanentTimeoutRoleSuccess:
+            "성공적으로 이 서버에 영구 타임아웃 역할을 제거했어요.",
         invalidTimeoutPermissionDuration:
             "저기, 적절한 최대 타임아웃 시간을 입력해 주세요!",
         eventNotFound: "죄송해요, 지정하신 이벤트를 찾지 못했어요!",

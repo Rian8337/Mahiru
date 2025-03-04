@@ -21,6 +21,14 @@ export class SettingsENTranslation extends Translation<SettingsStrings> {
             "Successfully granted timeout permission for %s role.",
         revokeTimeoutPermissionSuccess:
             "Successfully revoked timeout permission for %s role.",
+        setPermanentTimeoutRoleFailed:
+            "I'm sorry, I could not set the permanent timeout role for this server: %s.",
+        setPermanentTimeoutRoleSuccess:
+            "Successfully set the permanent timeout role for this server to `%s`.",
+        unsetPermanentTimeoutRoleFailed:
+            "I'm sorry, I could not remove the permanent timeout role for this server: %s.",
+        unsetPermanentTimeoutRoleSuccess:
+            "Successfully removed the permanent timeout role for this server.",
         invalidTimeoutPermissionDuration:
             "Hey, please enter a proper maximum timeout duration!",
         eventNotFound:

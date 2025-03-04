@@ -32,9 +32,17 @@ export class GuildPunishmentConfig extends Manager {
     immuneTimeoutRoles: Snowflake[];
 
     /**
+     * The ID of the role that is the permanent timeout role for the guild.
+     */
+    permanentTimeoutRole?: Snowflake;
+
+    /**
      * The BSON object ID of this document in the database.
      */
     readonly _id?: ObjectId;
+
+    private readonly db =
+        DatabaseManager.aliceDb.collections.guildPunishmentConfig;
 
     constructor(
         data: DatabaseGuildPunishmentConfig = DatabaseManager.aliceDb
@@ -50,6 +58,7 @@ export class GuildPunishmentConfig extends Manager {
             "id",
         );
         this.immuneTimeoutRoles = data.immuneTimeoutRoles ?? [];
+        this.permanentTimeoutRole = data.permanentTimeoutRole;
     }
 
     /**
@@ -60,6 +69,32 @@ export class GuildPunishmentConfig extends Manager {
      */
     getGuildLogChannel(guild: Guild): Promise<GuildBasedChannel | null> {
         return guild.channels.fetch(this.logChannel);
+    }
+
+    /**
+     * Sets the permanent timeout role for this guild.
+     *
+     * @param id The ID of the role to set as the permanent timeout role. Set to `null` to remove the permanent timeout role.
+     * @returns An object containing information about the operation.
+     */
+    async setPermanentTimeoutRole(
+        id: Snowflake | null,
+    ): Promise<OperationResult> {
+        if (this.permanentTimeoutRole === (id ?? undefined)) {
+            return this.createOperationResult(true);
+        }
+
+        if (id) {
+            return this.db.updateOne(
+                { guildID: this.guildID },
+                { $set: { permanentTimeoutRole: id } },
+            );
+        } else {
+            return this.db.updateOne(
+                { guildID: this.guildID },
+                { $unset: { permanentTimeoutRole: "" } },
+            );
+        }
     }
 
     /**
@@ -75,7 +110,7 @@ export class GuildPunishmentConfig extends Manager {
 
         this.immuneTimeoutRoles.push(roleId);
 
-        return DatabaseManager.aliceDb.collections.guildPunishmentConfig.updateOne(
+        return this.db.updateOne(
             { guildID: this.guildID },
             {
                 $addToSet: {
@@ -92,9 +127,7 @@ export class GuildPunishmentConfig extends Manager {
      * @returns An object containing information about the operation.
      */
     async revokeTimeoutImmunity(roleId: Snowflake): Promise<OperationResult> {
-        const index: number = this.immuneTimeoutRoles.findIndex(
-            (r) => r === roleId,
-        );
+        const index = this.immuneTimeoutRoles.findIndex((r) => r === roleId);
 
         if (index === -1) {
             return this.createOperationResult(true);
@@ -102,7 +135,7 @@ export class GuildPunishmentConfig extends Manager {
 
         this.immuneTimeoutRoles.splice(index, 1);
 
-        return DatabaseManager.aliceDb.collections.guildPunishmentConfig.updateOne(
+        return this.db.updateOne(
             { guildID: this.guildID },
             {
                 $pull: {
@@ -122,8 +155,7 @@ export class GuildPunishmentConfig extends Manager {
         roleId: Snowflake,
         maxTime: number,
     ): Promise<OperationResult> {
-        const roleTimeoutPermission: RoleTimeoutPermission | undefined =
-            this.allowedTimeoutRoles.get(roleId);
+        const roleTimeoutPermission = this.allowedTimeoutRoles.get(roleId);
 
         if (roleTimeoutPermission?.maxTime === maxTime) {
             return this.createOperationResult(true);
@@ -131,7 +163,7 @@ export class GuildPunishmentConfig extends Manager {
 
         this.allowedTimeoutRoles.set(roleId, { id: roleId, maxTime: maxTime });
 
-        return DatabaseManager.aliceDb.collections.guildPunishmentConfig.updateOne(
+        return this.db.updateOne(
             { guildID: this.guildID },
             {
                 $set: {
@@ -152,7 +184,7 @@ export class GuildPunishmentConfig extends Manager {
             return this.createOperationResult(true);
         }
 
-        return DatabaseManager.aliceDb.collections.guildPunishmentConfig.updateOne(
+        return this.db.updateOne(
             { guildID: this.guildID },
             {
                 $set: {

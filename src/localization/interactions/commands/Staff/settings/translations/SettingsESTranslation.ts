@@ -21,6 +21,14 @@ export class SettingsESTranslation extends Translation<SettingsStrings> {
             "Permisos para tiempos de espera otorgados correctamente para el rol %s.",
         revokeTimeoutPermissionSuccess:
             "Permisos para tiempos de espera retirados correctamente para el rol %s.",
+        setPermanentTimeoutRoleFailed:
+            "Lo siento, no pude establecer el rol de espera permanente para este servidor: %s.",
+        setPermanentTimeoutRoleSuccess:
+            "Rol de espera permanente establecido correctamente para este servidor a `%s`.",
+        unsetPermanentTimeoutRoleFailed:
+            "Lo siento, no pude retirar el rol de espera permanente para este servidor: %s.",
+        unsetPermanentTimeoutRoleSuccess:
+            "Rol de espera permanente retirado correctamente para este servidor.",
         invalidTimeoutPermissionDuration:
             "Hey, por favor ingresa una duración máxima válida para la restricción!",
         eventNotFound:

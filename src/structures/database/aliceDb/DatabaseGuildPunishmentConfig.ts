@@ -25,4 +25,9 @@ export interface DatabaseGuildPunishmentConfig extends BaseDocument {
      * Roles that cannot be timeouted.
      */
     immuneTimeoutRoles: Snowflake[];
+
+    /**
+     * The ID of the role that is the permanent timeout role for the guild.
+     */
+    permanentTimeoutRole?: Snowflake;
 }

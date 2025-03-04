@@ -356,6 +356,33 @@ export const config: SlashCommand["config"] = {
                 },
             ],
         },
+        {
+            name: "timeoutrole",
+            type: ApplicationCommandOptionType.SubcommandGroup,
+            description:
+                "Customizes the permanent timeout role settings in a server.",
+            options: [
+                {
+                    name: "set",
+                    type: ApplicationCommandOptionType.Subcommand,
+                    description: "Sets the permanent timeout role.",
+                    options: [
+                        {
+                            name: "role",
+                            required: true,
+                            type: ApplicationCommandOptionType.Role,
+                            description:
+                                "The role to set as the permanent timeout role.",
+                        },
+                    ],
+                },
+                {
+                    name: "unset",
+                    type: ApplicationCommandOptionType.Subcommand,
+                    description: "Unsets the permanent timeout role.",
+                },
+            ],
+        },
     ],
     example: [
         {

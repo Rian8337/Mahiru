@@ -13,6 +13,10 @@ export interface SettingsStrings {
     readonly revokeTimeoutImmunitySuccess: string;
     readonly grantTimeoutPermissionSuccess: string;
     readonly revokeTimeoutPermissionSuccess: string;
+    readonly setPermanentTimeoutRoleFailed: string;
+    readonly setPermanentTimeoutRoleSuccess: string;
+    readonly unsetPermanentTimeoutRoleFailed: string;
+    readonly unsetPermanentTimeoutRoleSuccess: string;
     readonly invalidTimeoutPermissionDuration: string;
     readonly eventNotFound: string;
     readonly eventUtilityNotFound: string;
