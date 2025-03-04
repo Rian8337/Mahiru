@@ -27,16 +27,8 @@ export abstract class WarningManager extends PunishmentManager {
     /**
      * The database collection that is responsible for storing warnings.
      */
-    private static warningDb: WarningCollectionManager;
-
-    /**
-     * Initializes this manager.
-     */
-    static override init(): void {
-        this.punishmentDb =
-            DatabaseManager.aliceDb.collections.guildPunishmentConfig;
-
-        this.warningDb = DatabaseManager.aliceDb.collections.userWarning;
+    private static get warningDb(): WarningCollectionManager {
+        return DatabaseManager.aliceDb.collections.userWarning;
     }
 
     /**

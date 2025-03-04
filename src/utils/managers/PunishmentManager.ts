@@ -5,15 +5,8 @@ import {
     PunishmentManagerStrings,
 } from "@localization/utils/managers/PunishmentManager/PunishmentManagerLocalization";
 import { Language } from "@localization/base/Language";
-import {
-    Collection,
-    GuildMember,
-    PermissionsBitField,
-    Snowflake,
-} from "discord.js";
+import { GuildMember, PermissionsBitField } from "discord.js";
 import { DatabaseManager } from "@database/DatabaseManager";
-import { GuildPunishmentConfig } from "@database/utils/aliceDb/GuildPunishmentConfig";
-import { RoleTimeoutPermission } from "structures/moderation/RoleTimeoutPermission";
 
 /**
  * A manager for punishments handed to users.
@@ -23,7 +16,9 @@ export abstract class PunishmentManager extends Manager {
      * The database collection that is responsible for holding guild
      * punishment configurations.
      */
-    protected static punishmentDb: GuildPunishmentConfigCollectionManager;
+    protected static get punishmentDb(): GuildPunishmentConfigCollectionManager {
+        return DatabaseManager.aliceDb.collections.guildPunishmentConfig;
+    }
 
     /**
      * Default rejection message if a server's log channel is not found.

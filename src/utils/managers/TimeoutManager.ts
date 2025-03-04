@@ -27,14 +27,6 @@ import { PunishmentManagerLocalization } from "@localization/utils/managers/Puni
  */
 export abstract class TimeoutManager extends PunishmentManager {
     /**
-     * Initializes the manager.
-     */
-    static override init(): void {
-        this.punishmentDb =
-            DatabaseManager.aliceDb.collections.guildPunishmentConfig;
-    }
-
-    /**
      * Adds a timeout.
      *
      * This will also send a log to the guild's log channel.
