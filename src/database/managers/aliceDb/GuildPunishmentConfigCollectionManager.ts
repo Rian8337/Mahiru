@@ -3,6 +3,7 @@ import { GuildPunishmentConfig } from "@database/utils/aliceDb/GuildPunishmentCo
 import { DatabaseGuildPunishmentConfig } from "structures/database/aliceDb/DatabaseGuildPunishmentConfig";
 import { OperationResult } from "structures/core/OperationResult";
 import { Guild, Snowflake } from "discord.js";
+import { FindOptions } from "mongodb";
 
 /**
  * A manager for the `punishmentconfig` collection.
@@ -28,33 +29,39 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
      * Gets a guild's punishment configuration.
      *
      * @param guild The guild to get the punishment configuration from.
+     * @param options Options for retrieving the configuration.
      * @returns The guild's punishment configuration. `null` if the configuration is not found.
      */
-    getGuildConfig(guild: Guild): Promise<GuildPunishmentConfig | null>;
+    getGuildConfig(
+        guild: Guild,
+        options?: FindOptions<DatabaseGuildPunishmentConfig>,
+    ): Promise<GuildPunishmentConfig | null>;
 
     /**
      * Gets a guild's punishment configuration.
      *
      * @param guildId The ID of the guild to get the punishment configuration from.
-     * @returns The guild's punishment configuration. `null` if the configuration is not found.
-     */
-    getGuildConfig(guildId: Snowflake): Promise<GuildPunishmentConfig | null>;
-
-    /**
-     * Gets a guild's punishment configuration.
-     *
-     * @param guildOrGuildId The guild to get the punishment configuration from or its ID.
+     * @param options Options for retrieving the configuration.
      * @returns The guild's punishment configuration. `null` if the configuration is not found.
      */
     getGuildConfig(
+        guildId: Snowflake,
+        options?: FindOptions<DatabaseGuildPunishmentConfig>,
+    ): Promise<GuildPunishmentConfig | null>;
+
+    getGuildConfig(
         guildOrGuildId: Snowflake | Guild,
+        options?: FindOptions<DatabaseGuildPunishmentConfig>,
     ): Promise<GuildPunishmentConfig | null> {
-        return this.getOne({
-            guildID:
-                guildOrGuildId instanceof Guild
-                    ? guildOrGuildId.id
-                    : guildOrGuildId,
-        });
+        return this.getOne(
+            {
+                guildID:
+                    guildOrGuildId instanceof Guild
+                        ? guildOrGuildId.id
+                        : guildOrGuildId,
+            },
+            options,
+        );
     }
 
     /**
