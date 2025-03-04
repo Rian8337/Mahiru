@@ -17,42 +17,42 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     }
 
     const localization = new TimeoutLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
+    await InteractionHelper.deferReply(interaction);
+
     const toTimeout = await interaction.guild.members.fetch(
-        interaction.options.getUser("user", true),
+        interaction.options.getUser("user", true)
     );
 
     if (!toTimeout) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("userToTimeoutNotFound"),
+                localization.getTranslation("userToTimeoutNotFound")
             ),
         });
     }
 
     const duration = CommandHelper.convertStringTimeFormat(
-        interaction.options.getString("duration", true),
+        interaction.options.getString("duration", true)
     );
 
     const reason = interaction.options.getString("reason", true);
-
-    await InteractionHelper.deferReply(interaction);
 
     const result = await TimeoutManager.addTimeout(
         interaction,
         toTimeout,
         reason,
         duration,
-        localization.language,
+        localization.language
     );
 
     if (result.failed()) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 localization.getTranslation("timeoutFailed"),
-                result.reason,
+                result.reason
             ),
         });
     }
@@ -60,7 +60,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
             localization.getTranslation("timeoutSuccess"),
-            DateTimeFormatHelper.secondsToDHMS(duration, localization.language),
+            DateTimeFormatHelper.secondsToDHMS(duration, localization.language)
         ),
     });
 };
@@ -83,7 +83,7 @@ export const config: SlashCommand["config"] = {
             required: true,
             type: ApplicationCommandOptionType.String,
             description:
-                "The duration to timeout for, in time format (e.g. 6:01:24:33 or 2d14h55m34s). Minimum is 30 seconds.",
+                "The timeout duration (e.g. 6:01:24:33 or 2d14h55m34s). Minimum is 30 seconds. -1 for indefinite.",
         },
         {
             name: "reason",
