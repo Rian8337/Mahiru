@@ -77,21 +77,25 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
         case EightBallResponseType.like:
             answer = "Yes, absolutely.";
             break;
+
         case EightBallResponseType.hate:
             answer = "N... No! I would never think of that...";
             break;
+
         case EightBallResponseType.neutral:
             answer = "Um... Uh...";
             break;
+
         case EightBallResponseType.noAnswer:
             answer = "Uh, I don't think I want to answer that.";
             break;
+
         default:
             answer = ArrayHelper.getRandomArrayElement(res.response);
     }
 
     if (!Config.botOwners.includes(message.author.id) && Math.random() < 0.1) {
-        answer = `No... you ${italic("baka")}.`;
+        answer = `No... ${italic("baka")}.`;
     }
 
     embed.setDescription(
