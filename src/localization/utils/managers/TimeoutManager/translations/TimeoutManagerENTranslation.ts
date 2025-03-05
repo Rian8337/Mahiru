@@ -24,7 +24,7 @@ export class TimeoutManagerENTranslation extends Translation<TimeoutManagerStrin
         userNotTimeouted: "the user is not timeouted",
         untimeoutReasonTooLong:
             "untimeout reason is too long; maximum is 1500 characters",
-        untimeoutUserNotification: "Hey, you were untimeouted for %s.",
+        untimeoutUserNotification: "Hey, your timeout has been removed.",
         userId: "User ID",
         channelId: "Channel ID",
     };

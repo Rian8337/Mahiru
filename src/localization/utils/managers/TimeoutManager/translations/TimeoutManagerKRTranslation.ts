@@ -25,7 +25,6 @@ export class TimeoutManagerKRTranslation extends Translation<TimeoutManagerStrin
         timeoutUserNotification: "야, 시간 초과됐어. 미안해!",
         userNotTimeouted: "해당 유저는 타임아웃되지 않음",
         untimeoutReasonTooLong: "타임아웃 이유가 너무 김 - 최대 1500자",
-        untimeoutUserNotification:
-            "저기, 당신은 다음 이유로 타임아웃이 해제되었어요: %s.",
+        untimeoutUserNotification: "안녕하세요, 타임아웃이 삭제되었습니다.",
     };
 }

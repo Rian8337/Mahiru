@@ -373,12 +373,7 @@ export abstract class TimeoutManager extends PunishmentManager {
         try {
             await this.notifyMember(
                 member,
-                StringHelper.formatString(
-                    userLocalization.getTranslation(
-                        "untimeoutUserNotification"
-                    ),
-                    reason
-                ),
+                userLocalization.getTranslation("untimeoutUserNotification"),
                 userUntimeoutEmbed
             );
         } catch {

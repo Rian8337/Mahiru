@@ -27,7 +27,6 @@ export class TimeoutManagerESTranslation extends Translation<TimeoutManagerStrin
         userNotTimeouted: "el usuario no esta restringido",
         untimeoutReasonTooLong:
             "la razon para retirar la restricción es muy largo; solo una 1500 caracteres máximo",
-        untimeoutUserNotification:
-            "Hey, se te fue retirada la restricción por %s.",
+        untimeoutUserNotification: "Hey, se te fue retirada la restricción.",
     };
 }
