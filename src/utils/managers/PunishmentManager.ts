@@ -7,6 +7,7 @@ import {
 import { Language } from "@localization/base/Language";
 import { GuildMember, PermissionsBitField } from "discord.js";
 import { DatabaseManager } from "@database/DatabaseManager";
+import { GuildPunishmentConfig } from "@database/utils/aliceDb/GuildPunishmentConfig";
 
 /**
  * A manager for punishments handed to users.
@@ -37,19 +38,22 @@ export abstract class PunishmentManager extends Manager {
      *
      * @param member The guild member executing the timeout.
      * @param duration The duration the guild member wants to timeout for, in seconds.
-     * @returns A boolean indicating whether the guild member can timeout the user.
+     * @param guildConfig Existing guild configuration, if any.
+     * @returns Whether the guild member can timeout the user.
      */
     static async userCanTimeout(
         member: GuildMember,
-        duration: number
+        duration: number,
+        guildConfig?: GuildPunishmentConfig | null
     ): Promise<boolean> {
         if (member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
             return true;
         }
 
-        const guildConfig =
+        guildConfig ??=
             await DatabaseManager.aliceDb.collections.guildPunishmentConfig.getGuildConfig(
-                member.guild
+                member.guild,
+                { projection: { _id: 0, allowedTimeoutRoles: 1 } }
             );
 
         if (!guildConfig) {
@@ -82,9 +86,13 @@ export abstract class PunishmentManager extends Manager {
      * Checks if a guild member is immune.
      *
      * @param member The guild member to check.
-     * @returns A boolean indicating whether the guild member is immune.
+     * @param guildConfig Existing guild configuration, if any.
+     * @returns Whether the guild member is immune.
      */
-    static async userIsImmune(member: GuildMember): Promise<boolean> {
+    static async userIsImmune(
+        member: GuildMember,
+        guildConfig?: GuildPunishmentConfig | null
+    ): Promise<boolean> {
         if (
             member.permissions.has(PermissionsBitField.Flags.Administrator) ||
             member.user.bot
@@ -92,9 +100,10 @@ export abstract class PunishmentManager extends Manager {
             return true;
         }
 
-        const guildConfig =
+        guildConfig ??=
             await DatabaseManager.aliceDb.collections.guildPunishmentConfig.getGuildConfig(
-                member.guild
+                member.guild,
+                { projection: { _id: 0, immuneTimeoutRoles: 1 } }
             );
 
         if (!guildConfig) {

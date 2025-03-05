@@ -36,7 +36,7 @@ export abstract class TimeoutManager extends PunishmentManager {
      * @returns An object containing information about the operation.
      */
     static async addTimeout(
-        interaction: RepliableInteraction,
+        interaction: RepliableInteraction<"cached">,
         member: GuildMember,
         reason: string,
         duration: number,
@@ -45,14 +45,30 @@ export abstract class TimeoutManager extends PunishmentManager {
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
 
-        if (this.isUserTimeouted(member)) {
+        const guildConfig = await this.punishmentDb.getGuildConfig(
+            member.guild
+        );
+
+        const punishmentManagerLocalization =
+            this.getPunishmentManagerLocalization(language);
+
+        if (!guildConfig) {
+            return this.createOperationResult(
+                false,
+                punishmentManagerLocalization.getTranslation(
+                    this.logChannelNotFoundReject
+                )
+            );
+        }
+
+        if (this.isUserTimeouted(member, guildConfig.permanentTimeoutRole)) {
             return this.createOperationResult(
                 false,
                 localization.getTranslation("userAlreadyTimeouted")
             );
         }
 
-        if (await this.userIsImmune(member)) {
+        if (await this.userIsImmune(member, guildConfig)) {
             return this.createOperationResult(
                 false,
                 localization.getTranslation("userImmuneToTimeout")
@@ -78,8 +94,9 @@ export abstract class TimeoutManager extends PunishmentManager {
 
         if (
             !(await this.userCanTimeout(
-                <GuildMember>interaction.member,
-                duration
+                interaction.member,
+                duration,
+                guildConfig
             ))
         ) {
             return this.createOperationResult(
@@ -97,22 +114,6 @@ export abstract class TimeoutManager extends PunishmentManager {
             return this.createOperationResult(
                 false,
                 localization.getTranslation("timeoutReasonTooLong")
-            );
-        }
-
-        const guildConfig = await this.punishmentDb.getGuildConfig(
-            member.guild
-        );
-
-        const punishmentManagerLocalization =
-            this.getPunishmentManagerLocalization(language);
-
-        if (!guildConfig) {
-            return this.createOperationResult(
-                false,
-                punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotFoundReject
-                )
             );
         }
 
@@ -256,25 +257,11 @@ export abstract class TimeoutManager extends PunishmentManager {
      */
     static async removeTimeout(
         member: GuildMember,
-        interaction: RepliableInteraction,
+        interaction: RepliableInteraction<"cached">,
         reason: string,
         language: Language = "en"
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
-
-        if (!this.isUserTimeouted(member)) {
-            return this.createOperationResult(
-                false,
-                localization.getTranslation("userNotTimeouted")
-            );
-        }
-
-        if (reason.length > 1500) {
-            return this.createOperationResult(
-                false,
-                localization.getTranslation("untimeoutReasonTooLong")
-            );
-        }
 
         const guildConfig = await this.punishmentDb.getGuildConfig(
             member.guild
@@ -292,6 +279,20 @@ export abstract class TimeoutManager extends PunishmentManager {
             );
         }
 
+        if (!this.isUserTimeouted(member, guildConfig.permanentTimeoutRole)) {
+            return this.createOperationResult(
+                false,
+                localization.getTranslation("userNotTimeouted")
+            );
+        }
+
+        if (reason.length > 1500) {
+            return this.createOperationResult(
+                false,
+                localization.getTranslation("untimeoutReasonTooLong")
+            );
+        }
+
         const logChannel = await guildConfig.getGuildLogChannel(member.guild);
 
         if (!logChannel?.isTextBased()) {
@@ -301,6 +302,19 @@ export abstract class TimeoutManager extends PunishmentManager {
                     this.logChannelNotValidReject
                 )
             );
+        }
+
+        if (member.communicationDisabledUntilTimestamp !== null) {
+            await member.timeout(null, reason);
+        } else {
+            if (!guildConfig.permanentTimeoutRole) {
+                return this.createOperationResult(
+                    false,
+                    localization.getTranslation("permanentTimeoutRoleNotFound")
+                );
+            }
+
+            await member.roles.remove(guildConfig.permanentTimeoutRole, reason);
         }
 
         const logLocalization = new TimeoutManagerLocalization("en");
@@ -378,8 +392,6 @@ export abstract class TimeoutManager extends PunishmentManager {
             // Ignore member notify failing.
         }
 
-        await member.timeout(null, reason);
-
         return this.createOperationResult(true);
     }
 
@@ -387,13 +399,22 @@ export abstract class TimeoutManager extends PunishmentManager {
      * Checks if a guild member is timeouted.
      *
      * @param member The member.
+     * @param permanentTimeoutRoleId The ID of the permanent timeout role, if any.
      * @returns Whether the guild member is timeouted.
      */
-    static isUserTimeouted(member: GuildMember): boolean {
-        return (
+    static isUserTimeouted(
+        member: GuildMember,
+        permanentTimeoutRoleId?: Snowflake
+    ): boolean {
+        let isMuted =
             member.communicationDisabledUntilTimestamp !== null &&
-            member.communicationDisabledUntilTimestamp > Date.now()
-        );
+            member.communicationDisabledUntilTimestamp > Date.now();
+
+        if (permanentTimeoutRoleId) {
+            isMuted ||= member.roles.cache.has(permanentTimeoutRoleId);
+        }
+
+        return isMuted;
     }
 
     /**
