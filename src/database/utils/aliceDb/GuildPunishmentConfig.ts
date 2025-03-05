@@ -94,27 +94,98 @@ export class GuildPunishmentConfig extends Manager {
     /**
      * Sets the permanent timeout role for this guild.
      *
-     * @param id The ID of the role to set as the permanent timeout role. Set to `null` to remove the permanent timeout role.
+     * @param role The role to set as the permanent timeout role.
      * @returns An object containing information about the operation.
      */
-    async setPermanentTimeoutRole(
-        id: Snowflake | null
-    ): Promise<OperationResult> {
-        if (this.permanentTimeoutRole === (id ?? undefined)) {
+    async setPermanentTimeoutRole(role: Role): Promise<OperationResult> {
+        if (this.permanentTimeoutRole === role.id) {
             return this.createOperationResult(true);
         }
 
-        if (id) {
-            return this.db.updateOne(
+        let result: OperationResult;
+
+        if (role) {
+            result = await this.db.updateOne(
                 { guildID: this.guildID },
-                { $set: { permanentTimeoutRole: id } }
+                { $set: { permanentTimeoutRole: role.id } }
             );
         } else {
-            return this.db.updateOne(
+            result = await this.db.updateOne(
                 { guildID: this.guildID },
                 { $unset: { permanentTimeoutRole: "" } }
             );
         }
+
+        if (result.failed()) {
+            return result;
+        }
+
+        // Set per-channel permissions for the role and delete the old role's permissions
+        const guildChannels = await role.guild.channels.fetch();
+
+        for (const channel of guildChannels.values()) {
+            await channel?.permissionOverwrites.edit(
+                role,
+                {
+                    AddReactions: false,
+                    SendMessages: false,
+                    SendMessagesInThreads: false,
+                    Connect: false,
+                    Speak: false,
+                },
+                { reason: "New permanent timeout role" }
+            );
+
+            if (this.permanentTimeoutRole) {
+                await channel?.permissionOverwrites.delete(
+                    this.permanentTimeoutRole,
+                    "New permanent timeout role"
+                );
+            }
+        }
+
+        this.permanentTimeoutRole = role?.id;
+
+        return result;
+    }
+
+    /**
+     * Removes the permanent timeout role from this guild.
+     *
+     * @param guild The guild instance.
+     * @returns An object containing information about the operation.
+     */
+    async removePermanentTimeoutRole(guild: Guild): Promise<OperationResult> {
+        if (!this.permanentTimeoutRole) {
+            return this.createOperationResult(true);
+        }
+
+        const role = await guild.roles.fetch(this.permanentTimeoutRole);
+
+        if (!role) {
+            return this.createOperationResult(true);
+        }
+
+        const result = await this.db.updateOne(
+            { guildID: this.guildID },
+            { $unset: { permanentTimeoutRole: "" } }
+        );
+
+        if (result.failed()) {
+            return result;
+        }
+
+        // Delete the role's permissions in all channels
+        const guildChannels = await guild.channels.fetch();
+
+        for (const channel of guildChannels.values()) {
+            await channel?.permissionOverwrites.delete(
+                role,
+                "Removed permanent timeout role"
+            );
+        }
+
+        return result;
     }
 
     /**

@@ -32,7 +32,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         });
     }
 
-    const result = await guildConfig.setPermanentTimeoutRole(role.id);
+    const result = await guildConfig.setPermanentTimeoutRole(role);
 
     if (result.failed()) {
         return InteractionHelper.reply(interaction, {
