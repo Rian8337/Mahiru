@@ -216,14 +216,7 @@ export abstract class TimeoutManager extends PunishmentManager {
         try {
             await this.notifyMember(
                 member,
-                StringHelper.formatString(
-                    userLocalization.getTranslation("timeoutUserNotification"),
-                    DateTimeFormatHelper.secondsToDHMS(
-                        duration,
-                        userLocalization.language
-                    ),
-                    reason
-                ),
+                userLocalization.getTranslation("timeoutUserNotification"),
                 userTimeoutEmbed
             );
         } catch {

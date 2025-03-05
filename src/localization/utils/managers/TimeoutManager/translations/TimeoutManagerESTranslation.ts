@@ -23,8 +23,7 @@ export class TimeoutManagerESTranslation extends Translation<TimeoutManagerStrin
         reason: "Razon",
         userId: "ID del Usuario",
         channelId: "ID del Canal",
-        timeoutUserNotification:
-            "Hey, se te restringió por %s con motivo de %s. Sorry!",
+        timeoutUserNotification: "Hey, se te restringió. Sorry!",
         userNotTimeouted: "el usuario no esta restringido",
         untimeoutReasonTooLong:
             "la razon para retirar la restricción es muy largo; solo una 1500 caracteres máximo",

@@ -22,8 +22,7 @@ export class TimeoutManagerKRTranslation extends Translation<TimeoutManagerStrin
         reason: "이유",
         userId: "유저 ID",
         channelId: "채널 ID",
-        timeoutUserNotification:
-            "저기, 당신은 %s 동안 다음 이유로 타임아웃 당했어요: %s. 죄송해요!",
+        timeoutUserNotification: "야, 시간 초과됐어. 미안해!",
         userNotTimeouted: "해당 유저는 타임아웃되지 않음",
         untimeoutReasonTooLong: "타임아웃 이유가 너무 김 - 최대 1500자",
         untimeoutUserNotification:
