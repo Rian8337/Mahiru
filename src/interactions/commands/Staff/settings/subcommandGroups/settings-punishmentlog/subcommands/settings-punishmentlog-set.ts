@@ -7,31 +7,36 @@ import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { GuildChannel } from "discord.js";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
-    const localization: SettingsLocalization = new SettingsLocalization(
-        CommandHelper.getLocale(interaction),
+    if (!interaction.inGuild()) {
+        return;
+    }
+
+    const localization = new SettingsLocalization(
+        CommandHelper.getLocale(interaction)
     );
 
-    const channel: GuildChannel = <GuildChannel>(
+    const channel = <GuildChannel>(
         interaction.options.getChannel("channel", true)
     );
 
     if (!channel.isTextBased()) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("chosenChannelIsNotText"),
+                localization.getTranslation("chosenChannelIsNotText")
             ),
         });
     }
 
+    await InteractionHelper.deferReply(interaction);
     await DatabaseManager.aliceDb.collections.guildPunishmentConfig.setGuildLogChannel(
-        interaction.guildId!,
-        channel.id,
+        interaction.guildId,
+        channel.id
     );
 
     InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
             localization.getTranslation("setLogChannelSuccess"),
-            channel.toString(),
+            channel.toString()
         ),
     });
 };

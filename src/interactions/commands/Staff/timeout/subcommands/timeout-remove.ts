@@ -19,10 +19,10 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     );
 
     if (
-        !(await TimeoutManager.userCanTimeout(
+        !TimeoutManager.userCanTimeout(
             interaction.member,
             Number.POSITIVE_INFINITY
-        ))
+        )
     ) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(

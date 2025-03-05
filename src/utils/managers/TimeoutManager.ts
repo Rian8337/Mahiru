@@ -17,6 +17,7 @@ import { Language } from "@localization/base/Language";
 import { TimeoutManagerLocalization } from "@localization/utils/managers/TimeoutManager/TimeoutManagerLocalization";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
+import { CacheManager } from "./CacheManager";
 
 /**
  * A manager for timeouts.
@@ -45,8 +46,8 @@ export abstract class TimeoutManager extends PunishmentManager {
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
 
-        const guildConfig = await this.punishmentDb.getGuildConfig(
-            member.guild
+        const guildConfig = CacheManager.guildPunishmentConfigs.get(
+            interaction.guildId
         );
 
         const punishmentManagerLocalization =
@@ -61,14 +62,14 @@ export abstract class TimeoutManager extends PunishmentManager {
             );
         }
 
-        if (this.isUserTimeouted(member, guildConfig.permanentTimeoutRole)) {
+        if (this.isUserTimeouted(member)) {
             return this.createOperationResult(
                 false,
                 localization.getTranslation("userAlreadyTimeouted")
             );
         }
 
-        if (await this.userIsImmune(member, guildConfig)) {
+        if (this.userIsImmune(member)) {
             return this.createOperationResult(
                 false,
                 localization.getTranslation("userImmuneToTimeout")
@@ -92,13 +93,7 @@ export abstract class TimeoutManager extends PunishmentManager {
             );
         }
 
-        if (
-            !(await this.userCanTimeout(
-                interaction.member,
-                duration,
-                guildConfig
-            ))
-        ) {
+        if (!this.userCanTimeout(interaction.member, duration)) {
             return this.createOperationResult(
                 false,
                 StringHelper.formatString(
@@ -256,8 +251,8 @@ export abstract class TimeoutManager extends PunishmentManager {
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
 
-        const guildConfig = await this.punishmentDb.getGuildConfig(
-            member.guild
+        const guildConfig = CacheManager.guildPunishmentConfigs.get(
+            member.guild.id
         );
 
         const punishmentManagerLocalization =
@@ -272,7 +267,7 @@ export abstract class TimeoutManager extends PunishmentManager {
             );
         }
 
-        if (!this.isUserTimeouted(member, guildConfig.permanentTimeoutRole)) {
+        if (!this.isUserTimeouted(member)) {
             return this.createOperationResult(
                 false,
                 localization.getTranslation("userNotTimeouted")
@@ -387,22 +382,25 @@ export abstract class TimeoutManager extends PunishmentManager {
      * Checks if a guild member is timeouted.
      *
      * @param member The member.
-     * @param permanentTimeoutRoleId The ID of the permanent timeout role, if any.
      * @returns Whether the guild member is timeouted.
      */
-    static isUserTimeouted(
-        member: GuildMember,
-        permanentTimeoutRoleId?: Snowflake
-    ): boolean {
-        let isMuted =
+    static isUserTimeouted(member: GuildMember): boolean {
+        if (
             member.communicationDisabledUntilTimestamp !== null &&
-            member.communicationDisabledUntilTimestamp > Date.now();
-
-        if (permanentTimeoutRoleId) {
-            isMuted ||= member.roles.cache.has(permanentTimeoutRoleId);
+            member.communicationDisabledUntilTimestamp > Date.now()
+        ) {
+            return true;
         }
 
-        return isMuted;
+        const guildConfig = CacheManager.guildPunishmentConfigs.get(
+            member.guild.id
+        );
+
+        if (guildConfig?.permanentTimeoutRole) {
+            return member.roles.cache.has(guildConfig.permanentTimeoutRole);
+        }
+
+        return false;
     }
 
     /**

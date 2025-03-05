@@ -7,15 +7,16 @@ import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
 import { LoungeLockManager } from "@utils/managers/LoungeLockManager";
 import { GuildMember, EmbedBuilder, AuditLogEvent, bold } from "discord.js";
+import { CacheManager } from "@utils/managers/CacheManager";
 
 export const run: EventUtil["run"] = async (
     client,
     oldMember: GuildMember,
-    newMember: GuildMember,
+    newMember: GuildMember
 ) => {
     const localization = new ManualTimeoutCheckLocalization("en");
     const userLocalization = new ManualTimeoutCheckLocalization(
-        CommandHelper.getLocale(newMember.user),
+        CommandHelper.getLocale(newMember.user)
     );
 
     if (
@@ -45,17 +46,16 @@ export const run: EventUtil["run"] = async (
             return;
         }
 
-        const guildConfig =
-            await DatabaseManager.aliceDb.collections.guildPunishmentConfig.getGuildConfig(
-                newMember.guild,
-            );
+        const guildConfig = CacheManager.guildPunishmentConfigs.get(
+            newMember.guild.id
+        );
 
         if (!guildConfig) {
             return;
         }
 
         const logChannel = await guildConfig.getGuildLogChannel(
-            newMember.guild,
+            newMember.guild
         );
 
         if (!logChannel?.isTextBased()) {
@@ -65,7 +65,7 @@ export const run: EventUtil["run"] = async (
         const timeoutDate = new Date(<string>auditLog.changes[0].new);
 
         const timeDifference = Math.ceil(
-            DateTimeFormatHelper.getTimeDifference(timeoutDate) / 1000,
+            DateTimeFormatHelper.getTimeDifference(timeoutDate) / 1000
         );
 
         const timeoutEmbed = new EmbedBuilder()
@@ -84,13 +84,13 @@ export const run: EventUtil["run"] = async (
                 `${bold(
                     `${newMember}: ${DateTimeFormatHelper.secondsToDHMS(
                         timeDifference,
-                        localization.language,
-                    )}`,
+                        localization.language
+                    )}`
                 )}\n\n` +
                     `=========================\n\n` +
                     `${bold(localization.getTranslation("reason"))}:\n` +
                     (auditLog.reason ??
-                        localization.getTranslation("notSpecified")),
+                        localization.getTranslation("notSpecified"))
             );
 
         const userTimeoutEmbed = new EmbedBuilder()
@@ -109,13 +109,13 @@ export const run: EventUtil["run"] = async (
                 `${bold(
                     `${newMember}: ${DateTimeFormatHelper.secondsToDHMS(
                         timeDifference,
-                        userLocalization.language,
-                    )}`,
+                        userLocalization.language
+                    )}`
                 )}\n\n` +
                     `=========================\n\n` +
                     `${bold(userLocalization.getTranslation("reason"))}:\n` +
                     (auditLog.reason ??
-                        userLocalization.getTranslation("notSpecified")),
+                        userLocalization.getTranslation("notSpecified"))
             );
 
         try {
@@ -124,10 +124,10 @@ export const run: EventUtil["run"] = async (
                     userLocalization.getTranslation("timeoutUserNotification"),
                     DateTimeFormatHelper.secondsToDHMS(
                         timeDifference,
-                        userLocalization.language,
+                        userLocalization.language
                     ),
                     auditLog.reason ??
-                        userLocalization.getTranslation("notSpecified"),
+                        userLocalization.getTranslation("notSpecified")
                 ),
                 embeds: [userTimeoutEmbed],
             });
@@ -141,7 +141,7 @@ export const run: EventUtil["run"] = async (
             await LoungeLockManager.lock(
                 newMember.id,
                 "Timeouted for 6 hours or longer",
-                30 * 24 * 3600,
+                30 * 24 * 3600
             );
         }
 
@@ -173,17 +173,16 @@ export const run: EventUtil["run"] = async (
             return;
         }
 
-        const guildConfig =
-            await DatabaseManager.aliceDb.collections.guildPunishmentConfig.getGuildConfig(
-                newMember.guild,
-            );
+        const guildConfig = CacheManager.guildPunishmentConfigs.get(
+            newMember.guild.id
+        );
 
         if (!guildConfig) {
             return;
         }
 
         const logChannel = await guildConfig.getGuildLogChannel(
-            newMember.guild,
+            newMember.guild
         );
 
         if (!logChannel?.isTextBased()) {
@@ -205,7 +204,7 @@ export const run: EventUtil["run"] = async (
             .setDescription(
                 `${bold(localization.getTranslation("userId"))}:\n` +
                     (auditLog.target?.id ??
-                        localization.getTranslation("notSpecified")),
+                        localization.getTranslation("notSpecified"))
             );
 
         const userUntimeoutEmbed = new EmbedBuilder()
@@ -223,17 +222,17 @@ export const run: EventUtil["run"] = async (
             .setDescription(
                 `${bold(userLocalization.getTranslation("userId"))}:\n` +
                     (auditLog.reason ??
-                        userLocalization.getTranslation("notSpecified")),
+                        userLocalization.getTranslation("notSpecified"))
             );
 
         try {
             newMember.send({
                 content: MessageCreator.createWarn(
                     userLocalization.getTranslation(
-                        "untimeoutUserNotification",
+                        "untimeoutUserNotification"
                     ),
                     auditLog.reason ??
-                        localization.getTranslation("notSpecified"),
+                        localization.getTranslation("notSpecified")
                 ),
                 embeds: [userUntimeoutEmbed],
             });

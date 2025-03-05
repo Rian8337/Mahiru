@@ -6,21 +6,21 @@ import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { PermissionHelper } from "@utils/helpers/PermissionHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
-import { bold, EmbedBuilder } from "discord.js";
+import { bold } from "discord.js";
 
 export const run: SlashSubcommand<true>["run"] = async (
     client,
-    interaction,
+    interaction
 ) => {
     if (!interaction.inCachedGuild()) {
         return;
     }
 
-    const localization: SettingsLocalization = new SettingsLocalization(
-        CommandHelper.getLocale(interaction),
+    const localization = new SettingsLocalization(
+        CommandHelper.getLocale(interaction)
     );
 
-    const embed: EmbedBuilder = EmbedCreator.createNormalEmbed({
+    const embed = EmbedCreator.createNormalEmbed({
         author: interaction.user,
         color: interaction.member.displayColor,
     });
@@ -29,9 +29,9 @@ export const run: SlashSubcommand<true>["run"] = async (
         embed.setDescription(
             bold(
                 `${localization.getTranslation(
-                    "eventName",
-                )}: \`${client.eventUtilities.keyAt(page - 1)}\``,
-            ),
+                    "eventName"
+                )}: \`${client.eventUtilities.keyAt(page - 1)}\``
+            )
         );
 
         for (const [utilName, utility] of client.eventUtilities.at(page - 1)!) {
@@ -40,12 +40,12 @@ export const run: SlashSubcommand<true>["run"] = async (
                 value:
                     `${utility.config.description}\n` +
                     `${bold(
-                        localization.getTranslation("requiredPermissions"),
+                        localization.getTranslation("requiredPermissions")
                     )}: ${PermissionHelper.getPermissionString(
-                        utility.config.togglePermissions,
+                        utility.config.togglePermissions
                     )}\n` +
                     `${bold(
-                        localization.getTranslation("toggleableScope"),
+                        localization.getTranslation("toggleableScope")
                     )}: ${utility.config.toggleScope
                         .map((v) => StringHelper.capitalizeString(v, true))
                         .join(", ")}`,
@@ -60,6 +60,6 @@ export const run: SlashSubcommand<true>["run"] = async (
         1,
         client.eventUtilities.size,
         180,
-        onPageChange,
+        onPageChange
     );
 };

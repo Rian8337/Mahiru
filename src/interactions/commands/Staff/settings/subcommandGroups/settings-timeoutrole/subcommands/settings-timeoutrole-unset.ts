@@ -1,9 +1,9 @@
-import { DatabaseManager } from "@database/DatabaseManager";
 import { SettingsLocalization } from "@localization/interactions/commands/Staff/settings/SettingsLocalization";
 import { SlashSubcommand } from "@structures/core/SlashSubcommand";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import { CacheManager } from "@utils/managers/CacheManager";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!interaction.inCachedGuild()) {
@@ -14,13 +14,9 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         CommandHelper.getLocale(interaction)
     );
 
-    await InteractionHelper.deferReply(interaction);
-
-    const guildConfig =
-        await DatabaseManager.aliceDb.collections.guildPunishmentConfig.getGuildConfig(
-            interaction.guild,
-            { projection: { _id: 0, permanentTimeoutRole: 1 } }
-        );
+    const guildConfig = CacheManager.guildPunishmentConfigs.get(
+        interaction.guildId
+    );
 
     if (!guildConfig) {
         return InteractionHelper.reply(interaction, {
@@ -29,6 +25,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             ),
         });
     }
+
+    await InteractionHelper.deferReply(interaction);
 
     const result = await guildConfig.removePermanentTimeoutRole(
         interaction.guild

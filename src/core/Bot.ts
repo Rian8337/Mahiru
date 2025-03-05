@@ -11,7 +11,6 @@ import {
 import { consola } from "consola";
 import { SlashCommand } from "structures/core/SlashCommand";
 import { Event } from "structures/core/Event";
-import { TimeoutManager } from "@utils/managers/TimeoutManager";
 import { LoungeLockManager } from "@utils/managers/LoungeLockManager";
 import { ProfileManager } from "@utils/managers/ProfileManager";
 import { DatabaseManager } from "@database/DatabaseManager";
@@ -20,7 +19,6 @@ import { EventUtil } from "structures/core/EventUtil";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { Manager } from "@utils/base/Manager";
 import { SlashSubcommand } from "structures/core/SlashSubcommand";
-import { WarningManager } from "@utils/managers/WarningManager";
 import { ModalCommand } from "structures/core/ModalCommand";
 import { BotInteractions } from "structures/core/BotInteractions";
 import { ContextMenuCommand } from "structures/core/ContextMenuCommand";
@@ -538,6 +536,7 @@ export class Bot extends Client<true> {
         ProfileManager.init();
         await CommandUtilManager.init();
         await LoungeLockManager.init();
+        await PunishmentManager.init();
     }
 
     /**

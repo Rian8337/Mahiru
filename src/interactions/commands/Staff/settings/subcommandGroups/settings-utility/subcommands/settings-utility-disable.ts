@@ -1,5 +1,4 @@
 import { Constants } from "@core/Constants";
-import { EventUtil } from "structures/core/EventUtil";
 import { SlashSubcommand } from "structures/core/SlashSubcommand";
 import { SettingsLocalization } from "@localization/interactions/commands/Staff/settings/SettingsLocalization";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
@@ -8,44 +7,41 @@ import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { CommandUtilManager } from "@utils/managers/CommandUtilManager";
-import { Collection } from "discord.js";
 
 export const run: SlashSubcommand<true>["run"] = async (
     client,
-    interaction,
+    interaction
 ) => {
-    if (!interaction.inGuild()) {
+    if (!interaction.inCachedGuild()) {
         return;
     }
 
-    const localization: SettingsLocalization = new SettingsLocalization(
-        CommandHelper.getLocale(interaction),
+    const localization = new SettingsLocalization(
+        CommandHelper.getLocale(interaction)
     );
 
-    const event: string = interaction.options.getString("event", true);
+    const event = interaction.options.getString("event", true);
+    const utility = interaction.options.getString("utility", true);
 
-    const utility: string = interaction.options.getString("utility", true);
-
-    const scope: CommandUtilScope =
+    const scope =
         <CommandUtilScope>interaction.options.getString("scope") ?? "channel";
 
-    const eventUtilities: Collection<string, EventUtil> | undefined =
-        client.eventUtilities.get(event);
+    const eventUtilities = client.eventUtilities.get(event);
 
     if (!eventUtilities) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("eventNotFound"),
+                localization.getTranslation("eventNotFound")
             ),
         });
     }
 
-    const util: EventUtil | undefined = eventUtilities.get(utility);
+    const util = eventUtilities.get(utility);
 
     if (!util) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("eventUtilityNotFound"),
+                localization.getTranslation("eventUtilityNotFound")
             ),
         });
     }
@@ -53,7 +49,7 @@ export const run: SlashSubcommand<true>["run"] = async (
     if (
         !CommandHelper.userFulfillsCommandPermission(
             interaction,
-            util.config.togglePermissions,
+            util.config.togglePermissions
         )
     ) {
         interaction.ephemeral = true;
@@ -61,11 +57,13 @@ export const run: SlashSubcommand<true>["run"] = async (
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 new ConstantsLocalization(localization.language).getTranslation(
-                    Constants.noPermissionReject,
-                ),
+                    Constants.noPermissionReject
+                )
             ),
         });
     }
+
+    await InteractionHelper.deferReply(interaction);
 
     switch (scope) {
         case "channel":
@@ -74,16 +72,18 @@ export const run: SlashSubcommand<true>["run"] = async (
                     ? interaction.channel.parent!
                     : interaction.channel!,
                 event,
-                utility,
+                utility
             );
             break;
+
         case "guild":
             await CommandUtilManager.disableUtilityInGuild(
-                interaction.guildId!,
+                interaction.guildId,
                 event,
-                utility,
+                utility
             );
             break;
+
         case "global":
             // Only allow bot owners to globally disable an event utility
             if (!CommandHelper.isExecutedByBotOwner(interaction)) {
@@ -92,11 +92,12 @@ export const run: SlashSubcommand<true>["run"] = async (
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
                         new ConstantsLocalization(
-                            localization.language,
-                        ).getTranslation(Constants.noPermissionReject),
+                            localization.language
+                        ).getTranslation(Constants.noPermissionReject)
                     ),
                 });
             }
+
             CommandUtilManager.disableUtilityGlobally(event, utility);
             break;
     }
@@ -105,7 +106,7 @@ export const run: SlashSubcommand<true>["run"] = async (
         content: MessageCreator.createAccept(
             localization.getTranslation("eventUtilityDisableSuccess"),
             utility,
-            event,
+            event
         ),
     });
 };

@@ -6,15 +6,20 @@ import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
+    if (!interaction.inGuild()) {
+        return;
+    }
+
+    await InteractionHelper.deferReply(interaction);
     await DatabaseManager.aliceDb.collections.guildPunishmentConfig.unsetGuildLogChannel(
-        interaction.guildId!,
+        interaction.guildId
     );
 
     InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
             new SettingsLocalization(
-                CommandHelper.getLocale(interaction),
-            ).getTranslation("unsetLogChannelSuccess"),
+                CommandHelper.getLocale(interaction)
+            ).getTranslation("unsetLogChannelSuccess")
         ),
     });
 };

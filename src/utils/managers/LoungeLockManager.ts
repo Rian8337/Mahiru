@@ -1,14 +1,11 @@
 import {
     Guild,
-    GuildBasedChannel,
     EmbedBuilder,
     Snowflake,
     TextChannel,
     bold,
     userMention,
-    User,
     Role,
-    GuildMember,
 } from "discord.js";
 import { DatabaseManager } from "@database/DatabaseManager";
 import { OperationResult } from "structures/core/OperationResult";
@@ -16,12 +13,10 @@ import { Constants } from "@core/Constants";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { PunishmentManager } from "./PunishmentManager";
 import { LoungeLockCollectionManager } from "@database/managers/aliceDb/LoungeLockCollectionManager";
-import { LoungeLock } from "@database/utils/aliceDb/LoungeLock";
-import { GuildPunishmentConfig } from "@database/utils/aliceDb/GuildPunishmentConfig";
 import { LoungeLockManagerLocalization } from "@localization/utils/managers/LoungeLockManager/LoungeLockManagerLocalization";
-import { PunishmentManagerLocalization } from "@localization/utils/managers/PunishmentManager/PunishmentManagerLocalization";
 import { Language } from "@localization/base/Language";
 import { MessageCreator } from "@utils/creators/MessageCreator";
+import { CacheManager } from "./CacheManager";
 
 /**
  * A manager for lounge locks.
@@ -54,7 +49,7 @@ export abstract class LoungeLockManager extends PunishmentManager {
         this.loungeLockDb = DatabaseManager.aliceDb.collections.loungeLock;
         this.mainServer = await this.client.guilds.fetch(Constants.mainServer);
         this.loungeRole = await this.mainServer.roles.fetch(
-            Constants.loungeRole,
+            Constants.loungeRole
         );
         this.loungeChannel = <TextChannel>(
             await this.mainServer.channels.fetch(Constants.loungeChannel)
@@ -74,47 +69,44 @@ export abstract class LoungeLockManager extends PunishmentManager {
         userId: Snowflake,
         reason: string,
         duration: number,
-        language: Language = "en",
+        language: Language = "en"
     ): Promise<OperationResult> {
         if (duration < 0) {
             duration = Number.POSITIVE_INFINITY;
         }
 
-        const lockInfo: LoungeLock | null =
-            await this.loungeLockDb.getUserLockInfo(userId);
+        const lockInfo = await this.loungeLockDb.getUserLockInfo(userId);
 
-        const guildConfig: GuildPunishmentConfig | null =
-            await DatabaseManager.aliceDb.collections.guildPunishmentConfig.getGuildConfig(
-                this.mainServer,
-            );
+        const guildConfig = CacheManager.guildPunishmentConfigs.get(
+            this.mainServer.id
+        );
 
-        const punishmentManagerLocalization: PunishmentManagerLocalization =
+        const punishmentManagerLocalization =
             this.getPunishmentManagerLocalization(language);
 
         if (!guildConfig) {
             return this.createOperationResult(
                 false,
                 punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotFoundReject,
-                ),
+                    this.logChannelNotFoundReject
+                )
             );
         }
 
-        const logChannel: GuildBasedChannel | null =
-            await guildConfig.getGuildLogChannel(this.mainServer);
+        const logChannel = await guildConfig.getGuildLogChannel(
+            this.mainServer
+        );
 
         if (!logChannel?.isTextBased()) {
             return this.createOperationResult(
                 false,
                 punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotValidReject,
-                ),
+                    this.logChannelNotValidReject
+                )
             );
         }
 
-        const logEmbed: EmbedBuilder = EmbedCreator.createNormalEmbed({
-            timestamp: true,
-        });
+        const logEmbed = EmbedCreator.createNormalEmbed({ timestamp: true });
 
         if (lockInfo) {
             // Extend lock and update reason
@@ -128,20 +120,20 @@ export abstract class LoungeLockManager extends PunishmentManager {
                         `${bold("Updated Reason")}: ${reason}\n` +
                         `${bold("New Expiration Date")}: ${
                             !Number.isFinite(
-                                lockInfo.expiration + duration * 1000,
+                                lockInfo.expiration + duration * 1000
                             )
                                 ? "Never"
                                 : new Date(
-                                      lockInfo.expiration + duration * 1000,
+                                      lockInfo.expiration + duration * 1000
                                   ).toUTCString()
-                        }`,
+                        }`
                 );
         } else {
             // Insert new lock
             await this.loungeLockDb.insertNewLock(userId, duration, reason);
 
             if (this.loungeRole) {
-                const member: GuildMember | null = await this.mainServer.members
+                const member = await this.mainServer.members
                     .fetch(userId)
                     .catch(() => null);
 
@@ -160,9 +152,9 @@ export abstract class LoungeLockManager extends PunishmentManager {
                             !Number.isFinite(duration * 1000)
                                 ? "Never"
                                 : new Date(
-                                      Date.now() + duration * 1000,
+                                      Date.now() + duration * 1000
                                   ).toUTCString()
-                        }`,
+                        }`
                 );
         }
 
@@ -170,9 +162,9 @@ export abstract class LoungeLockManager extends PunishmentManager {
         await this.notifyMember(
             userId,
             this.getLocalization(language).getTranslation(
-                "lockUserNotification",
+                "lockUserNotification"
             ),
-            logEmbed,
+            logEmbed
         );
 
         return this.createOperationResult(true);
@@ -188,47 +180,45 @@ export abstract class LoungeLockManager extends PunishmentManager {
     static async unlock(
         userId: Snowflake,
         reason: string,
-        language: Language = "en",
+        language: Language = "en"
     ): Promise<OperationResult> {
-        const lockInfo: LoungeLock | null =
-            await this.loungeLockDb.getUserLockInfo(userId);
+        const lockInfo = await this.loungeLockDb.getUserLockInfo(userId);
 
-        const localization: LoungeLockManagerLocalization =
-            this.getLocalization(language);
+        const localization = this.getLocalization(language);
 
-        const punishmentManagerLocalization: PunishmentManagerLocalization =
+        const punishmentManagerLocalization =
             this.getPunishmentManagerLocalization(language);
 
         if (!lockInfo) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("userNotLocked"),
+                localization.getTranslation("userNotLocked")
             );
         }
 
-        const guildConfig: GuildPunishmentConfig | null =
-            await DatabaseManager.aliceDb.collections.guildPunishmentConfig.getGuildConfig(
-                this.mainServer,
-            );
+        const guildConfig = CacheManager.guildPunishmentConfigs.get(
+            this.mainServer.id
+        );
 
         if (!guildConfig) {
             return this.createOperationResult(
                 false,
                 punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotFoundReject,
-                ),
+                    this.logChannelNotFoundReject
+                )
             );
         }
 
-        const logChannel: GuildBasedChannel | null =
-            await guildConfig.getGuildLogChannel(this.mainServer);
+        const logChannel = await guildConfig.getGuildLogChannel(
+            this.mainServer
+        );
 
         if (!logChannel) {
             return this.createOperationResult(
                 false,
                 punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotFoundReject,
-                ),
+                    this.logChannelNotFoundReject
+                )
             );
         }
 
@@ -236,21 +226,19 @@ export abstract class LoungeLockManager extends PunishmentManager {
             return this.createOperationResult(
                 false,
                 punishmentManagerLocalization.getTranslation(
-                    this.logChannelNotValidReject,
-                ),
+                    this.logChannelNotValidReject
+                )
             );
         }
 
-        const logEmbed: EmbedBuilder = EmbedCreator.createNormalEmbed({
-            timestamp: true,
-        });
+        const logEmbed = EmbedCreator.createNormalEmbed({ timestamp: true });
 
         logEmbed
             .setColor("#3ba7b8")
             .setTitle("Lounge Lock Removed")
             .setDescription(
                 `${bold("User")}: ${userMention(userId)}\n
-                ${bold("Reason")}: ${reason}`,
+                ${bold("Reason")}: ${reason}`
             );
 
         await lockInfo.unlock();
@@ -259,7 +247,7 @@ export abstract class LoungeLockManager extends PunishmentManager {
         await this.notifyMember(
             userId,
             localization.getTranslation("unlockUserNotification"),
-            logEmbed,
+            logEmbed
         );
 
         return this.createOperationResult(true);
@@ -275,11 +263,9 @@ export abstract class LoungeLockManager extends PunishmentManager {
     private static async notifyMember(
         userId: Snowflake,
         content: string,
-        embed: EmbedBuilder,
+        embed: EmbedBuilder
     ): Promise<void> {
-        const user: User | null = await this.client.users
-            .fetch(userId)
-            .catch(() => null);
+        const user = await this.client.users.fetch(userId).catch(() => null);
 
         if (user) {
             await user.send({
@@ -295,7 +281,7 @@ export abstract class LoungeLockManager extends PunishmentManager {
      * @param language The language to localize.
      */
     private static getLocalization(
-        language: Language,
+        language: Language
     ): LoungeLockManagerLocalization {
         return new LoungeLockManagerLocalization(language);
     }

@@ -13,6 +13,7 @@ import {
     Role,
     Snowflake,
 } from "discord.js";
+import { CacheManager } from "@utils/managers/CacheManager";
 
 /**
  * Represents a guild's punishment configuration.
@@ -194,6 +195,8 @@ export class GuildPunishmentConfig extends Manager {
             );
         }
 
+        delete this.permanentTimeoutRole;
+
         return result;
     }
 
@@ -237,11 +240,7 @@ export class GuildPunishmentConfig extends Manager {
 
         return this.db.updateOne(
             { guildID: this.guildID },
-            {
-                $pull: {
-                    immuneTimeoutRoles: roleId,
-                },
-            }
+            { $pull: { immuneTimeoutRoles: roleId } }
         );
     }
 

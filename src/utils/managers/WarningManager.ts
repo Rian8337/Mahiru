@@ -19,6 +19,7 @@ import {
     userMention,
 } from "discord.js";
 import { PunishmentManager } from "./PunishmentManager";
+import { CacheManager } from "./CacheManager";
 
 /**
  * A manager for warnings.
@@ -60,7 +61,7 @@ export abstract class WarningManager extends PunishmentManager {
             CommandHelper.getLocale(interaction)
         );
 
-        if (await this.userIsImmune(member)) {
+        if (this.userIsImmune(member)) {
             return this.createOperationResult(
                 false,
                 localization.getTranslation("userIsImmune")
@@ -81,7 +82,7 @@ export abstract class WarningManager extends PunishmentManager {
             );
         }
 
-        if (!(await this.userCanWarn(<GuildMember>interaction.member))) {
+        if (!this.userCanWarn(<GuildMember>interaction.member)) {
             return this.createOperationResult(
                 false,
                 localization.getTranslation("notEnoughPermissionToWarn")
@@ -95,8 +96,8 @@ export abstract class WarningManager extends PunishmentManager {
             );
         }
 
-        const guildConfig = await this.punishmentDb.getGuildConfig(
-            member.guild
+        const guildConfig = CacheManager.guildPunishmentConfigs.get(
+            member.guild.id
         );
 
         const punishmentManagerLocalization =
@@ -269,7 +270,7 @@ export abstract class WarningManager extends PunishmentManager {
             );
         }
 
-        if (!(await this.userCanWarn(<GuildMember>interaction.member))) {
+        if (!this.userCanWarn(<GuildMember>interaction.member)) {
             return this.createOperationResult(
                 false,
                 localization.getTranslation("notEnoughPermissionToWarn")
@@ -287,8 +288,8 @@ export abstract class WarningManager extends PunishmentManager {
             );
         }
 
-        const guildConfig = await this.punishmentDb.getGuildConfig(
-            member.guild
+        const guildConfig = CacheManager.guildPunishmentConfigs.get(
+            interaction.guildId
         );
 
         const punishmentManagerLocalization =
@@ -441,7 +442,7 @@ export abstract class WarningManager extends PunishmentManager {
             CommandHelper.getLocale(interaction)
         );
 
-        const guildConfig = await this.punishmentDb.getGuildConfig(
+        const guildConfig = CacheManager.guildPunishmentConfigs.get(
             interaction.guildId
         );
 
@@ -508,7 +509,7 @@ export abstract class WarningManager extends PunishmentManager {
      * @param member The guild member.
      * @returns A boolean indicating whether the guild member can warn a user.
      */
-    static userCanWarn(member: GuildMember): Promise<boolean> {
+    static userCanWarn(member: GuildMember): boolean {
         return this.userCanTimeout(member, 1);
     }
 

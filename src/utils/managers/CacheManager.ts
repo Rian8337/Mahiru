@@ -13,6 +13,7 @@ import { LiveOsuDifficultyAttributesCacheManager } from "@utils/difficultyattrib
 import { RebalanceDroidDifficultyAttributesCacheManager } from "@utils/difficultyattributescache/RebalanceDroidDifficultyAttributesCacheManager";
 import { RebalanceOsuDifficultyAttributesCacheManager } from "@utils/difficultyattributescache/RebalanceOsuDifficultyAttributesCacheManager";
 import { AnniversaryTriviaQuestion } from "@database/utils/aliceDb/AnniversaryTriviaQuestion";
+import { GuildPunishmentConfig } from "@database/utils/aliceDb/GuildPunishmentConfig";
 
 /**
  * A manager that holds anything that is cached.
@@ -134,5 +135,13 @@ export abstract class CacheManager {
     static readonly anniversaryTriviaQuestions = new Collection<
         number,
         AnniversaryTriviaQuestion
+    >();
+
+    /**
+     * The guild punishment configurations, mapped by guild ID.
+     */
+    static readonly guildPunishmentConfigs = new Collection<
+        Snowflake,
+        GuildPunishmentConfig
     >();
 }

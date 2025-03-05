@@ -1,5 +1,4 @@
 import { DatabaseManager } from "@database/DatabaseManager";
-import { Warning } from "@database/utils/aliceDb/Warning";
 import { SlashSubcommand } from "structures/core/SlashSubcommand";
 import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
 import { WarningLocalization } from "@localization/interactions/commands/Staff/warning/WarningLocalization";
@@ -11,39 +10,31 @@ import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { WarningManager } from "@utils/managers/WarningManager";
-import {
-    Collection,
-    GuildMember,
-    EmbedBuilder,
-    User,
-    bold,
-    userMention,
-    channelMention,
-} from "discord.js";
+import { GuildMember, bold, userMention, channelMention } from "discord.js";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
-    const localization: WarningLocalization = new WarningLocalization(
-        CommandHelper.getLocale(interaction),
+    const localization = new WarningLocalization(
+        CommandHelper.getLocale(interaction)
     );
 
-    const user: User = interaction.options.getUser("user") ?? interaction.user;
+    const user = interaction.options.getUser("user") ?? interaction.user;
 
     if (
         user.id !== interaction.user.id &&
         interaction.inCachedGuild() &&
-        !(await WarningManager.userCanWarn(interaction.member))
+        !WarningManager.userCanWarn(interaction.member)
     ) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noPermissionToViewWarning"),
+                localization.getTranslation("noPermissionToViewWarning")
             ),
         });
     }
 
-    const warnings: Collection<string, Warning> =
+    const warnings =
         await DatabaseManager.aliceDb.collections.userWarning.getUserWarningsInGuild(
             interaction.guildId!,
-            user.id,
+            user.id
         );
 
     if (warnings.size === 0) {
@@ -52,13 +43,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 localization.getTranslation(
                     user.id === interaction.user.id
                         ? "selfDontHaveWarnings"
-                        : "userDontHaveWarnings",
-                ),
+                        : "userDontHaveWarnings"
+                )
             ),
         });
     }
 
-    const embed: EmbedBuilder = EmbedCreator.createNormalEmbed({
+    const embed = EmbedCreator.createNormalEmbed({
         author: interaction.user,
         color: (<GuildMember>interaction.member).displayColor,
     });
@@ -67,13 +58,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         .setTitle(
             StringHelper.formatString(
                 localization.getTranslation("warningInfoForUser"),
-                user.tag,
-            ),
+                user.tag
+            )
         )
         .setThumbnail(user.avatarURL()!)
         .setDescription(
             `${bold(
-                localization.getTranslation("totalActivePoints"),
+                localization.getTranslation("totalActivePoints")
             )}: ${warnings
                 .filter((v) => v.isActive)
                 .reduce((a, v) => a + v.points, 0)}\n` +
@@ -81,11 +72,11 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     warnings.size
                 }\n` +
                 `${bold(
-                    localization.getTranslation("lastWarning"),
+                    localization.getTranslation("lastWarning")
                 )}: ${DateTimeFormatHelper.dateToLocaleString(
                     new Date(warnings.at(0)!.creationDate * 1000),
-                    localization.language,
-                )}`,
+                    localization.language
+                )}`
         );
 
     const onPageChange: OnButtonPageChange = async (_, page) => {
@@ -94,32 +85,32 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             i < Math.min(warnings.size, 5 + 5 * (page - 1));
             ++i
         ) {
-            const warning: Warning = warnings.at(i)!;
+            const warning = warnings.at(i)!;
 
             embed.addFields({
                 name: `${i + 1}. ID ${warning.guildSpecificId}`,
                 value:
                     `${bold(
-                        localization.getTranslation("warningIssuer"),
+                        localization.getTranslation("warningIssuer")
                     )}: ${userMention(warning.issuerId)} (${
                         warning.issuerId
                     })\n` +
                     `${bold(
-                        localization.getTranslation("channel"),
+                        localization.getTranslation("channel")
                     )}: ${channelMention(warning.channelId)} (${
                         warning.channelId
                     })\n` +
                     `${bold(
-                        localization.getTranslation("creationDate"),
+                        localization.getTranslation("creationDate")
                     )}: ${DateTimeFormatHelper.dateToLocaleString(
                         new Date(warning.creationDate * 1000),
-                        localization.language,
+                        localization.language
                     )}\n` +
                     `${bold(
-                        localization.getTranslation("expirationDate"),
+                        localization.getTranslation("expirationDate")
                     )}: ${DateTimeFormatHelper.dateToLocaleString(
                         new Date(warning.expirationDate * 1000),
-                        localization.language,
+                        localization.language
                     )}`,
             });
         }
@@ -134,6 +125,6 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         1,
         Math.ceil(warnings.size / 5),
         120,
-        onPageChange,
+        onPageChange
     );
 };

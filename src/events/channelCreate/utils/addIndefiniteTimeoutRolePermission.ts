@@ -1,5 +1,5 @@
-import { DatabaseManager } from "@database/DatabaseManager";
 import { EventUtil } from "@structures/core/EventUtil";
+import { CacheManager } from "@utils/managers/CacheManager";
 import { ChannelType, GuildChannel, OverwriteType } from "discord.js";
 
 export const run: EventUtil["run"] = async (_, channel: GuildChannel) => {
@@ -11,11 +11,9 @@ export const run: EventUtil["run"] = async (_, channel: GuildChannel) => {
         return;
     }
 
-    const guildConfig =
-        await DatabaseManager.aliceDb.collections.guildPunishmentConfig.getGuildConfig(
-            channel.guild,
-            { projection: { _id: 0, permanentTimeoutRole: 1 } }
-        );
+    const guildConfig = CacheManager.guildPunishmentConfigs.get(
+        channel.guildId
+    );
 
     if (!guildConfig?.permanentTimeoutRole) {
         return;

@@ -4,6 +4,7 @@ import { DatabaseGuildPunishmentConfig } from "structures/database/aliceDb/Datab
 import { OperationResult } from "structures/core/OperationResult";
 import { Guild, Snowflake } from "discord.js";
 import { FindOptions } from "mongodb";
+import { CacheManager } from "@utils/managers/CacheManager";
 
 /**
  * A manager for the `punishmentconfig` collection.
@@ -13,7 +14,7 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
     GuildPunishmentConfig
 > {
     protected override readonly utilityInstance: new (
-        data: DatabaseGuildPunishmentConfig,
+        data: DatabaseGuildPunishmentConfig
     ) => GuildPunishmentConfig = GuildPunishmentConfig;
 
     override get defaultDocument(): DatabaseGuildPunishmentConfig {
@@ -34,7 +35,7 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
      */
     getGuildConfig(
         guild: Guild,
-        options?: FindOptions<DatabaseGuildPunishmentConfig>,
+        options?: FindOptions<DatabaseGuildPunishmentConfig>
     ): Promise<GuildPunishmentConfig | null>;
 
     /**
@@ -46,12 +47,12 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
      */
     getGuildConfig(
         guildId: Snowflake,
-        options?: FindOptions<DatabaseGuildPunishmentConfig>,
+        options?: FindOptions<DatabaseGuildPunishmentConfig>
     ): Promise<GuildPunishmentConfig | null>;
 
     getGuildConfig(
         guildOrGuildId: Snowflake | Guild,
-        options?: FindOptions<DatabaseGuildPunishmentConfig>,
+        options?: FindOptions<DatabaseGuildPunishmentConfig>
     ): Promise<GuildPunishmentConfig | null> {
         return this.getOne(
             {
@@ -60,7 +61,7 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
                         ? guildOrGuildId.id
                         : guildOrGuildId,
             },
-            options,
+            options
         );
     }
 
@@ -73,20 +74,34 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
      */
     setGuildLogChannel(
         guildId: Snowflake,
-        channelId: Snowflake,
+        channelId: Snowflake
     ): Promise<OperationResult> {
+        const cache = CacheManager.guildPunishmentConfigs.get(guildId);
+
+        if (cache) {
+            cache.logChannel = channelId;
+        } else {
+            CacheManager.guildPunishmentConfigs.set(
+                guildId,
+                new GuildPunishmentConfig({
+                    guildID: guildId,
+                    logChannel: channelId,
+                    allowedTimeoutRoles: [],
+                    immuneTimeoutRoles: [],
+                })
+            );
+        }
+
         return this.updateOne(
             { guildID: guildId },
             {
-                $set: {
-                    logChannel: channelId,
-                },
+                $set: { logChannel: channelId },
                 $setOnInsert: {
                     allowedTimeoutRoles: [],
                     immuneTimeoutRoles: [],
                 },
             },
-            { upsert: true },
+            { upsert: true }
         );
     }
 
@@ -97,13 +112,15 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
      * @returns An object containing information about the database operation.
      */
     unsetGuildLogChannel(guildId: Snowflake): Promise<OperationResult> {
+        const cache = CacheManager.guildPunishmentConfigs.get(guildId);
+
+        if (cache) {
+            cache.logChannel = "";
+        }
+
         return this.updateOne(
             { guildID: guildId },
-            {
-                $unset: {
-                    logChannel: "",
-                },
-            },
+            { $unset: { logChannel: "" } }
         );
     }
 }
