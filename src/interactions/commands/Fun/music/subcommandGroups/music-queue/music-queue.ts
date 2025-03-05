@@ -1,4 +1,3 @@
-import { SlashSubcommand } from "structures/core/SlashSubcommand";
 import { SlashSubcommandGroup } from "structures/core/SlashSubcommandGroup";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 

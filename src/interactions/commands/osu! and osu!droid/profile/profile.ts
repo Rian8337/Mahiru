@@ -5,10 +5,7 @@ import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { Constants } from "@core/Constants";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
-    CommandHelper.runSlashSubcommandOrGroup(
-        interaction,
-        CommandHelper.getLocale(interaction),
-    );
+    CommandHelper.runSlashSubcommandOrGroup(interaction);
 };
 
 export const category: SlashCommand["category"] = CommandCategory.osu;

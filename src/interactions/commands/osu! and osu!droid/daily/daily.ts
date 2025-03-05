@@ -9,10 +9,7 @@ import { Challenge } from "@database/utils/aliceDb/Challenge";
 import { Constants } from "@core/Constants";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
-    CommandHelper.runSlashSubcommandOrGroup(
-        interaction,
-        CommandHelper.getLocale(interaction),
-    );
+    CommandHelper.runSlashSubcommandOrGroup(interaction);
 };
 
 export const category: SlashCommand["category"] = CommandCategory.osu;

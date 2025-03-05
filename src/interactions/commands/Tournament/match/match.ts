@@ -7,15 +7,15 @@ import { CommandCategory } from "@enums/core/CommandCategory";
 import { SlashCommand } from "structures/core/SlashCommand";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { Snowflake } from "discord.js";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
-    const constantsLocalization: ConstantsLocalization =
-        new ConstantsLocalization(CommandHelper.getLocale(interaction));
+    const constantsLocalization = new ConstantsLocalization(
+        CommandHelper.getLocale(interaction)
+    );
 
-    const whitelistedGuilds: Snowflake[] = [
+    const whitelistedGuilds = [
         Constants.mainServer,
         Constants.testingServer,
         "526214018269184001",
@@ -30,8 +30,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 constantsLocalization.getTranslation(
-                    Constants.notAvailableInServerReject,
-                ),
+                    Constants.notAvailableInServerReject
+                )
             ),
         });
     }
@@ -40,8 +40,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 constantsLocalization.getTranslation(
-                    Constants.noPermissionReject,
-                ),
+                    Constants.noPermissionReject
+                )
             ),
         });
     }

@@ -12,18 +12,18 @@ import { PlayertrackLocalization } from "@localization/interactions/commands/Bot
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
-    const localization: PlayertrackLocalization = new PlayertrackLocalization(
-        CommandHelper.getLocale(interaction),
+    const localization = new PlayertrackLocalization(
+        CommandHelper.getLocale(interaction)
     );
 
-    const uid: number = interaction.options.getInteger("uid", true);
+    const uid = interaction.options.getInteger("uid", true);
 
     if (
         !NumberHelper.isNumberInRange(
             uid,
             Constants.uidMinLimit,
             Constants.uidMaxLimit,
-            true,
+            true
         )
     ) {
         return InteractionHelper.reply(interaction, {
@@ -31,10 +31,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         });
     }
 
-    CommandHelper.runSlashSubcommandFromInteraction(
-        interaction,
-        localization.language,
-    );
+    CommandHelper.runSlashSubcommandFromInteraction(interaction);
 };
 
 export const category: SlashCommand["category"] = CommandCategory.botCreators;

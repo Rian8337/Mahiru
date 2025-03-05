@@ -7,10 +7,7 @@ import { SlashCommand } from "structures/core/SlashCommand";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
-    CommandHelper.runSlashSubcommandFromInteraction(
-        interaction,
-        CommandHelper.getLocale(interaction),
-    );
+    CommandHelper.runSlashSubcommandFromInteraction(interaction);
 };
 
 export const category: SlashCommand["category"] = CommandCategory.botCreators;

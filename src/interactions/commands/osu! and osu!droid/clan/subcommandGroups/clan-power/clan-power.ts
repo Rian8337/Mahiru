@@ -5,15 +5,15 @@ import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { PermissionHelper } from "@utils/helpers/PermissionHelper";
-import { Collection, GuildMember, Snowflake } from "discord.js";
+import { GuildMember } from "discord.js";
 
 export const run: SlashSubcommandGroup["run"] = async (client, interaction) => {
-    const staffMembers: Collection<Snowflake, GuildMember> =
+    const staffMembers =
         await PermissionHelper.getMainGuildStaffMembers(client);
 
     if (
         !(<GuildMember>interaction.member).roles.cache.find(
-            (r) => r.name === "Referee",
+            (r) => r.name === "Referee"
         ) &&
         !staffMembers.has(interaction.user.id)
     ) {
@@ -22,8 +22,8 @@ export const run: SlashSubcommandGroup["run"] = async (client, interaction) => {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 new ConstantsLocalization(
-                    CommandHelper.getLocale(interaction),
-                ).getTranslation(Constants.noPermissionReject),
+                    CommandHelper.getLocale(interaction)
+                ).getTranslation(Constants.noPermissionReject)
             ),
         });
     }

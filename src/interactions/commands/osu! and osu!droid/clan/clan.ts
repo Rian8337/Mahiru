@@ -12,12 +12,12 @@ import { Language } from "@localization/base/Language";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
-    const language: Language = CommandHelper.getLocale(interaction);
+    const language = CommandHelper.getLocale(interaction);
 
     if (interaction.guildId! !== Constants.mainServer) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                new ClanLocalization(language).getTranslation("notInMainGuild"),
+                new ClanLocalization(language).getTranslation("notInMainGuild")
             ),
         });
     }

@@ -52,7 +52,7 @@ export abstract class CommandHelper extends Manager {
         interaction: ChatInputCommandInteraction,
         mainCommandDirectory: string,
         subcommandChoices: SelectMenuComponentOptionData[],
-        placeholder: string,
+        placeholder: string
     ): Promise<unknown> {
         const selectMenuInteraction =
             await SelectMenuCreator.createStringSelectMenu(
@@ -62,7 +62,7 @@ export abstract class CommandHelper extends Manager {
                 },
                 subcommandChoices,
                 [interaction.user.id],
-                20,
+                20
             );
 
         if (!selectMenuInteraction) {
@@ -75,8 +75,7 @@ export abstract class CommandHelper extends Manager {
             selectMenuInteraction,
             await import(
                 `${mainCommandDirectory}/subcommands/${pickedSubcommand}`
-            ),
-            this.getLocale(interaction),
+            )
         );
     }
 
@@ -127,7 +126,7 @@ export abstract class CommandHelper extends Manager {
 
     static getLocale(
         input: BaseInteraction | BaseGuildTextChannel | Snowflake | User,
-        guildId?: Snowflake,
+        guildId?: Snowflake
     ): Language {
         let language: Language | undefined;
 
@@ -159,7 +158,7 @@ export abstract class CommandHelper extends Manager {
                         ? input.user.id
                         : input instanceof User
                           ? input.id
-                          : input,
+                          : input
                 )
             );
         }
@@ -214,7 +213,7 @@ export abstract class CommandHelper extends Manager {
     static getUserPreferredLocale(userId: Snowflake): Language;
 
     static getUserPreferredLocale(
-        input: BaseInteraction | Snowflake | User,
+        input: BaseInteraction | Snowflake | User
     ): Language {
         const id =
             input instanceof BaseInteraction
@@ -233,18 +232,18 @@ export abstract class CommandHelper extends Manager {
      * Use this if a command has both subcommands and subcommand groups.
      *
      * @param interaction The interaction that triggered the subcommand or subcommand group.
-     * @param language The locale of the user who attempted to run the subcommand or subcommand group. Defaults to English.
+     * @param language The locale of the user who attempted to run the subcommand or subcommand group. Defaults to the locale of the user.
      */
     static runSlashSubcommandOrGroup(
         interaction: ChatInputCommandInteraction,
-        language: Language = "en",
+        language: Language = this.getLocale(interaction)
     ): Promise<unknown> {
         if (interaction.options.getSubcommandGroup(false)) {
             return this.runSlashSubcommandGroup(interaction, language);
         } else {
             return this.runSlashSubcommandFromInteraction(
                 interaction,
-                language,
+                language
             );
         }
     }
@@ -253,16 +252,16 @@ export abstract class CommandHelper extends Manager {
      * Runs a slash subcommand that is directly picked by the user via an interaction.
      *
      * @param interaction The interaction that triggered the subcommand.
-     * @param language The locale of the user who attempted to run the subcommand. Defaults to English.
+     * @param language The locale of the user who attempted to run the subcommand. Defaults to the locale of the user.
      */
     static runSlashSubcommandFromInteraction(
         interaction: ChatInputCommandInteraction,
-        language: Language = "en",
+        language: Language = this.getLocale(interaction)
     ): Promise<unknown> {
         return this.runSlashSubOrGroup(
             interaction,
             this.getSlashSubcommand(interaction),
-            language,
+            language
         );
     }
 
@@ -272,15 +271,16 @@ export abstract class CommandHelper extends Manager {
      * This should only be used inside a command.
      *
      * @param interaction The interaction that triggered the command.
+     * @param language The locale of the user who attempted to run the subcommand group. Defaults to locale of the user.
      */
     static runSlashSubcommandGroup(
         interaction: ChatInputCommandInteraction,
-        language: Language = "en",
+        language: Language = this.getLocale(interaction)
     ): Promise<unknown> {
         return this.runSlashSubOrGroup(
             interaction,
             this.getSlashSubcommandGroup(interaction),
-            language,
+            language
         );
     }
 
@@ -289,18 +289,19 @@ export abstract class CommandHelper extends Manager {
      *
      * @param interaction The interaction that triggered the subcommand group or subcommand.
      * @param subcommand The subcommand to run.
+     * @param language The locale of the user who attempted to run the subcommand group or subcommand. Defaults to the locale of the user.
      */
     private static runSlashSubOrGroup(
         interaction: ChatInputCommandInteraction | StringSelectMenuInteraction,
         subcommand?: SlashSubcommand,
-        language: Language = "en",
+        language: Language = this.getLocale(interaction)
     ): Promise<unknown> {
         const localization = this.getLocalization(language);
 
         if (!subcommand) {
             return InteractionHelper.reply(interaction, {
                 content: MessageCreator.createReject(
-                    localization.getTranslation("commandNotFound"),
+                    localization.getTranslation("commandNotFound")
                 ),
             });
         }
@@ -309,7 +310,7 @@ export abstract class CommandHelper extends Manager {
             subcommand.config?.permissions &&
             !this.userFulfillsCommandPermission(
                 interaction,
-                subcommand.config.permissions,
+                subcommand.config.permissions
             )
         ) {
             interaction.ephemeral = true;
@@ -317,12 +318,12 @@ export abstract class CommandHelper extends Manager {
             return InteractionHelper.reply(interaction, {
                 content: MessageCreator.createReject(
                     `${new ConstantsLocalization(language).getTranslation(
-                        Constants.noPermissionReject,
+                        Constants.noPermissionReject
                     )} ${localization.getTranslation(
-                        "permissionsRequired",
+                        "permissionsRequired"
                     )}: \`${PermissionHelper.getPermissionString(
-                        subcommand.config.permissions,
-                    )}\`.`,
+                        subcommand.config.permissions
+                    )}\`.`
                 ),
             });
         }
@@ -337,7 +338,7 @@ export abstract class CommandHelper extends Manager {
      * @returns The subcommand, if found.
      */
     static getSlashSubcommand(
-        interaction: ChatInputCommandInteraction,
+        interaction: ChatInputCommandInteraction
     ): SlashSubcommand | undefined {
         if (!interaction.options.getSubcommand(false)) {
             return;
@@ -363,7 +364,7 @@ export abstract class CommandHelper extends Manager {
      * @returns The subcommand group, if found.
      */
     static getSlashSubcommandGroup(
-        interaction: ChatInputCommandInteraction,
+        interaction: ChatInputCommandInteraction
     ): SlashSubcommand | undefined {
         if (!interaction.options.getSubcommandGroup(false)) {
             return;
@@ -388,7 +389,7 @@ export abstract class CommandHelper extends Manager {
      */
     static userFulfillsCommandPermission(
         interaction: BaseInteraction,
-        permissions: Permission[],
+        permissions: Permission[]
     ): boolean {
         for (const p of permissions) {
             switch (p) {
@@ -402,7 +403,7 @@ export abstract class CommandHelper extends Manager {
 
         return this.checkPermission(
             interaction,
-            ...(permissions as PermissionResolvable[]),
+            ...(permissions as PermissionResolvable[])
         );
     }
 
@@ -442,7 +443,7 @@ export abstract class CommandHelper extends Manager {
         // Hierarchy: global --> guild --> channel
         if (
             CommandUtilManager.globallyDisabledCommands.get(
-                interaction.commandName,
+                interaction.commandName
             ) === -1
         ) {
             return false;
@@ -450,7 +451,7 @@ export abstract class CommandHelper extends Manager {
 
         if (interaction.inGuild()) {
             const guildSetting = CommandUtilManager.guildDisabledCommands.get(
-                interaction.guildId,
+                interaction.guildId
             );
 
             if (guildSetting?.get(interaction.commandName)?.cooldown === -1) {
@@ -506,7 +507,7 @@ export abstract class CommandHelper extends Manager {
      */
     static setCooldown(
         key: ChannelCooldownKey | GlobalCooldownKey,
-        cooldown: number,
+        cooldown: number
     ): void {
         if (cooldown === 0) {
             return;
@@ -526,7 +527,7 @@ export abstract class CommandHelper extends Manager {
      * @returns Whether the cooldown with the specified key still exists.
      */
     static isCooldownActive(
-        key: ChannelCooldownKey | GlobalCooldownKey,
+        key: ChannelCooldownKey | GlobalCooldownKey
     ): boolean {
         return CacheManager.activeCommandCooldowns.has(key);
     }
@@ -557,7 +558,7 @@ export abstract class CommandHelper extends Manager {
      * @param language The language to localize.
      */
     private static getLocalization(
-        language: Language,
+        language: Language
     ): CommandHelperLocalization {
         return new CommandHelperLocalization(language);
     }

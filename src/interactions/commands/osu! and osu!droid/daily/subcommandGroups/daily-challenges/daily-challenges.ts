@@ -11,7 +11,7 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
         return;
     }
 
-    const language: Language = CommandHelper.getLocale(interaction);
+    const language = CommandHelper.getLocale(interaction);
 
     if (
         !CommandHelper.isExecutedByBotOwner(interaction) &&
@@ -20,8 +20,8 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 new ConstantsLocalization(language).getTranslation(
-                    "noPermissionToExecuteCommand",
-                ),
+                    "noPermissionToExecuteCommand"
+                )
             ),
         });
     }

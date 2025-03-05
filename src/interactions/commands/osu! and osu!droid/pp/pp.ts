@@ -5,10 +5,7 @@ import { ApplicationCommandOptionType } from "discord.js";
 import { Constants } from "@core/Constants";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
-    CommandHelper.runSlashSubcommandOrGroup(
-        interaction,
-        CommandHelper.getLocale(interaction),
-    );
+    CommandHelper.runSlashSubcommandOrGroup(interaction);
 };
 
 export const category: CommandCategory = CommandCategory.osu;

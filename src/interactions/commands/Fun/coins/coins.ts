@@ -9,27 +9,24 @@ import { CoinsLocalization } from "@localization/interactions/commands/Fun/coins
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
-    const localization: CoinsLocalization = new CoinsLocalization(
-        CommandHelper.getLocale(interaction),
+    const localization = new CoinsLocalization(
+        CommandHelper.getLocale(interaction)
     );
 
     if (
         DateTimeFormatHelper.getTimeDifference(
-            (<GuildMember>interaction.member).joinedAt!,
+            (<GuildMember>interaction.member).joinedAt!
         ) >
         -86400 * 1000 * 7
     ) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("userNotInServerForAWeek"),
+                localization.getTranslation("userNotInServerForAWeek")
             ),
         });
     }
 
-    CommandHelper.runSlashSubcommandFromInteraction(
-        interaction,
-        localization.language,
-    );
+    CommandHelper.runSlashSubcommandFromInteraction(interaction);
 };
 
 export const category: SlashCommand["category"] = CommandCategory.fun;
