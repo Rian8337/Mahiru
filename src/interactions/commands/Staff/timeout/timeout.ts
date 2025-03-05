@@ -44,7 +44,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         interaction,
         toTimeout,
         reason,
-        duration,
+        duration > 0 ? duration : Number.POSITIVE_INFINITY,
         localization.language
     );
 
