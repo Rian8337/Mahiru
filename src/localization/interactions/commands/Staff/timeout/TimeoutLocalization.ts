@@ -5,8 +5,11 @@ import { TimeoutESTranslation } from "./translations/TimeoutESTranslation";
 import { TimeoutKRTranslation } from "./translations/TimeoutKRTranslation";
 
 export interface TimeoutStrings {
+    readonly userCannotUntimeoutError: string;
     readonly userToTimeoutNotFound: string;
     readonly indefiniteTimeout: string;
+    readonly untimeoutFailed: string;
+    readonly untimeoutSuccessful: string;
     readonly timeoutFailed: string;
     readonly timeoutSuccess: string;
 }
