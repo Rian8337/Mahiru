@@ -6,6 +6,7 @@ import { Manager } from "@utils/base/Manager";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
 import { ObjectId } from "bson";
 import {
+    ChannelType,
     Collection,
     Guild,
     GuildBasedChannel,
@@ -124,7 +125,15 @@ export class GuildPunishmentConfig extends Manager {
         const guildChannels = await role.guild.channels.fetch();
 
         for (const channel of guildChannels.values()) {
-            await channel?.permissionOverwrites.edit(
+            if (
+                channel?.type !== ChannelType.GuildForum &&
+                channel?.type !== ChannelType.GuildVoice &&
+                channel?.type !== ChannelType.GuildText
+            ) {
+                continue;
+            }
+
+            await channel.permissionOverwrites.edit(
                 role,
                 {
                     AddReactions: false,
@@ -137,7 +146,7 @@ export class GuildPunishmentConfig extends Manager {
             );
 
             if (this.permanentTimeoutRole) {
-                await channel?.permissionOverwrites.delete(
+                await channel.permissionOverwrites.delete(
                     this.permanentTimeoutRole,
                     "New permanent timeout role"
                 );
