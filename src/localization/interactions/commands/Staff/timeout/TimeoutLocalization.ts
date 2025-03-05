@@ -6,6 +6,7 @@ import { TimeoutKRTranslation } from "./translations/TimeoutKRTranslation";
 
 export interface TimeoutStrings {
     readonly userToTimeoutNotFound: string;
+    readonly indefiniteTimeout: string;
     readonly timeoutFailed: string;
     readonly timeoutSuccess: string;
 }

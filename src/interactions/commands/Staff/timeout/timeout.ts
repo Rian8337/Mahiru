@@ -60,7 +60,12 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
             localization.getTranslation("timeoutSuccess"),
-            DateTimeFormatHelper.secondsToDHMS(duration, localization.language)
+            Number.isFinite(duration)
+                ? DateTimeFormatHelper.secondsToDHMS(
+                      duration,
+                      localization.language
+                  )
+                : localization.getTranslation("indefiniteTimeout")
         ),
     });
 };
