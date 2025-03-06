@@ -42,6 +42,17 @@ export abstract class PunishmentManager extends Manager {
         for (const config of configs.values()) {
             CacheManager.guildPunishmentConfigs.set(config.guildID, config);
         }
+
+        const indefiniteTimeouts =
+            await DatabaseManager.aliceDb.collections.indefiniteTimeout.get(
+                "id",
+                {},
+                { projection: { _id: 0 } }
+            );
+
+        for (const timeout of indefiniteTimeouts.values()) {
+            CacheManager.indefiniteTimeouts.add(timeout.id);
+        }
     }
 
     /**

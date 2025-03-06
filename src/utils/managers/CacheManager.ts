@@ -144,4 +144,9 @@ export abstract class CacheManager {
         Snowflake,
         GuildPunishmentConfig
     >();
+
+    /**
+     * Users with indefinite timeouts who are not in the main server.
+     */
+    static readonly indefiniteTimeouts = new Set<Snowflake>();
 }
