@@ -6,7 +6,13 @@ import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
 import { LoungeLockManager } from "@utils/managers/LoungeLockManager";
-import { GuildMember, EmbedBuilder, AuditLogEvent, bold } from "discord.js";
+import {
+    GuildMember,
+    EmbedBuilder,
+    AuditLogEvent,
+    bold,
+    User,
+} from "discord.js";
 import { CacheManager } from "@utils/managers/CacheManager";
 
 export const run: EventUtil["run"] = async (
@@ -19,14 +25,35 @@ export const run: EventUtil["run"] = async (
         CommandHelper.getLocale(newMember.user)
     );
 
+    const guildConfig = CacheManager.guildPunishmentConfigs.get(
+        newMember.guild.id
+    );
+
+    if (!guildConfig) {
+        return;
+    }
+
+    const logChannel = await guildConfig.getGuildLogChannel(newMember.guild);
+
+    if (!logChannel?.isTextBased()) {
+        return;
+    }
+
     if (
-        !oldMember.communicationDisabledUntil &&
-        newMember.communicationDisabledUntil
+        (!oldMember.communicationDisabledUntil &&
+            newMember.communicationDisabledUntil) ||
+        (guildConfig.permanentTimeoutRole &&
+            !oldMember.roles.cache.has(guildConfig.permanentTimeoutRole) &&
+            newMember.roles.cache.has(guildConfig.permanentTimeoutRole))
     ) {
         // Member was timeouted
         const auditLogEntries = await newMember.guild.fetchAuditLogs({
             limit: 1,
-            type: AuditLogEvent.MemberUpdate,
+            type:
+                !oldMember.communicationDisabledUntil &&
+                newMember.communicationDisabledUntil
+                    ? AuditLogEvent.MemberUpdate
+                    : AuditLogEvent.MemberRoleUpdate,
         });
 
         const auditLog = auditLogEntries.entries.first();
@@ -39,34 +66,26 @@ export const run: EventUtil["run"] = async (
             return;
         }
 
+        let timeDifference = Number.POSITIVE_INFINITY;
+
         if (
-            !auditLog.changes ||
-            auditLog.changes[0].key !== "communication_disabled_until"
+            !oldMember.communicationDisabledUntil &&
+            newMember.communicationDisabledUntil
         ) {
-            return;
+            const firstAuditLog = auditLog.changes.find(
+                (v) => v.key === "communication_disabled_until"
+            );
+
+            if (!firstAuditLog) {
+                return;
+            }
+
+            const timeoutDate = new Date(firstAuditLog.new!);
+
+            timeDifference = Math.ceil(
+                DateTimeFormatHelper.getTimeDifference(timeoutDate) / 1000
+            );
         }
-
-        const guildConfig = CacheManager.guildPunishmentConfigs.get(
-            newMember.guild.id
-        );
-
-        if (!guildConfig) {
-            return;
-        }
-
-        const logChannel = await guildConfig.getGuildLogChannel(
-            newMember.guild
-        );
-
-        if (!logChannel?.isTextBased()) {
-            return;
-        }
-
-        const timeoutDate = new Date(<string>auditLog.changes[0].new);
-
-        const timeDifference = Math.ceil(
-            DateTimeFormatHelper.getTimeDifference(timeoutDate) / 1000
-        );
 
         const timeoutEmbed = new EmbedBuilder()
             .setAuthor({
@@ -82,10 +101,14 @@ export const run: EventUtil["run"] = async (
             .setTimestamp(new Date())
             .setDescription(
                 `${bold(
-                    `${newMember}: ${DateTimeFormatHelper.secondsToDHMS(
-                        timeDifference,
-                        localization.language
-                    )}`
+                    `${newMember}: ${
+                        Number.isFinite(timeDifference)
+                            ? DateTimeFormatHelper.secondsToDHMS(
+                                  timeDifference,
+                                  localization.language
+                              )
+                            : "Indefinite"
+                    }`
                 )}\n\n` +
                     `=========================\n\n` +
                     `${bold(localization.getTranslation("reason"))}:\n` +
@@ -107,10 +130,14 @@ export const run: EventUtil["run"] = async (
             .setTimestamp(new Date())
             .setDescription(
                 `${bold(
-                    `${newMember}: ${DateTimeFormatHelper.secondsToDHMS(
-                        timeDifference,
-                        userLocalization.language
-                    )}`
+                    `${newMember}: ${
+                        Number.isFinite(timeDifference)
+                            ? DateTimeFormatHelper.secondsToDHMS(
+                                  timeDifference,
+                                  userLocalization.language
+                              )
+                            : "Indefinite"
+                    }`
                 )}\n\n` +
                     `=========================\n\n` +
                     `${bold(userLocalization.getTranslation("reason"))}:\n` +
@@ -147,13 +174,20 @@ export const run: EventUtil["run"] = async (
 
         await logChannel.send({ embeds: [timeoutEmbed] });
     } else if (
-        oldMember.communicationDisabledUntil &&
-        !newMember.communicationDisabledUntil
+        (oldMember.communicationDisabledUntil &&
+            !newMember.communicationDisabledUntil) ||
+        (guildConfig.permanentTimeoutRole &&
+            oldMember.roles.cache.has(guildConfig.permanentTimeoutRole) &&
+            !newMember.roles.cache.has(guildConfig.permanentTimeoutRole))
     ) {
         // Member was untimeouted
         const auditLogEntries = await newMember.guild.fetchAuditLogs({
             limit: 1,
-            type: AuditLogEvent.MemberUpdate,
+            type:
+                oldMember.communicationDisabledUntil &&
+                !newMember.communicationDisabledUntil
+                    ? AuditLogEvent.MemberUpdate
+                    : AuditLogEvent.MemberRoleUpdate,
         });
 
         const auditLog = auditLogEntries.entries.first();
@@ -163,29 +197,6 @@ export const run: EventUtil["run"] = async (
             !auditLog.executor ||
             auditLog.executor.id === client.user.id
         ) {
-            return;
-        }
-
-        if (
-            !auditLog.changes ||
-            auditLog.changes[0].key !== "communication_disabled_until"
-        ) {
-            return;
-        }
-
-        const guildConfig = CacheManager.guildPunishmentConfigs.get(
-            newMember.guild.id
-        );
-
-        if (!guildConfig) {
-            return;
-        }
-
-        const logChannel = await guildConfig.getGuildLogChannel(
-            newMember.guild
-        );
-
-        if (!logChannel?.isTextBased()) {
             return;
         }
 
