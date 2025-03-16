@@ -21,6 +21,7 @@ import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { BeatmapDifficultyHelper } from "@utils/helpers/BeatmapDifficultyHelper";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
 import { ExportedReplayJSONV2 } from "@rian8337/osu-droid-replay-analyzer";
+import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new FetchreplayLocalization(
@@ -55,7 +56,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         if (!bindInfo) {
             return InteractionHelper.reply(interaction, {
                 content: MessageCreator.createReject(
-                    Constants.selfNotBindedReject
+                    new ConstantsLocalization(
+                        localization.language
+                    ).getTranslation(Constants.selfNotBindedReject)
                 ),
             });
         }
