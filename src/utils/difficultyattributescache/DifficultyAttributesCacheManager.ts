@@ -67,7 +67,7 @@ export abstract class DifficultyAttributesCacheManager<
             "files",
             "difficultyattributescache",
             attributeTypeFolder,
-            gamemodeFolder,
+            gamemodeFolder
         );
     }
 
@@ -77,7 +77,7 @@ export abstract class DifficultyAttributesCacheManager<
      * @param beatmapInfo The information about the beatmap.
      */
     getBeatmapAttributes(
-        beatmapInfo: MapInfo,
+        beatmapInfo: MapInfo
     ): CachedDifficultyAttributes<T> | null {
         return this.getCache(beatmapInfo);
     }
@@ -90,7 +90,7 @@ export abstract class DifficultyAttributesCacheManager<
      */
     getDifficultyAttributes(
         beatmapInfo: MapInfo,
-        attributeName: string,
+        attributeName: string
     ): CacheableDifficultyAttributes<T> | null {
         return (
             this.getCache(beatmapInfo)?.difficultyAttributes[attributeName] ??
@@ -117,10 +117,10 @@ export abstract class DifficultyAttributesCacheManager<
         customSpeedMultiplier: number = 1,
         forceCS?: number,
         forceAR?: number,
-        forceOD?: number,
+        forceOD?: number
     ): CacheableDifficultyAttributes<T> {
         const cache: CachedDifficultyAttributes<T> = this.getBeatmapAttributes(
-            beatmapInfo,
+            beatmapInfo
         ) ?? {
             lastUpdate: Date.now(),
             difficultyAttributes: {},
@@ -132,7 +132,7 @@ export abstract class DifficultyAttributesCacheManager<
             customSpeedMultiplier,
             forceCS,
             forceAR,
-            forceOD,
+            forceOD
         );
 
         cache.difficultyAttributes[attributeName] = {
@@ -162,7 +162,7 @@ export abstract class DifficultyAttributesCacheManager<
         customSpeedMultiplier: number = 1,
         forceCS?: number,
         forceAR?: number,
-        forceOD?: number,
+        forceOD?: number
     ): string {
         let attributeName = "";
 
@@ -175,12 +175,12 @@ export abstract class DifficultyAttributesCacheManager<
                         }
 
                         return a + m.droidString;
-                    }, "") || "-",
+                    }, "") || "-"
                 );
                 break;
             case Modes.osu:
                 attributeName += mods.reduce((a, m) => {
-                    if (!m.isApplicableToOsu()) {
+                    if (!m.isApplicableToOsuStable()) {
                         return a;
                     }
 
@@ -219,7 +219,7 @@ export abstract class DifficultyAttributesCacheManager<
             "Reading difficulty cache of attribute type",
             PPCalculationMethod[this.attributeType],
             "and gamemode",
-            this.mode,
+            this.mode
         );
 
         const start = process.hrtime.bigint();
@@ -235,7 +235,7 @@ export abstract class DifficultyAttributesCacheManager<
                 const cache: CachedDifficultyAttributes<T> = JSON.parse(
                     await readFile(join(this.folderPath, fileName), {
                         encoding: "utf-8",
-                    }),
+                    })
                 );
 
                 this.cache.set(beatmapId, cache);
@@ -261,7 +261,7 @@ export abstract class DifficultyAttributesCacheManager<
             this.mode,
             "complete (took",
             Number(end - start) / 1e6,
-            "ms)",
+            "ms)"
         );
     }
 
@@ -272,7 +272,7 @@ export abstract class DifficultyAttributesCacheManager<
         for (const [beatmapId, cache] of this.cacheToSave) {
             await writeFile(
                 join(this.folderPath, `${beatmapId}.json`),
-                JSON.stringify(cache),
+                JSON.stringify(cache)
             );
 
             this.cacheToSave.delete(beatmapId);
@@ -287,7 +287,7 @@ export abstract class DifficultyAttributesCacheManager<
      * @param beatmapInfo The information about the beatmap.
      */
     private getCache(
-        beatmapInfo: MapInfo,
+        beatmapInfo: MapInfo
     ): CachedDifficultyAttributes<T> | null {
         const cache = this.cache.get(beatmapInfo.beatmapId);
 
