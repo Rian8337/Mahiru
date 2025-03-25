@@ -21,6 +21,10 @@ export const run: EventUtil["run"] = async (_, member: GuildMember) => {
         return;
     }
 
+    if (!CacheManager.indefiniteTimeouts.has(member.id)) {
+        return;
+    }
+
     await member.roles.add(
         guildConfig.permanentTimeoutRole,
         "Indefinite timeout reapply"
