@@ -35,9 +35,13 @@ export abstract class PunishmentManager extends Manager {
         "invalidLogChannel";
 
     static override async init(): Promise<void> {
-        const configs = await this.punishmentDb.get("guildID", {
-            projection: { _id: 0 },
-        });
+        const configs = await this.punishmentDb.get(
+            "guildID",
+            {},
+            {
+                projection: { _id: 0 },
+            }
+        );
 
         for (const config of configs.values()) {
             CacheManager.guildPunishmentConfigs.set(config.guildID, config);
