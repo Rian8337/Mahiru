@@ -16,7 +16,7 @@ import { bold } from "discord.js";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new NamechangeLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     await InteractionHelper.deferReply(interaction);
@@ -29,15 +29,15 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     _id: 0,
                     uid: 1,
                 },
-            },
+            }
         );
 
     if (!bindInfo) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 new ConstantsLocalization(localization.language).getTranslation(
-                    Constants.selfNotBindedReject,
-                ),
+                    Constants.selfNotBindedReject
+                )
             ),
         });
     }
@@ -45,7 +45,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const nameChange =
         await DatabaseManager.aliceDb.collections.nameChange.getFromUid(
             bindInfo.uid,
-            { projection: { _id: 0, cooldown: 1 } },
+            { projection: { _id: 0, cooldown: 1 } }
         );
 
     if (nameChange && nameChange.cooldown > Math.floor(Date.now() / 1000)) {
@@ -54,8 +54,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 localization.getTranslation("requestCooldownNotExpired"),
                 DateTimeFormatHelper.dateToLocaleString(
                     new Date(nameChange.cooldown * 1000),
-                    localization.language,
-                ),
+                    localization.language
+                )
             ),
         });
     }
@@ -68,7 +68,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("currentBindedAccountDoesntExist"),
+                localization.getTranslation("currentBindedAccountDoesntExist")
             ),
         });
     }
@@ -82,8 +82,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 localization.getTranslation(
-                    "newUsernameContainsInvalidCharacters",
-                ),
+                    "newUsernameContainsInvalidCharacters"
+                )
             ),
         });
     }
@@ -91,7 +91,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!NumberHelper.isNumberInRange(newUsername.length, 2, 20, true)) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("newUsernameTooLong"),
+                localization.getTranslation("newUsernameTooLong")
             ),
         });
     }
@@ -101,7 +101,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (newPlayer) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("newNameAlreadyTaken"),
+                localization.getTranslation("newNameAlreadyTaken")
             ),
         });
     }
@@ -117,7 +117,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (apiResult.statusCode !== 200) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("droidServerRequestFailed"),
+                localization.getTranslation("droidServerRequestFailed")
             ),
         });
     }
@@ -128,7 +128,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (requestResult === "FAILED") {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("newNameAlreadyTaken"),
+                localization.getTranslation("newNameAlreadyTaken")
             ),
         });
     }
@@ -138,12 +138,16 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     await DatabaseManager.aliceDb.collections.nameChange.addPreviousUsername(
         bindInfo.uid,
         newUsername,
-        newCooldown.getTime(),
+        newCooldown.getTime()
     );
 
     InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
             localization.getTranslation("changeSuccess"),
+            DateTimeFormatHelper.dateToLocaleString(
+                newCooldown,
+                localization.language
+            )
         ),
         embeds: [
             EmbedCreator.createNormalEmbed({
@@ -156,14 +160,14 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                         player.username
                     }\n` +
                         `${bold(
-                            localization.getTranslation("requestedUsername"),
+                            localization.getTranslation("requestedUsername")
                         )}: ${newUsername}\n` +
                         `${bold(
-                            localization.getTranslation("creationDate"),
+                            localization.getTranslation("creationDate")
                         )}: ${DateTimeFormatHelper.dateToLocaleString(
                             newCooldown,
-                            localization.language,
-                        )}`,
+                            localization.language
+                        )}`
                 ),
         ],
     });
