@@ -58,11 +58,7 @@ export const run: EventUtil["run"] = async (
 
         const auditLog = auditLogEntries.entries.first();
 
-        if (
-            !auditLog ||
-            !auditLog.executor ||
-            auditLog.executor.id === client.user.id
-        ) {
+        if (!auditLog?.executor || auditLog.executor.id === client.user.id) {
             return;
         }
 
@@ -192,11 +188,7 @@ export const run: EventUtil["run"] = async (
 
         const auditLog = auditLogEntries.entries.first();
 
-        if (
-            !auditLog ||
-            !auditLog.executor ||
-            auditLog.executor.id === client.user.id
-        ) {
+        if (!auditLog?.executor || auditLog.executor.id === client.user.id) {
             return;
         }
 
