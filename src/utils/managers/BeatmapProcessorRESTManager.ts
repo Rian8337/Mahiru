@@ -17,7 +17,7 @@ export abstract class BeatmapProcessorRESTManager extends RESTManager {
      * @returns The beatmap in osu! API response format, `null` if the beatmap cannot be obtained.
      */
     static async getBeatmap(
-        idOrHash: string | number,
+        idOrHash: string | number
     ): Promise<OsuAPIResponse | null> {
         const url = new URL(`${this.endpoint}getbeatmap`);
 
@@ -49,7 +49,7 @@ export abstract class BeatmapProcessorRESTManager extends RESTManager {
      * @returns The beatmap file, `null` if the beatmap file cannot be downloaded.
      */
     static async getBeatmapFile(
-        idOrHash: string | number,
+        idOrHash: string | number
     ): Promise<Buffer | null> {
         const url = new URL(`${this.endpoint}getbeatmapfile`);
 
@@ -81,7 +81,7 @@ export abstract class BeatmapProcessorRESTManager extends RESTManager {
      * @returns The beatmapset in osu! API response format, `null` if the beatmapset cannot be obtained.
      */
     static async getBeatmapset(id: number): Promise<OsuAPIResponse[] | null> {
-        const url = new URL(`${this.endpoint}getbeatmapset`);
+        const url = new URL(`${this.endpoint}getbeatmaps`);
 
         url.searchParams.append("key", process.env.DROID_SERVER_INTERNAL_KEY!);
         url.searchParams.append("id", id.toString());
