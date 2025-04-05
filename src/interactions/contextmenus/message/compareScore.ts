@@ -1,29 +1,29 @@
 import { Constants } from "@core/Constants";
 import { DatabaseManager } from "@database/DatabaseManager";
-import { MessageContextMenuCommand } from "structures/core/MessageContextMenuCommand";
+import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { CompareScoreLocalization } from "@localization/interactions/contextmenus/message/compareScore/CompareScoreLocalization";
+import { DroidLegacyModConverter, Modes } from "@rian8337/osu-base";
+import { Score } from "@rian8337/osu-droid-utilities";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
+import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { InteractionHelper } from "@utils/helpers/InteractionHelper";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { Modes } from "@rian8337/osu-base";
-import { GuildMember, InteractionReplyOptions } from "discord.js";
-import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
-import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { ReplayHelper } from "@utils/helpers/ReplayHelper";
-import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
-import { Score } from "@rian8337/osu-droid-utilities";
+import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import { ReplayHelper } from "@utils/helpers/ReplayHelper";
+import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
+import { GuildMember, InteractionReplyOptions } from "discord.js";
+import { MessageContextMenuCommand } from "structures/core/MessageContextMenuCommand";
 
 export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
     const localization = new CompareScoreLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const beatmapId = BeatmapManager.getBeatmapIDFromMessage(
-        interaction.targetMessage,
+        interaction.targetMessage
     );
 
     if (!beatmapId) {
@@ -31,7 +31,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotFound"),
+                localization.getTranslation("beatmapNotFound")
             ),
         });
     }
@@ -44,7 +44,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
                     _id: 0,
                     uid: 1,
                 },
-            },
+            }
         );
 
     if (!bindInfo) {
@@ -53,8 +53,8 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 new ConstantsLocalization(localization.language).getTranslation(
-                    Constants.selfNotBindedReject,
-                ),
+                    Constants.selfNotBindedReject
+                )
             ),
         });
     }
@@ -69,7 +69,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("profileNotFound"),
+                localization.getTranslation("profileNotFound")
             ),
         });
     }
@@ -79,7 +79,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
     if (!beatmapInfo) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotFound"),
+                localization.getTranslation("beatmapNotFound")
             ),
         });
     }
@@ -104,27 +104,27 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
     if (!score) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("scoreNotFound"),
+                localization.getTranslation("scoreNotFound")
             ),
         });
     }
 
     BeatmapManager.setChannelLatestBeatmap(
         interaction.channelId,
-        beatmapInfo.hash,
+        beatmapInfo.hash
     );
 
     const scoreAttribs = await PPProcessorRESTManager.getOnlineScoreAttributes(
         score.uid,
         score.hash,
         Modes.droid,
-        PPCalculationMethod.live,
+        PPCalculationMethod.live
     );
 
     const options: InteractionReplyOptions = {
         content: MessageCreator.createAccept(
             localization.getTranslation("comparePlayDisplay"),
-            player.username,
+            player.username
         ),
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(
@@ -132,7 +132,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
                 (<GuildMember | null>interaction.member)?.displayColor,
                 scoreAttribs?.attributes,
                 undefined,
-                localization.language,
+                localization.language
             ),
         ],
     };
@@ -150,7 +150,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         replay.data,
         score instanceof Score
             ? score.mods
-            : DroidHelper.parseMods(score.mode).mods,
+            : DroidLegacyModConverter.convert(score.mode)
     );
 };
 

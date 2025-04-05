@@ -2,10 +2,12 @@ import { DatabaseManager } from "@database/DatabaseManager";
 import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
 import { RecentPlay } from "@database/utils/aliceDb/RecentPlay";
 import {
+    BeatmapDifficulty,
     Mod,
     ModDoubleTime,
     ModHardRock,
     ModHidden,
+    ModMap,
     ModNoFail,
 } from "@rian8337/osu-base";
 import { Score } from "@rian8337/osu-droid-utilities";
@@ -31,9 +33,9 @@ export abstract class ScoreHelper {
         accuracy: number,
         misses: number,
         maxScore: number,
-        mods: Mod[],
+        mods: ModMap,
         scorePortion: number,
-        accuracyPortion: number = 1 - scorePortion,
+        accuracyPortion: number = 1 - scorePortion
     ): number {
         return (
             this.calculateScorePortionScoreV2(
@@ -41,13 +43,13 @@ export abstract class ScoreHelper {
                 misses,
                 maxScore,
                 mods,
-                scorePortion,
+                scorePortion
             ) +
             this.calculateAccuracyPortionScoreV2(
                 accuracy,
                 misses,
                 mods,
-                accuracyPortion,
+                accuracyPortion
             )
         );
     }
@@ -66,14 +68,14 @@ export abstract class ScoreHelper {
         score: number,
         misses: number,
         maxScore: number,
-        mods: Mod[],
-        scorePortion: number,
+        mods: ModMap,
+        scorePortion: number
     ): number {
         const tempScoreV2 =
             Math.sqrt(
-                (this.removeScoreMultiplier(score, mods) *
-                    (mods.some((m) => m instanceof ModNoFail) ? 2 : 1)) /
-                    maxScore,
+                (this.removeScoreMultiplier(score, mods.values()) *
+                    (mods.has(ModNoFail) ? 2 : 1)) /
+                    maxScore
             ) *
             1e6 *
             scorePortion;
@@ -82,8 +84,8 @@ export abstract class ScoreHelper {
             0,
             this.applyScoreMultiplier(
                 tempScoreV2 - this.getScoreV2MissPenalty(tempScoreV2, misses),
-                mods,
-            ),
+                mods
+            )
         );
     }
 
@@ -99,8 +101,8 @@ export abstract class ScoreHelper {
     static calculateAccuracyPortionScoreV2(
         accuracy: number,
         misses: number,
-        mods: Mod[],
-        accuracyPortion: number,
+        mods: ModMap,
+        accuracyPortion: number
     ): number {
         const tempScoreV2 = Math.pow(accuracy, 2) * 1e6 * accuracyPortion;
 
@@ -108,8 +110,8 @@ export abstract class ScoreHelper {
             0,
             this.applyScoreMultiplier(
                 tempScoreV2 - this.getScoreV2MissPenalty(tempScoreV2, misses),
-                mods,
-            ),
+                mods
+            )
         );
     }
 
@@ -129,7 +131,7 @@ export abstract class ScoreHelper {
                               level) +
                           1.25 * Math.pow(1.8, level - 60)) /
                           1.128
-                    : 23875169174 + 15000000000 * (level - 100),
+                    : 23875169174 + 15000000000 * (level - 100)
             );
         };
 
@@ -156,7 +158,7 @@ export abstract class ScoreHelper {
      */
     private static getScoreV2MissPenalty(
         tempScoreV2: number,
-        misses: number,
+        misses: number
     ): number {
         return misses * 5e-3 * tempScoreV2;
     }
@@ -167,24 +169,23 @@ export abstract class ScoreHelper {
      * @param score The score value.
      * @param mods The mods to apply.
      */
-    static applyScoreMultiplier(score: number, mods: Mod[]): number {
-        for (const mod of mods) {
+    static applyScoreMultiplier(score: number, mods: ModMap): number {
+        // Fine to do since this is ancient code.
+        const difficulty = new BeatmapDifficulty();
+
+        for (const mod of mods.values()) {
             if (mod instanceof ModHardRock) {
                 score *= 1.1;
                 continue;
             }
 
             if (mod.isApplicableToDroid()) {
-                score *= mod.droidScoreMultiplier;
+                score *= mod.calculateDroidScoreMultiplier(difficulty);
             }
         }
 
-        if (
-            mods.filter(
-                (m) => m instanceof ModHidden || m instanceof ModDoubleTime,
-            ).length === 2
-        ) {
-            score /= new ModHidden().droidScoreMultiplier;
+        if (mods.has(ModHidden) && mods.has(ModDoubleTime)) {
+            score /= mods.get(ModHidden)!.calculateDroidScoreMultiplier();
         }
 
         return Math.round(score);
@@ -196,11 +197,16 @@ export abstract class ScoreHelper {
      * @param score The score value.
      * @param mods The mods to remove.
      */
-    static removeScoreMultiplier(score: number, mods: Mod[]): number {
+    static removeScoreMultiplier(score: number, mods: Iterable<Mod>): number {
+        // Fine to do since this is ancient code.
+        const difficulty = new BeatmapDifficulty();
+
         for (const mod of mods) {
-            if (mod.isApplicableToDroid() && mod.droidScoreMultiplier > 0) {
-                score /= mod.droidScoreMultiplier;
+            if (!mod.isApplicableToDroid()) {
+                continue;
             }
+
+            score /= mod.calculateDroidScoreMultiplier(difficulty);
         }
 
         return Math.round(score);
@@ -225,7 +231,7 @@ export abstract class ScoreHelper {
                   Pick<OfficialDatabaseScore, "id">)
             | Score
             | RecentPlay
-        )[] = [],
+        )[] = []
     ): Promise<
         (
             | (Pick<OfficialDatabaseScore, K> &
@@ -236,14 +242,14 @@ export abstract class ScoreHelper {
     > {
         const recentPlays =
             await DatabaseManager.aliceDb.collections.recentPlays.getFromUid(
-                uid,
+                uid
             );
 
         for (const play of recentPlays) {
             const idx = existingScores.findIndex(
                 (v) =>
                     (v instanceof RecentPlay ? v.scoreId : v.id) ===
-                    play.scoreId,
+                    play.scoreId
             );
 
             if (idx !== -1) {

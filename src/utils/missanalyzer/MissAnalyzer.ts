@@ -1,11 +1,13 @@
 import {
     Beatmap,
     Circle,
+    DroidPlayableBeatmap,
     IModApplicableToDroid,
     Interpolation,
     Mod,
     Modes,
     ModHardRock,
+    ModMap,
     ModUtil,
     PlaceableHitObject,
     Slider,
@@ -29,7 +31,7 @@ export class MissAnalyzer {
     /**
      * The beatmap played in the replay.
      */
-    private readonly beatmap: Beatmap;
+    private readonly beatmap: DroidPlayableBeatmap;
 
     /**
      * The objects of the beatmap played in the replay.
@@ -44,7 +46,7 @@ export class MissAnalyzer {
     /**
      * The mods used in the replay.
      */
-    private readonly mods: (Mod & IModApplicableToDroid)[];
+    private readonly mods: ModMap;
 
     /**
      * The speed multiplier of the beatmap.
@@ -56,26 +58,15 @@ export class MissAnalyzer {
      * @param data The data of the replay.
      * @param mods The mods applied in the replay. Used for old replay versions.
      */
-    constructor(
-        beatmap: Beatmap,
-        data: ReplayData,
-        mods: (Mod & IModApplicableToDroid)[],
-    ) {
-        const customSpeedMultiplier = data.isReplayV4()
-            ? data.speedMultiplier
-            : 1;
-
-        this.beatmap = beatmap.createPlayableBeatmap({
-            mode: Modes.droid,
-            mods: mods,
-            customSpeedMultiplier: customSpeedMultiplier,
-        });
+    constructor(beatmap: Beatmap, data: ReplayData, mods: ModMap) {
+        this.beatmap = beatmap.createDroidPlayableBeatmap(mods);
 
         this.objects = this.beatmap.hitObjects.objects;
         this.data = data;
         this.mods = mods;
-        this.overallSpeedMultiplier =
-            ModUtil.calculateRateWithMods(mods) * customSpeedMultiplier;
+        this.overallSpeedMultiplier = ModUtil.calculateRateWithMods(
+            mods.values()
+        );
     }
 
     /**
@@ -92,13 +83,11 @@ export class MissAnalyzer {
         let missIndex = 0;
         const missInformations: MissInformation[] = [];
 
-        const isHardRock = this.mods.some((m) => m instanceof ModHardRock);
-
         const createMissInformation = (
             objectIndex: number,
             verdict?: string,
             cursorPosition?: Vector2,
-            closestHit?: number,
+            closestHit?: number
         ): MissInformation => {
             const object = this.objects[objectIndex];
             const previousObjects: PlaceableHitObject[] = [];
@@ -147,13 +136,13 @@ export class MissAnalyzer {
                 missIndex++,
                 this.data.accuracy.nmiss,
                 this.overallSpeedMultiplier,
-                isHardRock,
+                this.mods.has(ModHardRock),
                 previousObjects.reverse(),
                 previousObjectData.reverse(),
                 cursorGroups,
                 verdict,
                 cursorPosition,
-                closestHit,
+                closestHit
             );
         };
 
@@ -180,7 +169,7 @@ export class MissAnalyzer {
             if (object instanceof Spinner) {
                 // Spinner misses are simple. They just didn't spin enough.
                 missInformations.push(
-                    createMissInformation(i, "Didn't spin enough"),
+                    createMissInformation(i, "Didn't spin enough")
                 );
 
                 continue;
@@ -198,7 +187,7 @@ export class MissAnalyzer {
                         j,
                         i > 0 &&
                             this.data.hitObjectData[i - 1].result ===
-                                HitResult.miss,
+                                HitResult.miss
                     );
 
                 if (cursorOccurrenceInfo === null) {
@@ -223,8 +212,8 @@ export class MissAnalyzer {
                         i,
                         verdict,
                         closestCursorPosition,
-                        closestHit,
-                    ),
+                        closestHit
+                    )
                 );
             } else {
                 missInformations.push(createMissInformation(i));
@@ -246,7 +235,7 @@ export class MissAnalyzer {
     private getCursorOccurrenceClosestToObject(
         object: Circle | SliderHead,
         cursorIndex: number,
-        includeNotelockVerdict: boolean,
+        includeNotelockVerdict: boolean
     ): { position: Vector2; closestHit: number; verdict: string } | null {
         if (!object.hitWindow) {
             return null;
@@ -344,13 +333,13 @@ export class MissAnalyzer {
                                           Interpolation.lerp(
                                               occurrence.position.x,
                                               nextOccurrence.position.x,
-                                              t,
+                                              t
                                           ),
                                           Interpolation.lerp(
                                               occurrence.position.y,
                                               nextOccurrence.position.y,
-                                              t,
-                                          ),
+                                              t
+                                          )
                                       )
                                     : occurrence.position;
 

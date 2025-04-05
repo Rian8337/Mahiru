@@ -1,22 +1,16 @@
 import { DatabaseManager } from "@database/DatabaseManager";
+import { Accuracy, ModMap, ModUtil, ScoreRank } from "@rian8337/osu-base";
+import {
+    DroidDifficultyAttributes,
+    OsuDifficultyAttributes,
+} from "@rian8337/osu-difficulty-calculator";
+import { HitErrorInformation } from "@rian8337/osu-droid-replay-analyzer";
 import { DatabaseRecentPlay } from "@structures/database/aliceDb/DatabaseRecentPlay";
 import { CompleteCalculationAttributes } from "@structures/difficultyattributes/CompleteCalculationAttributes";
 import { DroidPerformanceAttributes } from "@structures/difficultyattributes/DroidPerformanceAttributes";
 import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
 import { SliderTickInformation } from "@structures/pp/SliderTickInformation";
 import { Manager } from "@utils/base/Manager";
-import {
-    Accuracy,
-    IModApplicableToDroid,
-    Mod,
-    ModUtil,
-    ScoreRank,
-} from "@rian8337/osu-base";
-import {
-    DroidDifficultyAttributes,
-    OsuDifficultyAttributes,
-} from "@rian8337/osu-difficulty-calculator";
-import { HitErrorInformation } from "@rian8337/osu-droid-replay-analyzer";
 
 /**
  * Represents a recent play.
@@ -58,9 +52,9 @@ export class RecentPlay extends Manager {
     readonly accuracy: Accuracy;
 
     /**
-     * Enabled modifications in this play, in osu!standard string.
+     * Enabled modifications in this play.
      */
-    readonly mods: (Mod & IModApplicableToDroid)[];
+    readonly mods: ModMap;
 
     /**
      * The MD5 hash of the beatmap in this play.
@@ -129,45 +123,19 @@ export class RecentPlay extends Manager {
     readonly scoreId?: number;
 
     /**
-     * The complete mod string of this play (mods, speed multiplier, and force AR combined).
+     * The complete mod string of this play.
      */
     get completeModString(): string {
-        let finalString = `+${
-            this.mods.length > 0 ? this.mods.map((v) => v.acronym) : "No Mod"
-        }`;
-
-        const customStats: string[] = [];
-
-        if (this.speedMultiplier !== undefined && this.speedMultiplier !== 1) {
-            customStats.push(`${this.speedMultiplier}x`);
+        if (this.mods.isEmpty) {
+            return `+No Mod`;
         }
 
-        if (this.forceCS !== undefined) {
-            customStats.push(`CS${this.forceCS}`);
-        }
-
-        if (this.forceAR !== undefined) {
-            customStats.push(`AR${this.forceAR}`);
-        }
-
-        if (this.forceOD !== undefined) {
-            customStats.push(`OD${this.forceOD}`);
-        }
-
-        if (this.forceHP !== undefined) {
-            customStats.push(`HP${this.forceHP}`);
-        }
-
-        if (customStats.length > 0) {
-            finalString += ` (${customStats.join(", ")})`;
-        }
-
-        return finalString;
+        return `+${ModUtil.modsToOrderedString(this.mods)}`;
     }
 
     constructor(
         data: DatabaseRecentPlay = DatabaseManager.aliceDb?.collections
-            .recentPlays.defaultDocument ?? {},
+            .recentPlays.defaultDocument ?? {}
     ) {
         super();
 
@@ -178,9 +146,7 @@ export class RecentPlay extends Manager {
         this.rank = data.rank;
         this.date = data.date;
         this.accuracy = new Accuracy(data.accuracy);
-        this.mods = <(Mod & IModApplicableToDroid)[]>(
-            ModUtil.pcStringToMods(data.mods)
-        );
+        this.mods = ModUtil.deserializeMods(data.mods);
         this.hash = data.hash;
         this.speedMultiplier = data.speedMultiplier;
         this.forceCS = data.forceCS;

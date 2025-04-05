@@ -51,7 +51,7 @@ export class TournamentMatch
 
     constructor(
         data: DatabaseTournamentMatch = DatabaseManager.elainaDb?.collections
-            .tournamentMatch.defaultDocument ?? {},
+            .tournamentMatch.defaultDocument ?? {}
     ) {
         super();
 
@@ -84,7 +84,7 @@ export class TournamentMatch
                     status: this.status,
                     team: this.team,
                 },
-            },
+            }
         );
     }
 
@@ -99,18 +99,18 @@ export class TournamentMatch
     getLastPlayedBeatmap(
         pool: TournamentMappool,
         players: Player[],
-        pick?: string,
+        pick?: string
     ): TournamentBeatmap | null {
         let map: TournamentBeatmap | null = null;
 
         if (pick) {
             map = pool.getBeatmapFromPick(pick);
         } else {
-            let minTime: number = Number.NEGATIVE_INFINITY;
-            let hash: string = "";
+            let minTime = Number.NEGATIVE_INFINITY;
+            let hash = "";
 
             for (const player of players) {
-                const recentPlay: Score = player.recentPlays[0];
+                const recentPlay = player.recentPlays[0];
 
                 if (minTime >= recentPlay?.date.getTime()) {
                     continue;
@@ -136,24 +136,22 @@ export class TournamentMatch
     verifyTeamScore(
         scores: Score[],
         map: TournamentBeatmap,
-        language: Language = "en",
+        language: Language = "en"
     ): OperationResult {
         if (map.minPlayers === "ALL" || !map.pickId.startsWith("FM")) {
             return this.createOperationResult(true);
         }
 
         return this.createOperationResult(
-            scores.some((score) =>
-                score.mods.some(
-                    (m) =>
-                        m instanceof ModEasy ||
-                        m instanceof ModHidden ||
-                        m instanceof ModHardRock,
-                ),
+            scores.some(
+                (score) =>
+                    score.mods.has(ModEasy) ||
+                    score.mods.has(ModHidden) ||
+                    score.mods.has(ModHardRock)
             ),
             this.getLocalization(language).getTranslation(
-                "teamMembersIncorrectFMmod",
-            ),
+                "teamMembersIncorrectFMmod"
+            )
         );
     }
 
@@ -169,7 +167,7 @@ export class TournamentMatch
         score: Score,
         map: TournamentBeatmap,
         teamScoreStatus: boolean,
-        language: Language = "en",
+        language: Language = "en"
     ): OperationResult {
         const localization: TournamentMatchLocalization =
             this.getLocalization(language);
@@ -177,7 +175,7 @@ export class TournamentMatch
         if (score.hash !== map.hash) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("scoreNotFound"),
+                localization.getTranslation("scoreNotFound")
             );
         }
 
@@ -199,16 +197,16 @@ export class TournamentMatch
 
         const correctMods: Mod[] = [];
         const incorrectMods: Mod[] = [];
-        const requiredMods: Mod[] = ModUtil.pcStringToMods(map.requiredMods);
+        const requiredMods = ModUtil.pcStringToMods(map.requiredMods);
 
         // Consider required mods first, then we can check for invalid mods.
-        for (const mod of requiredMods) {
-            if (score.mods.find((m) => m.acronym === mod.acronym)) {
+        for (const mod of requiredMods.values()) {
+            if (score.mods.has(mod)) {
                 correctMods.push(mod);
             }
         }
 
-        for (const mod of score.mods) {
+        for (const mod of score.mods.values()) {
             if (mod instanceof ModNoFail) {
                 continue;
             }
@@ -222,13 +220,13 @@ export class TournamentMatch
         }
 
         return this.createOperationResult(
-            correctMods.length === requiredMods.length &&
+            correctMods.length === requiredMods.size &&
                 incorrectMods.length === 0 &&
                 teamScoreStatus,
             StringHelper.formatString(
                 localization.getTranslation("modsWasUsed"),
-                incorrectMods.reduce((a, m) => a + m.acronym, ""),
-            ),
+                incorrectMods.reduce((a, m) => a + m.acronym, "")
+            )
         );
     }
 

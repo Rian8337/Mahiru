@@ -9,7 +9,7 @@ import { CloneableAccuracy } from "./CloneableAccuracy";
  */
 export interface CloneablePerformanceCalculationParameters<
     TFromCalculation extends boolean = boolean,
-> extends CloneableDifficultyCalculationParameters<TFromCalculation> {
+> extends CloneableDifficultyCalculationParameters {
     /**
      * The combo achieved.
      */

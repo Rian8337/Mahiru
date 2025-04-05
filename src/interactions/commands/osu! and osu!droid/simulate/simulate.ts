@@ -6,26 +6,14 @@ import { CommandCategory } from "@enums/core/CommandCategory";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { SimulateLocalization } from "@localization/interactions/commands/osu! and osu!droid/simulate/SimulateLocalization";
-import { SlashCommand } from "@structures/core/SlashCommand";
-import { EmbedCreator } from "@utils/creators/EmbedCreator";
-import { MessageCreator } from "@utils/creators/MessageCreator";
-import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
-import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { DroidHelper } from "@utils/helpers/DroidHelper";
-import { InteractionHelper } from "@utils/helpers/InteractionHelper";
-import { NumberHelper } from "@utils/helpers/NumberHelper";
-import { ReplayHelper } from "@utils/helpers/ReplayHelper";
-import { StringHelper } from "@utils/helpers/StringHelper";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import {
     Accuracy,
     BeatmapDifficulty,
     Circle,
     DroidHitWindow,
-    IModApplicableToDroid,
+    DroidLegacyModConverter,
     MapInfo,
-    Mod,
+    ModCustomSpeed,
     Modes,
     ModFlashlight,
     ModHidden,
@@ -39,15 +27,27 @@ import {
 } from "@rian8337/osu-base";
 import { HitResult } from "@rian8337/osu-droid-replay-analyzer";
 import { Player, Score } from "@rian8337/osu-droid-utilities";
+import { SlashCommand } from "@structures/core/SlashCommand";
+import { EmbedCreator } from "@utils/creators/EmbedCreator";
+import { MessageCreator } from "@utils/creators/MessageCreator";
+import { CommandHelper } from "@utils/helpers/CommandHelper";
+import { DroidHelper } from "@utils/helpers/DroidHelper";
+import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import { NumberHelper } from "@utils/helpers/NumberHelper";
+import { ReplayHelper } from "@utils/helpers/ReplayHelper";
+import { StringHelper } from "@utils/helpers/StringHelper";
+import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
+import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
 import { ApplicationCommandOptionType, GuildMember } from "discord.js";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new SimulateLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const beatmapID = BeatmapManager.getBeatmapID(
-        interaction.options.getString("beatmap") ?? "",
+        interaction.options.getString("beatmap") ?? ""
     )[0];
 
     const hash = BeatmapManager.getChannelLatestBeatmap(interaction.channelId);
@@ -55,7 +55,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!beatmapID && !hash) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noBeatmapProvided"),
+                localization.getTranslation("noBeatmapProvided")
             ),
         });
     }
@@ -66,7 +66,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     ) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapProvidedIsInvalid"),
+                localization.getTranslation("beatmapProvidedIsInvalid")
             ),
         });
     }
@@ -78,7 +78,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!modInput && !speedMultiplierInput) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noSimulateOptions"),
+                localization.getTranslation("noSimulateOptions")
             ),
         });
     }
@@ -111,7 +111,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             if (!StringHelper.isUsernameValid(username)) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
-                        localization.getTranslation("playerNotFound"),
+                        localization.getTranslation("playerNotFound")
                     ),
                 });
             }
@@ -134,19 +134,19 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                         _id: 0,
                         uid: 1,
                     },
-                },
+                }
             );
 
             if (!bindInfo) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
                         new ConstantsLocalization(
-                            localization.language,
+                            localization.language
                         ).getTranslation(
                             discordid
                                 ? Constants.userNotBindedReject
-                                : Constants.selfNotBindedReject,
-                        ),
+                                : Constants.selfNotBindedReject
+                        )
                     ),
                 });
             }
@@ -161,7 +161,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerNotFound"),
+                localization.getTranslation("playerNotFound")
             ),
         });
     }
@@ -171,7 +171,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     ) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerHasNoRecentPlays"),
+                localization.getTranslation("playerHasNoRecentPlays")
             ),
         });
     }
@@ -180,13 +180,13 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         beatmapID ?? hash,
         {
             checkFile: false,
-        },
+        }
     );
 
     if (!beatmap) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotFound"),
+                localization.getTranslation("beatmapNotFound")
             ),
         });
     }
@@ -214,54 +214,38 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 localization.getTranslation(
                     uid || discordid || username
                         ? "userScoreNotFound"
-                        : "selfScoreNotFound",
-                ),
+                        : "selfScoreNotFound"
+                )
             ),
         });
     }
 
-    let realMods: (Mod & IModApplicableToDroid)[];
-    let realForceCS: number | undefined;
-    let realForceAR: number | undefined;
-    let realForceOD: number | undefined;
-    let realForceHP: number | undefined;
-    let realSpeedMultiplier: number;
-    let realOldStatistics: boolean;
+    const realMods =
+        score instanceof Score
+            ? score.mods
+            : DroidLegacyModConverter.convert(score.mode);
 
-    if (score instanceof Score) {
-        realMods = score.mods;
-        realForceCS = score.forceCS;
-        realForceAR = score.forceAR;
-        realForceOD = score.forceOD;
-        realForceHP = score.forceHP;
-        realSpeedMultiplier = score.speedMultiplier;
-        realOldStatistics = score.oldStatistics;
-    } else {
-        const parsedMods = DroidHelper.parseMods(score.mode);
-
-        realMods = parsedMods.mods;
-        realForceCS = parsedMods.forceCS;
-        realForceAR = parsedMods.forceAR;
-        realForceOD = parsedMods.forceOD;
-        realForceHP = parsedMods.forceHP;
-        realSpeedMultiplier = parsedMods.speedMultiplier;
-        realOldStatistics = parsedMods.oldStatistics;
-    }
+    const realSpeedMultiplier =
+        realMods.get(ModCustomSpeed)?.trackRateMultiplier ?? 1;
 
     const simulatedMods = ModUtil.pcStringToMods(modInput ?? "");
 
+    if (speedMultiplierInput !== null) {
+        simulatedMods.set(new ModCustomSpeed(speedMultiplierInput));
+    }
+
     if (
         StringHelper.sortAlphabet(
-            realMods.reduce((a, v) => a + v.acronym, ""),
+            [...realMods.values()].reduce((a, v) => a + v.acronym, "")
         ) ===
             StringHelper.sortAlphabet(
-                simulatedMods.reduce((a, v) => a + v.acronym, ""),
+                [...simulatedMods.values()].reduce((a, v) => a + v.acronym, "")
             ) &&
         (speedMultiplierInput ?? 1) === realSpeedMultiplier
     ) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noSimulateOptions"),
+                localization.getTranslation("noSimulateOptions")
             ),
         });
     }
@@ -274,8 +258,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 localization.getTranslation(
                     uid || discordid || username
                         ? "userScoreNotFound"
-                        : "selfScoreNotFound",
-                ),
+                        : "selfScoreNotFound"
+                )
             ),
         });
     }
@@ -285,7 +269,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!beatmap.hasDownloadedBeatmap()) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotFound"),
+                localization.getTranslation("beatmapNotFound")
             ),
         });
     }
@@ -295,20 +279,12 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     // Simulate replay given the mods input.
     // For the moment, we're not gonna check for cursor position in sliders as the operation will be too expensive.
     let simulatedScoreMultiplier = 1;
-    for (const mod of simulatedMods) {
+    for (const mod of simulatedMods.values()) {
         if (mod.isApplicableToDroid()) {
-            simulatedScoreMultiplier *= mod.droidScoreMultiplier;
+            simulatedScoreMultiplier *= mod.calculateDroidScoreMultiplier(
+                beatmap.beatmap!.difficulty
+            );
         }
-    }
-
-    const simulatedSpeedMultiplier = speedMultiplierInput ?? 1;
-    if (simulatedSpeedMultiplier >= 1) {
-        simulatedScoreMultiplier *= 1 + (simulatedSpeedMultiplier - 1) * 0.24;
-    } else {
-        simulatedScoreMultiplier *= Math.pow(
-            0.3,
-            (1 - simulatedSpeedMultiplier) * 4,
-        );
     }
 
     const difficultyMultiplier =
@@ -335,12 +311,10 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         realDifficulty,
         Modes.droid,
         realMods,
-        realSpeedMultiplier,
-        false,
-        realOldStatistics,
+        false
     );
 
-    const realHitWindow = realMods.some((m) => m instanceof ModPrecise)
+    const realHitWindow = realMods.has(ModPrecise)
         ? new PreciseDroidHitWindow(realDifficulty.od)
         : new DroidHitWindow(realDifficulty.od);
 
@@ -354,14 +328,10 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         simulatedDifficulty,
         Modes.droid,
         simulatedMods,
-        simulatedSpeedMultiplier,
-        false,
-        realOldStatistics,
+        false
     );
 
-    const simulatedHitWindow = simulatedMods.some(
-        (m) => m instanceof ModPrecise,
-    )
+    const simulatedHitWindow = simulatedMods.has(ModPrecise)
         ? new PreciseDroidHitWindow(simulatedDifficulty.od)
         : new DroidHitWindow(simulatedDifficulty.od);
 
@@ -373,7 +343,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     const addSliderNestedResult = (
         object: SliderNestedHitObject,
-        wasHit = true,
+        wasHit = true
     ) => {
         if (wasHit) {
             ++simulatedCurrentCombo;
@@ -414,7 +384,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         simulatedTotalScore +=
             hitWeight +
             Math.floor(
-                (hitWeight * simulatedCurrentCombo * difficultyMultiplier) / 25,
+                (hitWeight * simulatedCurrentCombo * difficultyMultiplier) / 25
             );
 
         if (hitWeight > 0) {
@@ -479,7 +449,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 // All nested objects were hit.
                 for (const nestedObject of object.nestedHitObjects.slice(
                     0,
-                    -1,
+                    -1
                 )) {
                     addSliderNestedResult(nestedObject);
                 }
@@ -498,7 +468,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 addSliderNestedResult(
                     object.nestedHitObjects[0],
                     -simulatedHitWindow50 <= hitAccuracy &&
-                        hitAccuracy <= simulatedHitWindow50,
+                        hitAccuracy <= simulatedHitWindow50
                 );
             } else if (hitAccuracy <= object.duration) {
                 // In replays older than version 6, when the 50 hit window is longer than the duration
@@ -512,7 +482,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             for (let j = 1; j < object.nestedHitObjects.length - 1; ++j) {
                 addSliderNestedResult(
                     object.nestedHitObjects[j],
-                    objectData.tickset[j - 1],
+                    objectData.tickset[j - 1]
                 );
             }
 
@@ -561,14 +531,13 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     }
 
     simulatedTotalScore = Math.floor(
-        simulatedTotalScore * simulatedScoreMultiplier,
+        simulatedTotalScore * simulatedScoreMultiplier
     );
 
     // Reprocess rank.
     let newRank: ScoreRank;
-    const isHidden = simulatedMods.some(
-        (m) => m instanceof ModHidden || m instanceof ModFlashlight,
-    );
+    const isHidden =
+        simulatedMods.has(ModHidden) || simulatedMods.has(ModFlashlight);
     const hit300Ratio = simulatedAccuracy.n300 / beatmap.objects;
 
     switch (true) {
@@ -602,55 +571,28 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         score.accuracy = simulatedAccuracy;
         score.combo = simulatedMaxCombo;
         score.score = simulatedTotalScore;
-        score.speedMultiplier = simulatedSpeedMultiplier;
-        score.mods = <(Mod & IModApplicableToDroid)[]>(
-            simulatedMods.filter((m) => m.isApplicableToDroid())
-        );
+        score.mods = simulatedMods;
         score.rank = newRank;
 
         calcParams = new PerformanceCalculationParameters({
             accuracy: simulatedAccuracy,
             combo: simulatedMaxCombo,
-            forceCS: realForceCS,
-            forceAR: realForceAR,
-            forceOD: realForceOD,
-            forceHP: realForceHP,
             mods: score.mods,
-            oldStatistics: score.oldStatistics,
-            customSpeedMultiplier: simulatedSpeedMultiplier,
         });
     } else {
-        const mods = <(Mod & IModApplicableToDroid)[]>(
-            simulatedMods.filter((m) => m.isApplicableToDroid())
-        );
-
         score.score = simulatedTotalScore;
         score.combo = simulatedMaxCombo;
         score.perfect = simulatedAccuracy.n300;
         score.good = simulatedAccuracy.n100;
         score.bad = simulatedAccuracy.n50;
         score.mark = newRank;
-        score.mode = DroidHelper.modsToDatabaseString({
-            mods: mods,
-            forceCS: realForceCS,
-            forceAR: realForceAR,
-            forceOD: realForceOD,
-            forceHP: realForceHP,
-            speedMultiplier: simulatedSpeedMultiplier,
-            oldStatistics: realOldStatistics,
-        });
+        score.mode = DroidHelper.modMapToLegacyString(simulatedMods);
         score.miss = simulatedAccuracy.nmiss;
 
         calcParams = new PerformanceCalculationParameters({
             accuracy: simulatedAccuracy,
             combo: simulatedMaxCombo,
-            forceCS: realForceCS,
-            forceAR: realForceAR,
-            forceOD: realForceOD,
-            forceHP: realForceHP,
-            mods: mods,
-            oldStatistics: realOldStatistics,
-            customSpeedMultiplier: simulatedSpeedMultiplier,
+            mods: simulatedMods,
         });
     }
 
@@ -658,14 +600,14 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         beatmap.beatmapId,
         Modes.droid,
         PPCalculationMethod.live,
-        calcParams,
+        calcParams
     );
 
     const osuAttribs = await PPProcessorRESTManager.getPerformanceAttributes(
         beatmap.beatmapId,
         Modes.osu,
         PPCalculationMethod.live,
-        calcParams,
+        calcParams
     );
 
     BeatmapManager.setChannelLatestBeatmap(interaction.channelId, score.hash);
@@ -673,14 +615,14 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
             localization.getTranslation("simulatedPlayDisplay"),
-            player.username,
+            player.username
         ),
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(
                 score,
                 (<GuildMember | null>interaction.member)?.displayColor,
                 droidAttribs?.attributes,
-                osuAttribs?.attributes,
+                osuAttribs?.attributes
             ),
         ],
     });

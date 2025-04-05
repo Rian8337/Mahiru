@@ -12,19 +12,19 @@ import { MapInfo, ModUtil } from "@rian8337/osu-base";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new DailyLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const dbManager = DatabaseManager.aliceDb.collections.challenge;
 
     const challenge = await dbManager.getById(
-        interaction.options.getString("id", true),
+        interaction.options.getString("id", true)
     );
 
     if (!challenge) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("challengeNotFound"),
+                localization.getTranslation("challengeNotFound")
             ),
         });
     }
@@ -32,7 +32,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!challenge.isScheduled) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("challengeIsOngoing"),
+                localization.getTranslation("challengeIsOngoing")
             ),
         });
     }
@@ -62,14 +62,14 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                         $set: {
                             bonus: [...challenge.bonus.values()],
                         },
-                    },
+                    }
                 );
 
                 if (!result.success) {
                     return InteractionHelper.reply(interaction, {
                         content: MessageCreator.createReject(
                             localization.getTranslation("modifyBonusFailed"),
-                            result.reason!,
+                            result.reason!
                         ),
                     });
                 }
@@ -82,7 +82,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 challenge.challengeid,
                 type,
                 level.toLocaleString(BCP47),
-                localization.getTranslation("none"),
+                localization.getTranslation("none")
             ),
         });
     }
@@ -91,13 +91,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     const beatmap: MapInfo | null = await BeatmapManager.getBeatmap(
         challenge.beatmapid,
-        { checkFile: false },
+        { checkFile: false }
     );
 
     if (!beatmap) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotFound"),
+                localization.getTranslation("beatmapNotFound")
             ),
         });
     }
@@ -111,13 +111,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             if (!beatmap.hasDownloadedBeatmap()) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
-                        localization.getTranslation("beatmapNotFound"),
+                        localization.getTranslation("beatmapNotFound")
                     ),
                 });
             }
 
             const maxScore = beatmap.beatmap!.maxDroidScore(
-                ModUtil.pcStringToMods(challenge.constrain),
+                ModUtil.pcStringToMods(challenge.constrain)
             );
 
             if (!NumberHelper.isNumberInRange(value, 0, maxScore, true)) {
@@ -125,7 +125,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     content: MessageCreator.createReject(
                         localization.getTranslation("bonusValueOutOfRange"),
                         "0",
-                        maxScore.toLocaleString(BCP47),
+                        maxScore.toLocaleString(BCP47)
                     ),
                 });
             }
@@ -140,7 +140,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     content: MessageCreator.createReject(
                         localization.getTranslation("bonusValueOutOfRange"),
                         "0",
-                        "100",
+                        "100"
                     ),
                 });
             }
@@ -154,7 +154,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     content: MessageCreator.createReject(
                         localization.getTranslation("bonusValueOutOfRange"),
                         "0",
-                        (1e6).toLocaleString(BCP47),
+                        (1e6).toLocaleString(BCP47)
                     ),
                 });
             }
@@ -164,7 +164,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             if (beatmap.maxCombo === null) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
-                        localization.getTranslation("beatmapMaxComboNotFound"),
+                        localization.getTranslation("beatmapMaxComboNotFound")
                     ),
                 });
             }
@@ -178,7 +178,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     content: MessageCreator.createReject(
                         localization.getTranslation("bonusValueOutOfRange"),
                         "0",
-                        beatmap.maxCombo.toLocaleString(BCP47),
+                        beatmap.maxCombo.toLocaleString(BCP47)
                     ),
                 });
             }
@@ -186,16 +186,19 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             break;
         case "mod": {
             const mods = ModUtil.pcStringToMods(value);
+            const modArray = [...mods.values()];
 
-            if (mods.some((m) => !m.isApplicableToDroid() || !m.droidRanked)) {
+            if (
+                modArray.some((m) => !m.isApplicableToDroid() || !m.droidRanked)
+            ) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
-                        localization.getTranslation("unrankedModsIncluded"),
+                        localization.getTranslation("unrankedModsIncluded")
                     ),
                 });
             }
 
-            value = mods.reduce((a, v) => a + v.acronym, "");
+            value = ModUtil.modsToOsuString(modArray);
 
             break;
         }
@@ -207,7 +210,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     content: MessageCreator.createReject(
                         localization.getTranslation("bonusValueOutOfRange"),
                         "SSH",
-                        "D",
+                        "D"
                     ),
                 });
             }
@@ -223,14 +226,14 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     value,
                     0,
                     Number.POSITIVE_INFINITY,
-                    true,
+                    true
                 )
             ) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
                         localization.getTranslation("bonusValueOutOfRange"),
                         "0",
-                        Number.POSITIVE_INFINITY.toLocaleString(BCP47),
+                        Number.POSITIVE_INFINITY.toLocaleString(BCP47)
                     ),
                 });
             }
@@ -249,7 +252,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     content: MessageCreator.createReject(
                         localization.getTranslation("bonusValueOutOfRange"),
                         "0",
-                        beatmap.objects.toLocaleString(BCP47),
+                        beatmap.objects.toLocaleString(BCP47)
                     ),
                 });
             }
@@ -279,14 +282,14 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             $set: {
                 bonus: [...challenge.bonus.values()],
             },
-        },
+        }
     );
 
     if (result.failed()) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 localization.getTranslation("modifyBonusFailed"),
-                result.reason,
+                result.reason
             ),
         });
     }
@@ -297,7 +300,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             challenge.challengeid,
             type,
             level.toLocaleString(BCP47),
-            value.toLocaleString(BCP47),
+            value.toLocaleString(BCP47)
         ),
     });
 };

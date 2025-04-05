@@ -1,27 +1,38 @@
-import AdmZip from "adm-zip";
-import { EmbedBuilder, AttachmentBuilder } from "discord.js";
 import { Constants } from "@core/Constants";
 import { DatabaseManager } from "@database/DatabaseManager";
-import { ApplicationCommandOptionType } from "discord.js";
 import { CommandCategory } from "@enums/core/CommandCategory";
-import { SlashCommand } from "structures/core/SlashCommand";
-import { MessageCreator } from "@utils/creators/MessageCreator";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { EmbedCreator } from "@utils/creators/EmbedCreator";
-import { Accuracy, MapInfo, Modes } from "@rian8337/osu-base";
-import { Score } from "@rian8337/osu-droid-utilities";
-import { FetchreplayLocalization } from "@localization/interactions/commands/osu! and osu!droid/fetchreplay/FetchreplayLocalization";
-import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { StringHelper } from "@utils/helpers/StringHelper";
-import { LocaleHelper } from "@utils/helpers/LocaleHelper";
-import { InteractionHelper } from "@utils/helpers/InteractionHelper";
-import { ReplayHelper } from "@utils/helpers/ReplayHelper";
-import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { BeatmapDifficultyHelper } from "@utils/helpers/BeatmapDifficultyHelper";
-import { DroidHelper } from "@utils/helpers/DroidHelper";
-import { ExportedReplayJSONV2 } from "@rian8337/osu-droid-replay-analyzer";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
+import { FetchreplayLocalization } from "@localization/interactions/commands/osu! and osu!droid/fetchreplay/FetchreplayLocalization";
+import {
+    Accuracy,
+    DroidLegacyModConverter,
+    MapInfo,
+    ModCustomSpeed,
+    ModDifficultyAdjust,
+    Modes,
+    ModUtil,
+} from "@rian8337/osu-base";
+import { ExportedReplayJSONV2 } from "@rian8337/osu-droid-replay-analyzer";
+import { Score } from "@rian8337/osu-droid-utilities";
+import { EmbedCreator } from "@utils/creators/EmbedCreator";
+import { MessageCreator } from "@utils/creators/MessageCreator";
+import { BeatmapDifficultyHelper } from "@utils/helpers/BeatmapDifficultyHelper";
+import { CommandHelper } from "@utils/helpers/CommandHelper";
+import { DroidHelper } from "@utils/helpers/DroidHelper";
+import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import { LocaleHelper } from "@utils/helpers/LocaleHelper";
+import { ReplayHelper } from "@utils/helpers/ReplayHelper";
+import { StringHelper } from "@utils/helpers/StringHelper";
+import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
+import AdmZip from "adm-zip";
+import {
+    ApplicationCommandOptionType,
+    AttachmentBuilder,
+    EmbedBuilder,
+} from "discord.js";
+import { SlashCommand } from "structures/core/SlashCommand";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new FetchreplayLocalization(
@@ -140,37 +151,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     let modstring: string;
 
     if (score instanceof Score) {
-        modstring = score.mods.map((v) => v.droidString).join("");
-
-        if (score.forceCS !== undefined) {
-            modstring += `|CS${score.forceCS}`;
-        }
-        if (score.forceAR !== undefined) {
-            modstring += `|AR${score.forceAR}`;
-        }
-        if (score.forceOD !== undefined) {
-            modstring += `|OD${score.forceOD}`;
-        }
-        if (score.forceHP !== undefined) {
-            modstring += `|HP${score.forceHP}`;
-        }
+        modstring = DroidHelper.modMapToLegacyString(score.mods);
     } else {
-        const parsedMods = DroidHelper.parseMods(score.mode);
-
-        modstring = parsedMods.mods.map((v) => v.droidString).join("");
-
-        if (parsedMods.forceCS !== undefined) {
-            modstring += `|CS${parsedMods.forceCS}`;
-        }
-        if (parsedMods.forceAR !== undefined) {
-            modstring += `|AR${parsedMods.forceAR}`;
-        }
-        if (parsedMods.forceOD !== undefined) {
-            modstring += `|OD${parsedMods.forceOD}`;
-        }
-        if (parsedMods.forceHP !== undefined) {
-            modstring += `|HP${parsedMods.forceHP}`;
-        }
+        modstring = score.mode;
     }
 
     const rank = score instanceof Score ? score.rank : score.mark;

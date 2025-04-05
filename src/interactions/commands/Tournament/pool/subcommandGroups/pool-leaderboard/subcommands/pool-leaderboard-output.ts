@@ -1,54 +1,51 @@
 import { DatabaseManager } from "@database/DatabaseManager";
-import { TournamentMappool } from "@database/utils/elainaDb/TournamentMappool";
-import { SlashSubcommand } from "structures/core/SlashSubcommand";
-import { TournamentBeatmap } from "structures/tournament/TournamentBeatmap";
-import { TournamentScore } from "@structures/tournament/TournamentScore";
 import { PoolLocalization } from "@localization/interactions/commands/Tournament/pool/PoolLocalization";
+import { ModUtil } from "@rian8337/osu-base";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { AttachmentBuilder } from "discord.js";
+import { SlashSubcommand } from "structures/core/SlashSubcommand";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
-    const localization: PoolLocalization = new PoolLocalization(
-        CommandHelper.getLocale(interaction),
+    const localization = new PoolLocalization(
+        CommandHelper.getLocale(interaction)
     );
 
-    const id: string = interaction.options.getString("id", true);
+    const id = interaction.options.getString("id", true);
+    const pick = interaction.options.getString("pick", true);
 
-    const pick: string = interaction.options.getString("pick", true);
-
-    const pool: TournamentMappool | null =
+    const pool =
         await DatabaseManager.elainaDb.collections.tournamentMappool.getFromId(
-            id,
+            id
         );
 
     if (!pool) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("poolNotFound"),
+                localization.getTranslation("poolNotFound")
             ),
         });
     }
 
-    const map: TournamentBeatmap | null = pool.getBeatmapFromPick(pick);
+    const map = pool.getBeatmapFromPick(pick);
 
     if (!map) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("mapNotFound"),
+                localization.getTranslation("mapNotFound")
             ),
         });
     }
 
     await InteractionHelper.deferReply(interaction);
 
-    const scores: TournamentScore[] = await pool.getBeatmapLeaderboard(pick);
+    const scores = await pool.getBeatmapLeaderboard(pick);
 
     if (scores.length === 0) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapHasNoScores"),
+                localization.getTranslation("beatmapHasNoScores")
             ),
         });
     }
@@ -63,17 +60,16 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             pick,
             score.score.score,
             score.score.accuracy.nmiss,
-            score.score.mods,
+            score.score.mods
         )},${pool.calculateAccuracyPortionScoreV2(
             pick,
             score.score.accuracy.value(),
             score.score.accuracy.nmiss,
-            score.score.mods,
-        )},${score.score.score},${score.score.mods.reduce(
-            (a, v) => a + v.acronym,
-            "",
-        )},${score.score.combo},${(score.score.accuracy.value() * 100).toFixed(
-            2,
+            score.score.mods
+        )},${score.score.score},'${ModUtil.modsToOrderedString(score.score.mods)}',${score.score.combo},${(
+            score.score.accuracy.value() * 100
+        ).toFixed(
+            2
         )},${score.score.accuracy.n300},${score.score.accuracy.n100},${
             score.score.accuracy.n50
         },${score.score.accuracy.nmiss},"${score.score.date.toUTCString()}"\n`;
@@ -81,7 +77,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     const attachment: AttachmentBuilder = new AttachmentBuilder(
         Buffer.from(csvString),
-        { name: `leaderboard_${map.name}.csv` },
+        { name: `leaderboard_${map.name}.csv` }
     );
 
     InteractionHelper.reply(interaction, {

@@ -1,3 +1,24 @@
+import { Config } from "@core/Config";
+import {
+    BeatmapDecoder,
+    BeatmapDifficulty,
+    DroidHitWindow,
+    MapInfo,
+    Modes,
+    ModMap,
+    ModPrecise,
+    ModUtil,
+    PreciseDroidHitWindow,
+    Precision,
+    RankedStatus,
+    ScoreRank,
+} from "@rian8337/osu-base";
+import { BeatmapRetrievalOptions } from "@structures/utils/BeatmapRetrievalOptions";
+import { Manager } from "@utils/base/Manager";
+import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
+import { HelperFunctions } from "@utils/helpers/HelperFunctions";
+import { NumberHelper } from "@utils/helpers/NumberHelper";
+import { createCanvas } from "canvas";
 import * as d3 from "d3";
 import {
     AttachmentBuilder,
@@ -8,30 +29,8 @@ import {
     Message,
     Snowflake,
 } from "discord.js";
-import {
-    BeatmapDecoder,
-    BeatmapDifficulty,
-    DroidHitWindow,
-    MapInfo,
-    Mod,
-    ModDifficultyAdjust,
-    Modes,
-    ModPrecise,
-    ModUtil,
-    PreciseDroidHitWindow,
-    Precision,
-    RankedStatus,
-    ScoreRank,
-} from "@rian8337/osu-base";
-import { Manager } from "@utils/base/Manager";
-import { CacheManager } from "./CacheManager";
-import { NumberHelper } from "@utils/helpers/NumberHelper";
-import { createCanvas } from "canvas";
-import { HelperFunctions } from "@utils/helpers/HelperFunctions";
-import { BeatmapRetrievalOptions } from "@structures/utils/BeatmapRetrievalOptions";
-import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
 import { BeatmapProcessorRESTManager } from "./BeatmapProcessorRESTManager";
-import { Config } from "@core/Config";
+import { CacheManager } from "./CacheManager";
 
 /**
  * A manager for beatmaps.
@@ -72,7 +71,7 @@ export abstract class BeatmapManager extends Manager {
      */
     static async getBeatmap<T extends boolean = true>(
         beatmapIdOrHash: number | string,
-        options?: BeatmapRetrievalOptions & { checkFile?: T },
+        options?: BeatmapRetrievalOptions & { checkFile?: T }
     ): Promise<MapInfo<T> | null> {
         let oldCache =
             typeof beatmapIdOrHash === "number"
@@ -83,7 +82,7 @@ export abstract class BeatmapManager extends Manager {
             if (options?.checkFile !== false) {
                 const beatmapFile =
                     await BeatmapProcessorRESTManager.getBeatmapFile(
-                        oldCache.beatmapId,
+                        oldCache.beatmapId
                     );
 
                 if (!beatmapFile) {
@@ -92,7 +91,7 @@ export abstract class BeatmapManager extends Manager {
 
                 oldCache = MapInfo.from(
                     oldCache.toAPIResponse(),
-                    new BeatmapDecoder().decode(beatmapFile.toString()).result,
+                    new BeatmapDecoder().decode(beatmapFile.toString()).result
                 );
 
                 CacheManager.beatmapIdCache.set(oldCache.beatmapId, oldCache);
@@ -132,7 +131,7 @@ export abstract class BeatmapManager extends Manager {
      */
     static async getBeatmaps(
         beatmapsetID: number,
-        checkFile: boolean = true,
+        checkFile: boolean = true
     ): Promise<MapInfo[]> {
         const apiBeatmaps =
             await BeatmapProcessorRESTManager.getBeatmapset(beatmapsetID);
@@ -171,7 +170,7 @@ export abstract class BeatmapManager extends Manager {
         }
 
         const beatmapFile = await BeatmapProcessorRESTManager.getBeatmapFile(
-            mapinfo.beatmapId,
+            mapinfo.beatmapId
         );
 
         if (!beatmapFile) {
@@ -179,7 +178,7 @@ export abstract class BeatmapManager extends Manager {
         }
 
         mapinfo.setBeatmap(
-            new BeatmapDecoder().decode(beatmapFile.toString()).result,
+            new BeatmapDecoder().decode(beatmapFile.toString()).result
         );
     }
 
@@ -288,7 +287,7 @@ export abstract class BeatmapManager extends Manager {
 
             if (
                 [s.indexOf("/beatmapsets/"), s.indexOf("/s/")].every(
-                    (v) => v === -1,
+                    (v) => v === -1
                 )
             ) {
                 continue;
@@ -396,7 +395,7 @@ export abstract class BeatmapManager extends Manager {
                 return "#000000";
             default:
                 return HelperFunctions.rgbToHex(
-                    this.difficultyColorSpectrum(rating),
+                    this.difficultyColorSpectrum(rating)
                 );
         }
     }
@@ -408,7 +407,7 @@ export abstract class BeatmapManager extends Manager {
      * @returns The generated `AttachmentBuilder`.
      */
     static getBeatmapDifficultyIconAttachment(
-        rating: number,
+        rating: number
     ): AttachmentBuilder {
         return new AttachmentBuilder(this.getBeatmapDifficultyIcon(rating), {
             name: `osu-${rating.toFixed(2)}.png`,
@@ -492,50 +491,15 @@ export abstract class BeatmapManager extends Manager {
      * @param beatmapInfo The beatmap info to show.
      * @param option The option to pick.
      * @param mods The mods to use.
-     * @param customSpeedMultiplier The custom speed multiplier to use.
      */
     static showStatistics(
         beatmapInfo: MapInfo,
         option: number,
-        mods: Mod[] = [],
-        customSpeedMultiplier: number = 1,
+        mods?: ModMap
     ): string {
         switch (option) {
-            case 0: {
-                let string = `${beatmapInfo.fullTitle}${mods.length > 0 ? ` +${ModUtil.modsToOsuString(mods)}` : ""}`;
-
-                const customStats: string[] = [];
-
-                if (customSpeedMultiplier !== 1) {
-                    customStats.push(`${customSpeedMultiplier}x`);
-                }
-
-                const difficultyAdjust = mods.find(
-                    (m) => m instanceof ModDifficultyAdjust,
-                );
-
-                if (difficultyAdjust?.cs !== undefined) {
-                    customStats.push(`CS${difficultyAdjust.cs}`);
-                }
-
-                if (difficultyAdjust?.ar !== undefined) {
-                    customStats.push(`AR${difficultyAdjust.ar}`);
-                }
-
-                if (difficultyAdjust?.od !== undefined) {
-                    customStats.push(`OD${difficultyAdjust.od}`);
-                }
-
-                if (difficultyAdjust?.hp !== undefined) {
-                    customStats.push(`HP${difficultyAdjust.hp}`);
-                }
-
-                if (customStats.length > 0) {
-                    string += ` (${customStats.join(", ")})`;
-                }
-
-                return string;
-            }
+            case 0:
+                return `${beatmapInfo.fullTitle}${mods && mods.size > 0 ? ` +${ModUtil.modsToOrderedString(mods)}` : ""}`;
 
             case 1: {
                 let string = `${
@@ -545,37 +509,37 @@ export abstract class BeatmapManager extends Manager {
                 }${bold(
                     hyperlink(
                         "Beatmap Preview",
-                        `https://osu-preview.jmir.ml/preview#${beatmapInfo.beatmapId}`,
-                    ),
+                        `https://osu-preview.jmir.ml/preview#${beatmapInfo.beatmapId}`
+                    )
                 )}\n${bold("Download")}: ${hyperlink(
                     "osu!",
-                    `https://osu.ppy.sh/d/${beatmapInfo.beatmapSetId}`,
+                    `https://osu.ppy.sh/d/${beatmapInfo.beatmapSetId}`
                 )}${
                     beatmapInfo.videoAvailable
                         ? ` ${hyperlink(
                               "(no video)",
-                              `https://osu.ppy.sh/d/${beatmapInfo.beatmapSetId}n`,
+                              `https://osu.ppy.sh/d/${beatmapInfo.beatmapSetId}n`
                           )}`
                         : ""
                 } - ${hyperlink(
                     "Chimu",
-                    `https://chimu.moe/en/d/${beatmapInfo.beatmapSetId}`,
+                    `https://chimu.moe/en/d/${beatmapInfo.beatmapSetId}`
                 )} - ${hyperlink(
                     "Sayobot",
-                    `https://txy1.sayobot.cn/beatmaps/download/full/${beatmapInfo.beatmapSetId}`,
+                    `https://txy1.sayobot.cn/beatmaps/download/full/${beatmapInfo.beatmapSetId}`
                 )}${
                     beatmapInfo.videoAvailable
                         ? ` ${hyperlink(
                               "(no video)",
-                              `https://txy1.sayobot.cn/beatmaps/download/novideo/${beatmapInfo.beatmapSetId}`,
+                              `https://txy1.sayobot.cn/beatmaps/download/novideo/${beatmapInfo.beatmapSetId}`
                           )}`
                         : ""
                 } - ${hyperlink(
                     "Beatconnect",
-                    `https://beatconnect.io/b/${beatmapInfo.beatmapSetId}/`,
+                    `https://beatconnect.io/b/${beatmapInfo.beatmapSetId}/`
                 )} - ${hyperlink(
                     "Nerina",
-                    `https://api.nerinyan.moe/d/${beatmapInfo.beatmapSetId}`,
+                    `https://api.nerinyan.moe/d/${beatmapInfo.beatmapSetId}`
                 )}${
                     beatmapInfo.storyboardAvailable
                         ? ` ${hyperlink("(no storyboard)", `https://api.nerinyan.moe/d/${beatmapInfo.beatmapSetId}?nsb=1`)}`
@@ -594,7 +558,7 @@ export abstract class BeatmapManager extends Manager {
                     beatmapInfo.approved !== RankedStatus.qualified
                         ? ` - ${hyperlink(
                               "Ripple",
-                              `https://storage.ripple.moe/d/${beatmapInfo.beatmapSetId}`,
+                              `https://storage.ripple.moe/d/${beatmapInfo.beatmapSetId}`
                           )}`
                         : ""
                 }`;
@@ -603,7 +567,7 @@ export abstract class BeatmapManager extends Manager {
                     for (let i = 0; i < beatmapInfo.packs.length; i++) {
                         string += hyperlink(
                             beatmapInfo.packs[i],
-                            `https://osu.ppy.sh/beatmaps/packs/${beatmapInfo.packs[i]}`,
+                            `https://osu.ppy.sh/beatmaps/packs/${beatmapInfo.packs[i]}`
                         );
                         if (i + 1 < beatmapInfo.packs.length) {
                             string += " - ";
@@ -618,7 +582,7 @@ export abstract class BeatmapManager extends Manager {
 
             case 2:
                 return `${bold("Circles")}: ${beatmapInfo.circles} - ${bold(
-                    "Sliders",
+                    "Sliders"
                 )}: ${beatmapInfo.sliders} - ${bold("Spinners")}: ${
                     beatmapInfo.spinners
                 }`;
@@ -635,16 +599,15 @@ export abstract class BeatmapManager extends Manager {
                     modifiedDifficulty,
                     option === 3 ? Modes.droid : Modes.osu,
                     mods,
-                    customSpeedMultiplier,
-                    true,
+                    true
                 );
 
-                if (option === 3 && mods.some((m) => m instanceof ModPrecise)) {
+                if (option === 3 && mods?.has(ModPrecise)) {
                     // Special case for OD. The Precise mod changes the hit window and not the OD itself, but we must
                     // map the hit window back to the original hit window for the user to understand the difficulty
                     // increase of the mod.
                     const { greatWindow } = new PreciseDroidHitWindow(
-                        modifiedDifficulty.od,
+                        modifiedDifficulty.od
                     );
 
                     modifiedDifficulty.od =
@@ -658,10 +621,7 @@ export abstract class BeatmapManager extends Manager {
 
                 const maxScore =
                     (option === 3
-                        ? beatmapInfo.beatmap?.maxDroidScore(
-                              mods,
-                              customSpeedMultiplier,
-                          )
+                        ? beatmapInfo.beatmap?.maxDroidScore(mods)
                         : beatmapInfo.beatmap?.maxOsuScore(mods)) ?? 0;
 
                 return `${bold("CS")}: ${beatmapInfo.cs}${
@@ -688,12 +648,13 @@ export abstract class BeatmapManager extends Manager {
             }
 
             case 5: {
-                const speedMultiplier =
-                    ModUtil.calculateRateWithMods(mods) * customSpeedMultiplier;
+                const speedMultiplier = mods
+                    ? ModUtil.calculateRateWithMods(mods.values())
+                    : 1;
 
                 const convertedBPM = this.convertBPM(
                     beatmapInfo.bpm,
-                    speedMultiplier,
+                    speedMultiplier
                 );
 
                 let string = `${bold("BPM")}: `;
@@ -706,14 +667,14 @@ export abstract class BeatmapManager extends Manager {
                         string += `${beatmapInfo.bpm}${
                             !Precision.almostEqualsNumber(
                                 beatmapInfo.bpm,
-                                convertedBPM,
+                                convertedBPM
                             )
                                 ? ` (${convertedBPM})`
                                 : ""
                         } - ${bold("Length")}: ${this.convertTime(
                             beatmapInfo.hitLength,
                             beatmapInfo.totalLength,
-                            speedMultiplier,
+                            speedMultiplier
                         )} - ${bold("Max Combo")}: ${
                             beatmapInfo.maxCombo !== null
                                 ? `${beatmapInfo.maxCombo}x`
@@ -724,7 +685,7 @@ export abstract class BeatmapManager extends Manager {
                         let minBPM = beatmapInfo.bpm;
                         for (const t of uninheritedTimingPoints) {
                             const bpm = parseFloat(
-                                (60000 / t.msPerBeat).toFixed(2),
+                                (60000 / t.msPerBeat).toFixed(2)
                             );
                             maxBPM = Math.max(maxBPM, bpm);
                             minBPM = Math.min(minBPM, bpm);
@@ -732,20 +693,20 @@ export abstract class BeatmapManager extends Manager {
                         maxBPM = Math.round(maxBPM);
                         minBPM = Math.round(minBPM);
                         const speedMulMinBPM = Math.round(
-                            minBPM * speedMultiplier,
+                            minBPM * speedMultiplier
                         );
                         const speedMulMaxBPM = Math.round(
-                            maxBPM * speedMultiplier,
+                            maxBPM * speedMultiplier
                         );
 
                         string +=
                             Precision.almostEqualsNumber(
                                 minBPM,
-                                beatmapInfo.bpm,
+                                beatmapInfo.bpm
                             ) &&
                             Precision.almostEqualsNumber(
                                 maxBPM,
-                                beatmapInfo.bpm,
+                                beatmapInfo.bpm
                             )
                                 ? `${beatmapInfo.bpm} `
                                 : `${minBPM}-${maxBPM} (${beatmapInfo.bpm}) `;
@@ -753,13 +714,13 @@ export abstract class BeatmapManager extends Manager {
                         if (
                             !Precision.almostEqualsNumber(
                                 beatmapInfo.bpm,
-                                convertedBPM,
+                                convertedBPM
                             )
                         ) {
                             if (
                                 !Precision.almostEqualsNumber(
                                     speedMulMinBPM,
-                                    speedMulMaxBPM,
+                                    speedMulMaxBPM
                                 )
                             ) {
                                 string += `(${speedMulMinBPM}-${speedMulMaxBPM} (${convertedBPM})) `;
@@ -771,7 +732,7 @@ export abstract class BeatmapManager extends Manager {
                         string += `- ${bold("Length")}: ${this.convertTime(
                             beatmapInfo.hitLength,
                             beatmapInfo.totalLength,
-                            speedMultiplier,
+                            speedMultiplier
                         )} - ${bold("Max Combo")}: ${
                             beatmapInfo.maxCombo !== null
                                 ? `${beatmapInfo.maxCombo}x`
@@ -782,14 +743,14 @@ export abstract class BeatmapManager extends Manager {
                     string += `${beatmapInfo.bpm}${
                         !Precision.almostEqualsNumber(
                             beatmapInfo.bpm,
-                            convertedBPM,
+                            convertedBPM
                         )
                             ? ` (${convertedBPM})`
                             : ""
                     } - ${bold("Length")}: ${this.convertTime(
                         beatmapInfo.hitLength,
                         beatmapInfo.totalLength,
-                        speedMultiplier,
+                        speedMultiplier
                     )} - ${bold("Max Combo")}: ${
                         beatmapInfo.maxCombo !== null
                             ? `${beatmapInfo.maxCombo}x`
@@ -801,14 +762,14 @@ export abstract class BeatmapManager extends Manager {
 
             case 6:
                 return `${bold(
-                    "Last Update",
+                    "Last Update"
                 )}: ${DateTimeFormatHelper.toDiscordTimestamp(beatmapInfo.lastUpdate)} | ${bold(
-                    this.convertStatus(beatmapInfo.approved),
+                    this.convertStatus(beatmapInfo.approved)
                 )}`;
 
             case 7:
                 return `❤️ ${bold(
-                    beatmapInfo.favorites.toLocaleString(),
+                    beatmapInfo.favorites.toLocaleString()
                 )} - ▶️ ${bold(beatmapInfo.plays.toLocaleString())}`;
 
             default:
@@ -876,7 +837,7 @@ export abstract class BeatmapManager extends Manager {
     static convertTime(
         hitLength: number,
         totalLength: number,
-        speedMultiplier = 1,
+        speedMultiplier = 1
     ): string {
         hitLength /= speedMultiplier;
         totalLength /= speedMultiplier;

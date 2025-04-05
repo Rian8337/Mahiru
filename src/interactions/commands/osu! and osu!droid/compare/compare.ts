@@ -1,37 +1,37 @@
 import { Constants } from "@core/Constants";
 import { DatabaseManager } from "@database/DatabaseManager";
+import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
 import { UserBind } from "@database/utils/elainaDb/UserBind";
+import { CommandCategory } from "@enums/core/CommandCategory";
+import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
+import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
+import { CompareLocalization } from "@localization/interactions/commands/osu! and osu!droid/compare/CompareLocalization";
+import { DroidLegacyModConverter, Modes } from "@rian8337/osu-base";
+import { Player, Score } from "@rian8337/osu-droid-utilities";
+import { EmbedCreator } from "@utils/creators/EmbedCreator";
+import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
+import { MessageCreator } from "@utils/creators/MessageCreator";
+import { CommandHelper } from "@utils/helpers/CommandHelper";
+import { DroidHelper } from "@utils/helpers/DroidHelper";
+import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import { ReplayHelper } from "@utils/helpers/ReplayHelper";
+import { StringHelper } from "@utils/helpers/StringHelper";
+import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import {
     ApplicationCommandOptionType,
+    GuildMember,
     InteractionReplyOptions,
 } from "discord.js";
-import { CommandCategory } from "@enums/core/CommandCategory";
 import { SlashCommand } from "structures/core/SlashCommand";
-import { EmbedCreator } from "@utils/creators/EmbedCreator";
-import { MessageCreator } from "@utils/creators/MessageCreator";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { GuildMember } from "discord.js";
-import { Player, Score } from "@rian8337/osu-droid-utilities";
-import { CompareLocalization } from "@localization/interactions/commands/osu! and osu!droid/compare/CompareLocalization";
-import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { InteractionHelper } from "@utils/helpers/InteractionHelper";
-import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
-import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
-import { Modes } from "@rian8337/osu-base";
-import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { ReplayHelper } from "@utils/helpers/ReplayHelper";
-import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
-import { StringHelper } from "@utils/helpers/StringHelper";
-import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
-import { DroidHelper } from "@utils/helpers/DroidHelper";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new CompareLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const cachedBeatmapHash = BeatmapManager.getChannelLatestBeatmap(
-        interaction.channelId,
+        interaction.channelId
     );
 
     if (!cachedBeatmapHash) {
@@ -39,7 +39,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noCachedBeatmap"),
+                localization.getTranslation("noCachedBeatmap")
             ),
         });
     }
@@ -49,7 +49,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("tooManyOptions"),
+                localization.getTranslation("tooManyOptions")
             ),
         });
     }
@@ -75,7 +75,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             if (!StringHelper.isUsernameValid(username)) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
-                        localization.getTranslation("playerNotFound"),
+                        localization.getTranslation("playerNotFound")
                     ),
                 });
             }
@@ -92,19 +92,19 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                         _id: 0,
                         uid: 1,
                     },
-                },
+                }
             );
 
             if (!bindInfo) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
                         new ConstantsLocalization(
-                            localization.language,
+                            localization.language
                         ).getTranslation(
                             discordid
                                 ? Constants.userNotBindedReject
-                                : Constants.selfNotBindedReject,
-                        ),
+                                : Constants.selfNotBindedReject
+                        )
                     ),
                 });
             }
@@ -118,7 +118,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerNotFound"),
+                localization.getTranslation("playerNotFound")
             ),
         });
     }
@@ -147,8 +147,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 localization.getTranslation(
                     uid || discordid || username
                         ? "userScoreNotFound"
-                        : "selfScoreNotFound",
-                ),
+                        : "selfScoreNotFound"
+                )
             ),
         });
     }
@@ -157,13 +157,13 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         score.uid,
         score.hash,
         Modes.droid,
-        PPCalculationMethod.live,
+        PPCalculationMethod.live
     );
 
     const options: InteractionReplyOptions = {
         content: MessageCreator.createAccept(
             localization.getTranslation("comparePlayDisplay"),
-            player.username,
+            player.username
         ),
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(
@@ -171,7 +171,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 (<GuildMember | null>interaction.member)?.displayColor,
                 scoreAttribs?.attributes,
                 undefined,
-                localization.language,
+                localization.language
             ),
         ],
     };
@@ -194,7 +194,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             replay.data,
             score instanceof Score
                 ? score.mods
-                : DroidHelper.parseMods(score.mode).mods,
+                : DroidLegacyModConverter.convert(score.mode)
         );
     } else {
         InteractionHelper.reply(interaction, options);

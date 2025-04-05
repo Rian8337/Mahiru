@@ -3,8 +3,8 @@ import {
     BeatmapDifficulty,
     DroidHitWindow,
     HitWindow,
-    Mod,
     Modes,
+    ModMap,
     ModPrecise,
     ModUtil,
     PreciseDroidHitWindow,
@@ -57,8 +57,8 @@ export class TimingDistributionChart {
      */
     constructor(
         beatmap: Beatmap,
-        mods: Mod[],
-        hitObjectData: ReplayObjectData[],
+        mods: ModMap,
+        hitObjectData: ReplayObjectData[]
     ) {
         this.beatmap = beatmap;
         this.hitObjectData = hitObjectData;
@@ -68,7 +68,7 @@ export class TimingDistributionChart {
 
         ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, mods);
 
-        this.hitWindow = mods.some((m) => m instanceof ModPrecise)
+        this.hitWindow = mods.has(ModPrecise)
             ? new PreciseDroidHitWindow(difficulty.od)
             : new DroidHitWindow(difficulty.od);
     }
@@ -154,7 +154,7 @@ export class TimingDistributionChart {
 
         this.chartBarInterval = Math.max(
             1,
-            Math.ceil(maxAccuracy / this.oneSideBarCount),
+            Math.ceil(maxAccuracy / this.oneSideBarCount)
         );
 
         // Start from the left.
@@ -186,7 +186,7 @@ export class TimingDistributionChart {
             this.drawOffsetBar(
                 frequency,
                 i,
-                this.getHitResultColor(i * this.chartBarInterval),
+                this.getHitResultColor(i * this.chartBarInterval)
             );
         }
 
@@ -194,19 +194,19 @@ export class TimingDistributionChart {
         this.drawBoundaryBar(
             greatWindow,
             Math.floor(greatWindow / this.chartBarInterval),
-            this.hitWindow300Color,
+            this.hitWindow300Color
         );
 
         this.drawBoundaryBar(
             okWindow,
             Math.floor(okWindow / this.chartBarInterval),
-            this.hitWindow100Color,
+            this.hitWindow100Color
         );
 
         this.drawBoundaryBar(
             mehWindow,
             Math.floor(mehWindow / this.chartBarInterval),
-            this.hitWindow50Color,
+            this.hitWindow50Color
         );
     }
 
@@ -220,7 +220,7 @@ export class TimingDistributionChart {
     private drawOffsetBar(
         frequency: number,
         positionIndex: number,
-        color: RGBColor,
+        color: RGBColor
     ): void {
         if (!this.canvas) {
             return;
@@ -244,7 +244,7 @@ export class TimingDistributionChart {
             context.moveTo(barXPosition, barYPosition);
             context.lineTo(
                 barXPosition,
-                barYPosition - (this.barHeight * frequency) / this.maxFrequency,
+                barYPosition - (this.barHeight * frequency) / this.maxFrequency
             );
         } else if (positionIndex !== 0) {
             context.lineWidth = this.barWidth / 2;
@@ -269,7 +269,7 @@ export class TimingDistributionChart {
                 barYPosition -
                     (this.barHeight * (frequency || this.maxFrequency)) /
                         this.maxFrequency /
-                        2,
+                        2
             );
 
             context.stroke();
@@ -289,7 +289,7 @@ export class TimingDistributionChart {
     private drawBoundaryBar(
         offset: number,
         positionIndex: number,
-        color: RGBColor,
+        color: RGBColor
     ) {
         if (!this.canvas) {
             return;
@@ -356,13 +356,13 @@ export class TimingDistributionChart {
         context.fillText(
             "-" + Math.trunc(offset).toString(),
             negativeBarXPosition,
-            barYPosition - this.barHeight - 10,
+            barYPosition - this.barHeight - 10
         );
 
         context.fillText(
             "+" + Math.trunc(offset).toString(),
             positiveBarXPosition,
-            barYPosition - this.barHeight - 10,
+            barYPosition - this.barHeight - 10
         );
 
         context.restore();

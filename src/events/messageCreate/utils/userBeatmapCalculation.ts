@@ -1,18 +1,18 @@
 import { Config } from "@core/Config";
+import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { Symbols } from "@enums/utils/Symbols";
-import { EventUtil } from "structures/core/EventUtil";
+import { UserBeatmapCalculationLocalization } from "@localization/events/messageCreate/userBeatmapCalculation/UserBeatmapCalculationLocalization";
+import { MapInfo, Modes, ModUtil } from "@rian8337/osu-base";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { BeatmapDifficultyHelper } from "@utils/helpers/BeatmapDifficultyHelper";
+import { CommandHelper } from "@utils/helpers/CommandHelper";
+import { PPHelper } from "@utils/helpers/PPHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { Message, EmbedBuilder, bold, underline } from "discord.js";
-import { MapInfo, Modes, ModUtil } from "@rian8337/osu-base";
-import { UserBeatmapCalculationLocalization } from "@localization/events/messageCreate/userBeatmapCalculation/UserBeatmapCalculationLocalization";
-import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
-import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { PPHelper } from "@utils/helpers/PPHelper";
+import { bold, EmbedBuilder, Message, underline } from "discord.js";
+import { EventUtil } from "structures/core/EventUtil";
 
 export const run: EventUtil["run"] = async (_, message: Message) => {
     if (
@@ -175,13 +175,11 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             embedOptions.files = [];
 
             const embed = EmbedBuilder.from(embedOptions.embeds![0]);
-            const { customSpeedMultiplier } = calcParams;
-            const mods =
-                calcParams.toDifficultyCalculationOptions().mods ??
-                calcParams.mods;
+            const { mods } = calcParams;
 
-            const speedMultiplier =
-                ModUtil.calculateRateWithMods(mods) * customSpeedMultiplier;
+            const speedMultiplier = ModUtil.calculateRateWithMods(
+                mods.values()
+            );
 
             embed
                 .spliceFields(0, embed.data.fields!.length)
@@ -195,8 +193,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                     `${BeatmapManager.showStatistics(
                         firstBeatmap,
                         1,
-                        mods,
-                        customSpeedMultiplier
+                        mods
                     )}\n` +
                         `${bold("BPM")}: ${BeatmapManager.convertBPM(
                             firstBeatmap.bpm,
@@ -245,20 +242,17 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                         `${BeatmapManager.showStatistics(
                             beatmapInfo,
                             2,
-                            mods,
-                            customSpeedMultiplier
+                            mods
                         )}\n` +
                         `${BeatmapManager.showStatistics(
                             beatmapInfo,
                             3,
-                            mods,
-                            customSpeedMultiplier
+                            mods
                         )}\n` +
                         `${BeatmapManager.showStatistics(
                             beatmapInfo,
                             4,
-                            mods,
-                            customSpeedMultiplier
+                            mods
                         )}\n` +
                         `${bold(
                             droidDiffAttribs.attributes.starRating.toFixed(2)

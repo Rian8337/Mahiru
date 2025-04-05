@@ -8,7 +8,7 @@ import { DroidPerformanceAttributes } from "@structures/difficultyattributes/Dro
 import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
 import { BaseDocument } from "../BaseDocument";
 import { SliderTickInformation } from "@structures/pp/SliderTickInformation";
-import { ScoreRank } from "@rian8337/osu-base";
+import { ScoreRank, SerializedMod } from "@rian8337/osu-base";
 
 /**
  * Represents a recent play.
@@ -70,9 +70,9 @@ export interface DatabaseRecentPlay extends BaseDocument {
     };
 
     /**
-     * Enabled modifications in this play, in osu!standard string.
+     * Enabled modifications in this play.
      */
-    mods: string;
+    mods: SerializedMod[];
 
     /**
      * The MD5 hash of the beatmap in this play.

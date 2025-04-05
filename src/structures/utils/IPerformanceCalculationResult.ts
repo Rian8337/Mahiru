@@ -1,30 +1,20 @@
-import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
 import {
-    DifficultyAttributes,
-    DifficultyCalculator,
-    DifficultyHitObject,
+    IDifficultyAttributes,
     PerformanceCalculator,
 } from "@rian8337/osu-difficulty-calculator";
 import {
-    DifficultyAttributes as RebalanceDifficultyAttributes,
-    DifficultyCalculator as RebalanceDifficultyCalculator,
-    DifficultyHitObject as RebalanceDifficultyHitObject,
+    IDifficultyAttributes as IRebalanceDifficultyAttributes,
     PerformanceCalculator as RebalancePerformanceCalculator,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
+import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
 
 /**
  * A structure for implementing performance calculation results.
  */
 export interface IPerformanceCalculationResult<
-    D extends
-        | DifficultyCalculator<DifficultyHitObject, DifficultyAttributes>
-        | RebalanceDifficultyCalculator<
-              RebalanceDifficultyHitObject,
-              RebalanceDifficultyAttributes
-          >,
     P extends
-        | PerformanceCalculator<DifficultyAttributes>
-        | RebalancePerformanceCalculator<RebalanceDifficultyAttributes>,
+        | PerformanceCalculator<IDifficultyAttributes>
+        | RebalancePerformanceCalculator<IRebalanceDifficultyAttributes>,
 > {
     /**
      * The calculation parameters.
@@ -37,19 +27,7 @@ export interface IPerformanceCalculationResult<
     readonly result: P;
 
     /**
-     * The difficulty calculator of the beatmap, if the beatmap was calculated on fly.
-     */
-    readonly difficultyCalculator?: D;
-
-    /**
      * A string containing information about this performance calculation result's star rating.
      */
     get starRatingInfo(): string;
-
-    /**
-     * Whether this performance calculation result requested a complete difficulty calculation.
-     */
-    requestedDifficultyCalculation(): this is this & {
-        readonly difficultyCalculator: D;
-    };
 }

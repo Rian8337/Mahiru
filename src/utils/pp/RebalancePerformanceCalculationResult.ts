@@ -1,31 +1,23 @@
-import { IPerformanceCalculationResult } from "@structures/utils/IPerformanceCalculationResult";
 import {
-    DifficultyHitObject,
     DroidDifficultyAttributes,
+    IDifficultyAttributes,
     OsuDifficultyAttributes,
-    DifficultyCalculator,
     PerformanceCalculator,
-    DifficultyAttributes,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
+import { IPerformanceCalculationResult } from "@structures/utils/IPerformanceCalculationResult";
 import { PerformanceCalculationParameters } from "./PerformanceCalculationParameters";
 
 /**
  * Represents a beatmap's performance calculation result.
  */
 export class RebalancePerformanceCalculationResult<
-    D extends DifficultyCalculator<DifficultyHitObject, DifficultyAttributes>,
-    P extends PerformanceCalculator<DifficultyAttributes>,
-> implements IPerformanceCalculationResult<D, P>
+    P extends PerformanceCalculator<IDifficultyAttributes>,
+> implements IPerformanceCalculationResult<P>
 {
     readonly params: PerformanceCalculationParameters;
     readonly result: P;
-    readonly difficultyCalculator?: D;
 
     get starRatingInfo(): string {
-        if (this.difficultyCalculator) {
-            return this.difficultyCalculator.toString();
-        }
-
         const { difficultyAttributes } = this.result;
         let string = `${difficultyAttributes.starRating.toFixed(2)} stars (`;
         const starRatingDetails: string[] = [];
@@ -43,7 +35,7 @@ export class RebalancePerformanceCalculationResult<
             addDetail(droidDifficultyAttributes.rhythmDifficulty, "rhythm");
             addDetail(
                 droidDifficultyAttributes.flashlightDifficulty,
-                "flashlight",
+                "flashlight"
             );
             addDetail(droidDifficultyAttributes.visualDifficulty, "visual");
         } else {
@@ -55,7 +47,7 @@ export class RebalancePerformanceCalculationResult<
             addDetail(osuDifficultyAttributes.speedDifficulty, "speed");
             addDetail(
                 osuDifficultyAttributes.flashlightDifficulty,
-                "flashlight",
+                "flashlight"
             );
         }
 
@@ -64,20 +56,8 @@ export class RebalancePerformanceCalculationResult<
         return string;
     }
 
-    constructor(
-        params: PerformanceCalculationParameters,
-        result: P,
-        difficultyCalculator?: D,
-    ) {
+    constructor(params: PerformanceCalculationParameters, result: P) {
         this.params = params;
         this.result = result;
-        this.difficultyCalculator = difficultyCalculator;
-    }
-
-    requestedDifficultyCalculation(): this is this & {
-        readonly difficultyCalculator: D;
-        readonly strainGraphImage: Buffer;
-    } {
-        return this.difficultyCalculator !== undefined;
     }
 }

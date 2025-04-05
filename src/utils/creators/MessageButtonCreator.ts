@@ -26,7 +26,12 @@ import { ReplayData } from "@rian8337/osu-droid-replay-analyzer";
 import { OnButtonPressed } from "@structures/utils/OnButtonPressed";
 import { OnButtonCollectorEnd } from "@structures/utils/OnButtonCollectorEnd";
 import { CacheManager } from "@utils/managers/CacheManager";
-import { Beatmap, IModApplicableToDroid, Mod } from "@rian8337/osu-base";
+import {
+    Beatmap,
+    IModApplicableToDroid,
+    Mod,
+    ModMap,
+} from "@rian8337/osu-base";
 import { TimingDistributionChart } from "@utils/timingdistribution/TimingDistributionChart";
 
 /**
@@ -66,7 +71,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
             duration,
             onPageChange,
             maxPage,
-            ...onPageChangeArgs,
+            ...onPageChangeArgs
         );
     }
 
@@ -99,7 +104,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
             duration,
             onPageChange,
             Number.POSITIVE_INFINITY,
-            ...onPageChangeArgs,
+            ...onPageChangeArgs
         );
     }
 
@@ -118,7 +123,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
         options: InteractionReplyOptions,
         users: Snowflake[],
         duration: number,
-        language: Language = "en",
+        language: Language = "en"
     ): Promise<boolean> {
         const localization = this.getLocalization(language);
         const buttons = this.createConfirmationButtons();
@@ -145,18 +150,18 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                       content:
                                           MessageCreator.createPrefixedMessage(
                                               localization.getTranslation(
-                                                  "pleaseWait",
+                                                  "pleaseWait"
                                               ),
-                                              Symbols.timer,
+                                              Symbols.timer
                                           ),
                                   })
                                 : await InteractionHelper.reply(interaction, {
                                       content:
                                           MessageCreator.createPrefixedMessage(
                                               localization.getTranslation(
-                                                  "pleaseWait",
+                                                  "pleaseWait"
                                               ),
-                                              Symbols.timer,
+                                              Symbols.timer
                                           ),
                                   });
                         } else {
@@ -164,15 +169,15 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                 ? await InteractionHelper.update(interaction, {
                                       content: MessageCreator.createReject(
                                           localization.getTranslation(
-                                              "actionCancelled",
-                                          ),
+                                              "actionCancelled"
+                                          )
                                       ),
                                   })
                                 : await InteractionHelper.reply(interaction, {
                                       content: MessageCreator.createReject(
                                           localization.getTranslation(
-                                              "actionCancelled",
-                                          ),
+                                              "actionCancelled"
+                                          )
                                       ),
                                   });
 
@@ -194,7 +199,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                             .custom_id ===
                                         (<APIButtonComponentWithCustomId>(
                                             buttons[i].data
-                                        )).custom_id,
+                                        )).custom_id
                                 )
                             );
                         });
@@ -210,7 +215,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                     } else {
                         await InteractionHelper.reply(interaction, {
                             content: MessageCreator.createReject(
-                                localization.getTranslation("timedOut"),
+                                localization.getTranslation("timedOut")
                             ),
                             components: [],
                         });
@@ -223,8 +228,8 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                     }
 
                     resolve(pressed?.customId === "confirmationYes");
-                },
-            ),
+                }
+            )
         );
     }
 
@@ -244,9 +249,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
         options: InteractionReplyOptions,
         beatmap: Beatmap,
         replayData: ReplayData,
-        mods: (Mod & IModApplicableToDroid)[] = replayData.isReplayV3()
-            ? replayData.convertedMods
-            : [],
+        mods = replayData.isReplayV3() ? replayData.convertedMods : new ModMap()
     ): Promise<Message> {
         const missAnalyzerButtonId = "analyzeMissesFromRecent";
         const missAnalyzerButton = new ButtonBuilder()
@@ -282,7 +285,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         const missAnalyzer = new MissAnalyzer(
                             beatmap,
                             replayData,
-                            mods,
+                            mods
                         );
                         const missInformations = missAnalyzer.analyze();
 
@@ -290,7 +293,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                             files: [
                                 new AttachmentBuilder(
                                     missInformations[0].draw().toBuffer(),
-                                    { name: "miss-1.png" },
+                                    { name: "miss-1.png" }
                                 ),
                             ],
                         };
@@ -313,11 +316,11 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                     .setStyle(
                                         i === 0
                                             ? ButtonStyle.Success
-                                            : ButtonStyle.Primary,
+                                            : ButtonStyle.Primary
                                     )
                                     .setLabel((i + 1).toString())
                                     // Disable the first button as the first miss will be loaded initially.
-                                    .setDisabled(i === 0),
+                                    .setDisabled(i === 0)
                             );
                         }
 
@@ -331,16 +334,13 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                 await i.deferUpdate();
 
                                 const pressedIndex = parseInt(
-                                    i.customId.replace(
-                                        missAnalyzerButtonId,
-                                        "",
-                                    ),
+                                    i.customId.replace(missAnalyzerButtonId, "")
                                 );
                                 const attachment = new AttachmentBuilder(
                                     missInformations[pressedIndex - 1]
                                         .draw()
                                         .toBuffer(),
-                                    { name: `miss-${pressedIndex}.png` },
+                                    { name: `miss-${pressedIndex}.png` }
                                 );
 
                                 for (let i = 0; i < buttons.length; ++i) {
@@ -351,7 +351,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                                 ? ButtonStyle.Secondary
                                                 : i === pressedIndex - 1
                                                   ? ButtonStyle.Success
-                                                  : ButtonStyle.Primary,
+                                                  : ButtonStyle.Primary
                                         );
                                 }
 
@@ -373,7 +373,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                     });
                                     // eslint-disable-next-line no-empty
                                 } catch {}
-                            },
+                            }
                         );
 
                         // Disable the button
@@ -386,7 +386,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                             new TimingDistributionChart(
                                 beatmap,
                                 mods,
-                                replayData.hitObjectData,
+                                replayData.hitObjectData
                             );
 
                         const chart = timingDistributionChart.generate();
@@ -452,16 +452,16 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         interaction.isMessageComponent()
                             ? await InteractionHelper.update(
                                   interaction,
-                                  options,
+                                  options
                               )
                             : await InteractionHelper.reply(
                                   interaction,
-                                  options,
+                                  options
                               );
                         // eslint-disable-next-line no-empty
                     } catch {}
                 }
-            },
+            }
         );
     }
 
@@ -488,7 +488,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
         users: Snowflake[],
         duration: number,
         onButtonPressed: OnButtonPressed,
-        onButtonCollectorEnd: OnButtonCollectorEnd,
+        onButtonCollectorEnd: OnButtonCollectorEnd
     ): Promise<Message> {
         const components: ActionRowBuilder<ButtonBuilder>[] = [];
 
@@ -518,7 +518,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                 buttons.some(
                     (b) =>
                         (<APIButtonComponentWithCustomId>b.data).custom_id ===
-                        i.customId,
+                        i.customId
                 ) && users.includes(i.user.id),
             (m) => {
                 for (const component of components) {
@@ -539,7 +539,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                     c.customId ===
                                         (<APIButtonComponentWithCustomId>(
                                             buttons[i].data
-                                        )).custom_id,
+                                        )).custom_id
                             )
                         ) {
                             isFulfilled = true;
@@ -553,14 +553,14 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                 }
 
                 return true;
-            },
+            }
         );
 
         const { collector } = collectorOptions;
 
         collector.on("collect", (i) => onButtonPressed(collector, i, options));
         collector.once("end", () =>
-            onButtonCollectorEnd(collectorOptions, options),
+            onButtonCollectorEnd(collectorOptions, options)
         );
 
         return message;
@@ -642,13 +642,13 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                     .custom_id ===
                                     (<APIButtonComponentWithCustomId>(
                                         buttons[i].data
-                                    )).custom_id,
+                                    )).custom_id
                         )
                     );
                 });
 
                 row?.setComponents(
-                    this.createPagingButtons(currentPage, maxPage),
+                    this.createPagingButtons(currentPage, maxPage)
                 );
 
                 if (options.embeds) {
@@ -684,7 +684,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                     .custom_id ===
                                 (<APIButtonComponentWithCustomId>(
                                     buttons[i].data
-                                )).custom_id,
+                                )).custom_id
                         )
                     );
                 });
@@ -701,16 +701,16 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         interaction.isMessageComponent()
                             ? await InteractionHelper.update(
                                   interaction,
-                                  options,
+                                  options
                               )
                             : await InteractionHelper.reply(
                                   interaction,
-                                  options,
+                                  options
                               );
                         // eslint-disable-next-line no-empty
                     } catch {}
                 }
-            },
+            }
         );
     }
 
@@ -724,7 +724,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
      */
     private static createPagingButtons(
         currentPage: number,
-        maxPage: number,
+        maxPage: number
     ): ButtonBuilder[] {
         CacheManager.exemptedButtonCustomIds.add("pagingBackward");
         CacheManager.exemptedButtonCustomIds.add("pagingBack");
@@ -745,14 +745,14 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                 .setDisabled(
                     maxPage === 1 ||
                         (maxPage === Number.POSITIVE_INFINITY &&
-                            currentPage === 1),
+                            currentPage === 1)
                 ),
             new ButtonBuilder()
                 .setCustomId("pagingNone")
                 .setLabel(
                     Number.isFinite(maxPage)
                         ? `${currentPage}/${maxPage}`
-                        : currentPage.toString(),
+                        : currentPage.toString()
                 )
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(true),
@@ -798,7 +798,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
      * @param language The language to localize.
      */
     private static getLocalization(
-        language: Language,
+        language: Language
     ): MessageButtonCreatorLocalization {
         return new MessageButtonCreatorLocalization(language);
     }

@@ -1,5 +1,6 @@
 import { BeatmapDifficultyHelper } from "./BeatmapDifficultyHelper";
 import {
+    CacheableDifficultyAttributes,
     OsuDifficultyAttributes,
     OsuDifficultyCalculator,
     OsuPerformanceCalculator,
@@ -17,20 +18,26 @@ import { CacheManager } from "@utils/managers/CacheManager";
 export class OsuBeatmapDifficultyHelper extends BeatmapDifficultyHelper<
     OsuDifficultyAttributes,
     RebalanceOsuDifficultyAttributes,
-    OsuDifficultyCalculator,
     OsuPerformanceCalculator,
-    RebalanceOsuDifficultyCalculator,
     RebalanceOsuPerformanceCalculator
 > {
-    protected override readonly difficultyCalculator = OsuDifficultyCalculator;
+    protected override readonly difficultyAttributes = OsuDifficultyAttributes;
+
+    protected override readonly difficultyCalculator =
+        new OsuDifficultyCalculator();
+
     protected override readonly rebalanceDifficultyCalculator =
-        RebalanceOsuDifficultyCalculator;
+        new RebalanceOsuDifficultyCalculator();
+
     protected override readonly performanceCalculator =
         OsuPerformanceCalculator;
+
     protected override readonly rebalancePerformanceCalculator =
         RebalanceOsuPerformanceCalculator;
+
     protected override readonly liveDifficultyAttributesCache =
         CacheManager.difficultyAttributesCache.live.osu;
+
     protected override readonly rebalanceDifficultyAttributesCache =
         CacheManager.difficultyAttributesCache.rebalance.osu;
 }

@@ -1,8 +1,8 @@
+import { CacheableDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
 import { CloneablePerformanceCalculationParameters } from "@structures/pp/CloneablePerformanceCalculationParameters";
 import { PerformanceAttributes } from "./PerformanceAttributes";
 import { RawDifficultyAttributes } from "./RawDifficultyAttributes";
 import { ReplayAttributes } from "./ReplayAttributes";
-import { ResponseDifficultyAttributes } from "./ResponseDifficultyAttributes";
 
 /**
  * An attribute with complete calculation result.
@@ -19,7 +19,7 @@ export interface CompleteCalculationAttributes<
     /**
      * The difficulty attributes.
      */
-    readonly difficulty: ResponseDifficultyAttributes<TDiffAttr>;
+    readonly difficulty: CacheableDifficultyAttributes<TDiffAttr>;
 
     /**
      * The performance attributes.

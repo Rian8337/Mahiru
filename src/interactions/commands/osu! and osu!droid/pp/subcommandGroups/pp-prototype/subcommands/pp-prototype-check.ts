@@ -1,24 +1,25 @@
+import { Constants } from "@core/Constants";
 import { DatabaseManager } from "@database/DatabaseManager";
 import { PrototypePP } from "@database/utils/aliceDb/PrototypePP";
+import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
+import { PPLocalization } from "@localization/interactions/commands/osu!droid Elaina PP Project/pp/PPLocalization";
+import { ModUtil } from "@rian8337/osu-base";
 import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
-import { bold, GuildMember, hyperlink } from "discord.js";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { StringHelper } from "@utils/helpers/StringHelper";
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
-import { LocaleHelper } from "@utils/helpers/LocaleHelper";
-import { SlashSubcommand } from "structures/core/SlashSubcommand";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
-import { PPLocalization } from "@localization/interactions/commands/osu!droid Elaina PP Project/pp/PPLocalization";
+import { LocaleHelper } from "@utils/helpers/LocaleHelper";
+import { StringHelper } from "@utils/helpers/StringHelper";
 import { ProfileManager } from "@utils/managers/ProfileManager";
-import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
-import { Constants } from "@core/Constants";
+import { bold, GuildMember, hyperlink } from "discord.js";
+import { SlashSubcommand } from "structures/core/SlashSubcommand";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new PPLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const discordid = interaction.options.getUser("user")?.id;
@@ -30,7 +31,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("tooManyOptions"),
+                localization.getTranslation("tooManyOptions")
             ),
         });
     }
@@ -41,13 +42,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const reworkInfo =
         await DatabaseManager.aliceDb.collections.prototypePPType.getFromType(
             reworkType,
-            { projection: { _id: 0, name: 1, type: 1 } },
+            { projection: { _id: 0, name: 1, type: 1 } }
         );
 
     if (!reworkInfo) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("reworkTypeDoesntExist"),
+                localization.getTranslation("reworkTypeDoesntExist")
             ),
         });
     }
@@ -69,19 +70,19 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 await DatabaseManager.elainaDb.collections.userBind.getFromUser(
                     // If no arguments are specified, default to self
                     discordid ?? interaction.user.id,
-                    { projection: { _id: 0, uid: 1 } },
+                    { projection: { _id: 0, uid: 1 } }
                 );
 
             if (!bindInfo) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
                         new ConstantsLocalization(
-                            localization.language,
+                            localization.language
                         ).getTranslation(
                             discordid
                                 ? Constants.userNotBindedReject
-                                : Constants.selfNotBindedReject,
-                        ),
+                                : Constants.selfNotBindedReject
+                        )
                     ),
                 });
             }
@@ -96,8 +97,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 localization.getTranslation(
                     uid || username || discordid
                         ? "userInfoNotAvailable"
-                        : "selfInfoNotAvailable",
-                ),
+                        : "selfInfoNotAvailable"
+                )
             ),
         });
     }
@@ -113,35 +114,35 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 localization.getTranslation("ppProfileTitle"),
                 hyperlink(
                     ppInfo.username,
-                    ProfileManager.getProfileLink(ppInfo.uid),
-                ),
-            ),
+                    ProfileManager.getProfileLink(ppInfo.uid)
+                )
+            )
         )}\n` +
             `${localization.getTranslation("reworkTypeEmbedDescription")}: ${bold(reworkInfo.name)}\n` +
             `${localization.getTranslation("totalPP")}: ${bold(
                 `${ppInfo.pptotal.toFixed(2)} pp (#${(
                     await dbManager.getUserDPPRank(ppInfo.pptotal, reworkType)
                 ).toLocaleString(
-                    LocaleHelper.convertToBCP47(localization.language),
-                )})`,
+                    LocaleHelper.convertToBCP47(localization.language)
+                )})`
             )}\n` +
             `${localization.getTranslation("prevTotalPP")}: ${bold(
-                `${ppInfo.prevpptotal.toFixed(2)} pp`,
+                `${ppInfo.prevpptotal.toFixed(2)} pp`
             )}\n` +
             `Difference: ${bold(
-                `${(ppInfo.pptotal - ppInfo.prevpptotal).toFixed(2)} pp`,
+                `${(ppInfo.pptotal - ppInfo.prevpptotal).toFixed(2)} pp`
             )}\n` +
             `[${localization.getTranslation(
-                "ppProfile",
+                "ppProfile"
             )}](https://droidpp.osudroid.moe/prototype/profile/${
                 ppInfo.uid
             }/${reworkType})\n` +
             `${localization.getTranslation("lastUpdate")}: ${bold(
                 `${DateTimeFormatHelper.dateToLocaleString(
                     new Date(ppInfo.lastUpdate),
-                    localization.language,
-                )}`,
-            )}`,
+                    localization.language
+                )}`
+            )}`
     );
 
     const entries = [...ppInfo.pp.values()];
@@ -151,38 +152,16 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             const pp = entries.at(i);
 
             if (pp) {
-                let modstring = pp.mods ? `+${pp.mods}` : "";
-                if (
-                    pp.forceAR ||
-                    (pp.speedMultiplier && pp.speedMultiplier !== 1)
-                ) {
-                    if (pp.mods) {
-                        modstring += " ";
-                    }
-
-                    modstring += "(";
-
-                    if (pp.forceAR) {
-                        modstring += `AR${pp.forceAR}`;
-                    }
-
-                    if (pp.speedMultiplier && pp.speedMultiplier !== 1) {
-                        if (pp.forceAR) {
-                            modstring += ", ";
-                        }
-
-                        modstring += `${pp.speedMultiplier}x`;
-                    }
-
-                    modstring += ")";
-                }
+                const modstring = pp.mods
+                    ? `+${ModUtil.modsToOrderedString(ModUtil.deserializeMods(pp.mods))}`
+                    : "";
 
                 embed.addFields({
                     name: `${i + 1}. ${pp.title} ${modstring}`,
                     value: `${pp.combo}x | ${pp.accuracy.toFixed(2)}% | ${
                         pp.miss
                     } ❌ | ${bold(pp.prevPP.toString())} ⮕ ${bold(
-                        pp.pp.toString(),
+                        pp.pp.toString()
                     )} pp (${(pp.pp - pp.prevPP).toFixed(2)} pp)`,
                 });
             } else {
@@ -198,6 +177,6 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         Math.max(interaction.options.getInteger("page") ?? 1, 1),
         Math.ceil(ppInfo.pp.size / 5),
         120,
-        onPageChange,
+        onPageChange
     );
 };

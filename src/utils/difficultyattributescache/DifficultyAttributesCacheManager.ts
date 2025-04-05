@@ -1,7 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { Collection } from "@discordjs/collection";
-import { MapInfo, Mod, Modes } from "@rian8337/osu-base";
+import { MapInfo, Mod, Modes, ModMap } from "@rian8337/osu-base";
 import { CacheableDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { RawDifficultyAttributes } from "@structures/difficultyattributes/RawDifficultyAttributes";
@@ -75,6 +75,7 @@ export abstract class DifficultyAttributesCacheManager<
      * Gets all difficulty attributes cache of a beatmap.
      *
      * @param beatmapInfo The information about the beatmap.
+     * @returns The difficulty attributes of the beatmap, or `null` if it doesn't exist.
      */
     getBeatmapAttributes(
         beatmapInfo: MapInfo
@@ -86,15 +87,17 @@ export abstract class DifficultyAttributesCacheManager<
      * Gets a specific difficulty attributes cache of a beatmap.
      *
      * @param beatmapInfo The information about the beatmap.
-     * @param attributeName The name of the attribute.
+     * @param mods The mods to get the attributes for.
+     * @returns The difficulty attributes of the beatmap, or `null` if it doesn't exist.
      */
     getDifficultyAttributes(
         beatmapInfo: MapInfo,
-        attributeName: string
+        mods: ModMap
     ): CacheableDifficultyAttributes<T> | null {
         return (
-            this.getCache(beatmapInfo)?.difficultyAttributes[attributeName] ??
-            null
+            this.getCache(beatmapInfo)?.difficultyAttributes[
+                this.getAttributeName(mods)
+            ] ?? null
         );
     }
 
@@ -103,37 +106,18 @@ export abstract class DifficultyAttributesCacheManager<
      *
      * @param beatmapInfo The information about the beatmap.
      * @param difficultyAttributes The difficulty attributes to add.
-     * @param oldStatistics Whether the difficulty attributes uses old statistics (pre-1.6.8 pre-release).
-     * @param customSpeedMultiplier The custom speed multiplier that was used to generate the attributes.
-     * @param forceCS The force CS that was used to generate the attributes.
-     * @param forceAR The force AR that was used to generate the attributes.
-     * @param forceOD The force OD that was used to generate the attributes.
      * @returns The difficulty attributes that were cached.
      */
     addAttribute(
         beatmapInfo: MapInfo,
-        difficultyAttributes: T,
-        oldStatistics: boolean = false,
-        customSpeedMultiplier: number = 1,
-        forceCS?: number,
-        forceAR?: number,
-        forceOD?: number
+        difficultyAttributes: T
     ): CacheableDifficultyAttributes<T> {
-        const cache: CachedDifficultyAttributes<T> = this.getBeatmapAttributes(
-            beatmapInfo
-        ) ?? {
+        const cache = this.getBeatmapAttributes(beatmapInfo) ?? {
             lastUpdate: Date.now(),
             difficultyAttributes: {},
         };
 
-        const attributeName: string = this.getAttributeName(
-            difficultyAttributes.mods,
-            oldStatistics,
-            customSpeedMultiplier,
-            forceCS,
-            forceAR,
-            forceOD
-        );
+        const attributeName = this.getAttributeName(difficultyAttributes.mods);
 
         cache.difficultyAttributes[attributeName] = {
             ...difficultyAttributes,
@@ -144,71 +128,6 @@ export abstract class DifficultyAttributesCacheManager<
         this.cacheToSave.set(beatmapInfo.beatmapId, cache);
 
         return cache.difficultyAttributes[attributeName];
-    }
-
-    /**
-     * Constructs an attribute name based on the given parameters.
-     *
-     * @param mods The mods to construct with.
-     * @param oldStatistics Whether the attribute uses old statistics (pre-1.6.8 pre-release).
-     * @param customSpeedMultiplier The custom speed multiplier to construct with.
-     * @param forceAR The force CS to construct with.
-     * @param forceAR The force AR to construct with.
-     * @param forceOD The force OD to construct with.
-     */
-    getAttributeName(
-        mods: Mod[] = [],
-        oldStatistics: boolean = false,
-        customSpeedMultiplier: number = 1,
-        forceCS?: number,
-        forceAR?: number,
-        forceOD?: number
-    ): string {
-        let attributeName = "";
-
-        switch (this.mode) {
-            case Modes.droid:
-                attributeName += StringHelper.sortAlphabet(
-                    mods.reduce((a, m) => {
-                        if (!m.isApplicableToDroid()) {
-                            return a;
-                        }
-
-                        return a + m.droidString;
-                    }, "") || "-"
-                );
-                break;
-            case Modes.osu:
-                attributeName += mods.reduce((a, m) => {
-                    if (!m.isApplicableToOsuStable()) {
-                        return a;
-                    }
-
-                    return a | m.bitwise;
-                }, 0);
-        }
-
-        if (customSpeedMultiplier !== 1) {
-            attributeName += `|${customSpeedMultiplier.toFixed(2)}x`;
-        }
-
-        if (forceCS !== undefined) {
-            attributeName += `|CS${forceCS}`;
-        }
-
-        if (forceAR !== undefined) {
-            attributeName += `|AR${forceAR}`;
-        }
-
-        if (forceOD !== undefined) {
-            attributeName += `OD|${forceOD}`;
-        }
-
-        if (oldStatistics) {
-            attributeName += "|oldStats";
-        }
-
-        return attributeName;
     }
 
     /**
@@ -319,5 +238,14 @@ export abstract class DifficultyAttributesCacheManager<
         cache.difficultyAttributes = {};
 
         this.cacheToSave.set(beatmapId, cache);
+    }
+
+    /**
+     * Constructs an attribute name based on the given parameters.
+     *
+     * @param mods The mods to construct with.
+     */
+    private getAttributeName(mods: ModMap): string {
+        return StringHelper.sortAlphabet(mods.serializeMods().join(""));
     }
 }

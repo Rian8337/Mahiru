@@ -1,3 +1,5 @@
+import { SerializedMod } from "@rian8337/osu-base";
+
 /**
  * Represents a droid performance points (dpp) entry.
  */
@@ -30,7 +32,7 @@ export interface PPEntry {
     /**
      * The modifications that are applied in the score.
      */
-    mods: string;
+    mods: SerializedMod[];
 
     /**
      * The accuracy achieved in the score.
@@ -41,29 +43,4 @@ export interface PPEntry {
      * The amount of misses achieved in the score.
      */
     miss: number;
-
-    /**
-     * The force CS used in the score.
-     */
-    forceCS?: number;
-
-    /**
-     * The force AR used in the score.
-     */
-    forceAR?: number;
-
-    /**
-     * The force OD used in the score.
-     */
-    forceOD?: number;
-
-    /**
-     * The force HP used in the score.
-     */
-    forceHP?: number;
-
-    /**
-     * The custom speed multiplier used in the score.
-     */
-    speedMultiplier?: number;
 }

@@ -1,29 +1,28 @@
+import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
+import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
 import { Symbols } from "@enums/utils/Symbols";
+import { Accuracy, ModUtil } from "@rian8337/osu-base";
+import {
+    CacheableDifficultyAttributes,
+    IDroidDifficultyAttributes,
+    IOsuDifficultyAttributes,
+} from "@rian8337/osu-difficulty-calculator";
+import { Player, Score } from "@rian8337/osu-droid-utilities";
+import {
+    IDroidDifficultyAttributes as IRebalanceDroidDifficultyAttributes,
+    IOsuDifficultyAttributes as IRebalanceOsuDifficultyAttributes,
+} from "@rian8337/osu-rebalance-difficulty-calculator";
+import { CompleteCalculationAttributes } from "@structures/difficultyattributes/CompleteCalculationAttributes";
+import { DroidPerformanceAttributes } from "@structures/difficultyattributes/DroidPerformanceAttributes";
+import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
 import { PPEntry } from "@structures/pp/PPEntry";
 import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
-import { Accuracy } from "@rian8337/osu-base";
-import {
-    CacheableDifficultyAttributes,
-    DroidDifficultyAttributes,
-    OsuDifficultyAttributes,
-} from "@rian8337/osu-difficulty-calculator";
-import {
-    DroidDifficultyAttributes as RebalanceDroidDifficultyAttributes,
-    OsuDifficultyAttributes as RebalanceOsuDifficultyAttributes,
-} from "@rian8337/osu-rebalance-difficulty-calculator";
-import { Player, Score } from "@rian8337/osu-droid-utilities";
 import { Collection, RepliableInteraction, underscore } from "discord.js";
 import { CommandHelper } from "./CommandHelper";
-import { NumberHelper } from "./NumberHelper";
-import { DroidPerformanceAttributes } from "@structures/difficultyattributes/DroidPerformanceAttributes";
-import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
-import { CompleteCalculationAttributes } from "@structures/difficultyattributes/CompleteCalculationAttributes";
-import { ResponseDifficultyAttributes } from "@structures/difficultyattributes/ResponseDifficultyAttributes";
-import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
 import { DroidHelper } from "./DroidHelper";
-import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
+import { NumberHelper } from "./NumberHelper";
 
 /**
  * A helper for performance points related things.
@@ -44,7 +43,7 @@ export abstract class PPHelper {
     static async displayPPList(
         interaction: RepliableInteraction,
         player: Pick<OfficialDatabaseUser, "id" | "username" | "pp"> | Player,
-        page: number,
+        page: number
     ): Promise<void> {
         const topScores = await DroidHelper.getTopScores(player.id);
 
@@ -52,7 +51,7 @@ export abstract class PPHelper {
             interaction,
             player,
             undefined,
-            CommandHelper.getLocale(interaction),
+            CommandHelper.getLocale(interaction)
         );
 
         const onPageChange: OnButtonPageChange = async (_, page) => {
@@ -65,7 +64,7 @@ export abstract class PPHelper {
                         value: `${score.combo}x | ${(score.accuracy.value() * 100).toFixed(2)}% | ${
                             score.miss
                         } ${Symbols.missIcon} | ${underscore(
-                            `${(score.pp ?? 0).toFixed(2)} pp`,
+                            `${(score.pp ?? 0).toFixed(2)} pp`
                         )} (Net pp: ${(
                             (score.pp ?? 0) * Math.pow(0.95, i)
                         ).toFixed(2)} pp)`,
@@ -85,7 +84,7 @@ export abstract class PPHelper {
             Math.max(page, 1),
             Math.ceil(topScores.length / 5),
             120,
-            onPageChange,
+            onPageChange
         );
     }
 
@@ -98,7 +97,7 @@ export abstract class PPHelper {
      */
     static checkScoreInsertion(
         dppList: Collection<string, PPEntry>,
-        entry: PPEntry,
+        entry: PPEntry
     ): boolean {
         if (dppList.size < 75) {
             return true;
@@ -126,9 +125,9 @@ export abstract class PPHelper {
         beatmapTitle: string,
         score: Pick<OfficialDatabaseScore, "uid" | "hash"> | Score,
         attributes: CompleteCalculationAttributes<
-            DroidDifficultyAttributes,
+            IDroidDifficultyAttributes,
             DroidPerformanceAttributes
-        >,
+        >
     ): PPEntry {
         const { params, difficulty, performance } = attributes;
         const accuracy = new Accuracy(params.accuracy);
@@ -142,10 +141,6 @@ export abstract class PPHelper {
             accuracy: NumberHelper.round(accuracy.value() * 100, 2),
             combo: params.combo,
             miss: accuracy.nmiss,
-            speedMultiplier:
-                params.customSpeedMultiplier !== 1
-                    ? params.customSpeedMultiplier
-                    : undefined,
         };
     }
 
@@ -156,7 +151,7 @@ export abstract class PPHelper {
      * @returns The weighted accuracy of the list.
      */
     static calculateWeightedAccuracy(
-        dppList: Collection<string, PPEntry>,
+        dppList: Collection<string, PPEntry>
     ): number {
         if (dppList.size === 0) {
             return 0;
@@ -182,7 +177,7 @@ export abstract class PPHelper {
      * @returns The final performance points.
      */
     static calculateFinalPerformancePoints<T extends { pp: number | null }>(
-        scores: T[],
+        scores: T[]
     ): number {
         return scores
             .sort((a, b) => (b.pp ?? 0) - (a.pp ?? 0))
@@ -207,12 +202,10 @@ export abstract class PPHelper {
      */
     static getDroidDifficultyAttributesInfo(
         attributes:
-            | DroidDifficultyAttributes
-            | ResponseDifficultyAttributes<DroidDifficultyAttributes>
-            | RebalanceDroidDifficultyAttributes
-            | ResponseDifficultyAttributes<RebalanceDroidDifficultyAttributes>,
+            | IDroidDifficultyAttributes
+            | CacheableDifficultyAttributes<IDroidDifficultyAttributes>
     ): string {
-        let string: string = `${attributes.starRating.toFixed(2)} stars (`;
+        let string = `${attributes.starRating.toFixed(2)} stars (`;
         const starRatingDetails: string[] = [];
 
         const addDetail = (num: number, suffix: string) =>
@@ -237,10 +230,10 @@ export abstract class PPHelper {
      */
     static getRebalanceDroidDifficultyAttributesInfo(
         attributes:
-            | RebalanceDroidDifficultyAttributes
-            | ResponseDifficultyAttributes<RebalanceDroidDifficultyAttributes>,
+            | IRebalanceDroidDifficultyAttributes
+            | CacheableDifficultyAttributes<IRebalanceDroidDifficultyAttributes>
     ): string {
-        let string: string = `${attributes.starRating.toFixed(2)} stars (`;
+        let string = `${attributes.starRating.toFixed(2)} stars (`;
         const starRatingDetails: string[] = [];
 
         const addDetail = (num: number, suffix: string) =>
@@ -265,8 +258,8 @@ export abstract class PPHelper {
      */
     static getOsuDifficultyAttributesInfo(
         attributes:
-            | OsuDifficultyAttributes
-            | CacheableDifficultyAttributes<OsuDifficultyAttributes>,
+            | IOsuDifficultyAttributes
+            | CacheableDifficultyAttributes<IOsuDifficultyAttributes>
     ): string {
         let string = `${attributes.starRating.toFixed(2)} stars (`;
         const starRatingDetails: string[] = [];
@@ -291,8 +284,8 @@ export abstract class PPHelper {
      */
     static getRebalanceOsuDifficultyAttributesInfo(
         attributes:
-            | RebalanceOsuDifficultyAttributes
-            | ResponseDifficultyAttributes<RebalanceOsuDifficultyAttributes>,
+            | IRebalanceOsuDifficultyAttributes
+            | CacheableDifficultyAttributes<IRebalanceOsuDifficultyAttributes>
     ): string {
         let string = `${attributes.starRating.toFixed(2)} stars (`;
         const starRatingDetails: string[] = [];
@@ -316,7 +309,7 @@ export abstract class PPHelper {
      * @returns The string.
      */
     static getDroidPerformanceAttributesInfo(
-        attributes: DroidPerformanceAttributes,
+        attributes: DroidPerformanceAttributes
     ): string {
         let string = `${attributes.total.toFixed(2)} pp (`;
         const starRatingDetails: string[] = [];
@@ -342,7 +335,7 @@ export abstract class PPHelper {
      * @returns The string.
      */
     static getOsuPerformanceAttributesInfo(
-        attributes: OsuPerformanceAttributes,
+        attributes: OsuPerformanceAttributes
     ): string {
         let string = `${attributes.total.toFixed(2)} pp (`;
         const starRatingDetails: string[] = [];

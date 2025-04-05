@@ -21,7 +21,7 @@ export abstract class ReplayHelper {
         "DroidData",
         "osudroid",
         "zip",
-        "upload",
+        "upload"
     );
 
     /**
@@ -37,7 +37,7 @@ export abstract class ReplayHelper {
 
         try {
             return await readFile(
-                join(this.folderPath, `${scoreId.toString()}.odr`),
+                join(this.folderPath, `${scoreId.toString()}.odr`)
             );
         } catch {
             return null;
@@ -55,10 +55,10 @@ export abstract class ReplayHelper {
             | Pick<OfficialDatabaseScore, "id">
             | ReplayAnalyzer
             | Score
-            | RecentPlay,
+            | RecentPlay
     ): Promise<ReplayAnalyzer> {
         if (input instanceof RecentPlay && !input.scoreId) {
-            return new ReplayAnalyzer({ scoreID: 0 });
+            return new ReplayAnalyzer();
         }
 
         let analyzer: ReplayAnalyzer;
@@ -78,10 +78,10 @@ export abstract class ReplayHelper {
         if (!Config.isDebug) {
             analyzer.originalODR ??= await this.retrieveFile(
                 input instanceof ReplayAnalyzer
-                    ? input.scoreID
+                    ? input.scoreID!
                     : input instanceof RecentPlay
                       ? input.scoreId!
-                      : input.id,
+                      : input.id
             );
         }
 

@@ -1,21 +1,22 @@
-import { Accuracy, ModUtil } from "@rian8337/osu-base";
+import { Accuracy, ModMap, ModUtil } from "@rian8337/osu-base";
 import { SliderCheeseInformation } from "@rian8337/osu-droid-replay-analyzer";
 import {
     CacheableDifficultyAttributes,
     PerformanceCalculationOptions,
 } from "@rian8337/osu-difficulty-calculator";
-import {
-    DifficultyCalculationParameters,
-    DifficultyCalculationParametersInit,
-} from "./DifficultyCalculationParameters";
+import { DifficultyCalculationParameters } from "./DifficultyCalculationParameters";
 import { RawDifficultyAttributes } from "@structures/difficultyattributes/RawDifficultyAttributes";
 import { CloneablePerformanceCalculationParameters } from "@structures/pp/CloneablePerformanceCalculationParameters";
 
 /**
  * Represents a parameter to alter performance calculation result.
  */
-export interface PerformanceCalculationParametersInit
-    extends DifficultyCalculationParametersInit {
+export interface PerformanceCalculationParametersInit {
+    /**
+     * The mods to calculate for.
+     */
+    mods?: ModMap;
+
     /**
      * The combo achieved. Defaults to the beatmap's maximum combo.
      */
@@ -52,12 +53,12 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
      * @param data The data.
      */
     static override from(
-        data: CloneablePerformanceCalculationParameters,
+        data: CloneablePerformanceCalculationParameters
     ): PerformanceCalculationParameters {
         return new this({
             ...data,
             accuracy: new Accuracy(data.accuracy),
-            mods: ModUtil.pcStringToMods(data.mods),
+            mods: ModUtil.deserializeMods(data.mods),
         });
     }
 
@@ -87,7 +88,7 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
     sliderCheesePenalty?: SliderCheeseInformation;
 
     constructor(values: PerformanceCalculationParametersInit) {
-        super(values);
+        super(values.mods);
 
         this.combo = values.combo;
         this.accuracy = values.accuracy;
@@ -104,7 +105,7 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
     applyFromAttributes(
         attributes:
             | CacheableDifficultyAttributes<RawDifficultyAttributes>
-            | RawDifficultyAttributes,
+            | RawDifficultyAttributes
     ): void {
         this.combo ??= attributes.maxCombo;
 
@@ -122,7 +123,7 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
                     objectCount -
                         this.accuracy.n300 -
                         this.accuracy.n100 -
-                        this.accuracy.n50,
+                        this.accuracy.n50
                 ),
             });
         }

@@ -1,4 +1,5 @@
 import { Config } from "@core/Config";
+import { DatabaseManager } from "@database/DatabaseManager";
 import { officialPool } from "@database/official/OfficialDatabasePool";
 import {
     constructOfficialDatabaseTable,
@@ -6,15 +7,20 @@ import {
 } from "@database/official/OfficialDatabaseTables";
 import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
 import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
-import { OfficialDatabaseScoreMods } from "@structures/utils/OfficialDatabaseScoreMods";
-import { DroidAPIRequestBuilder, ModUtil } from "@rian8337/osu-base";
-import { APIScore, Player, Score } from "@rian8337/osu-droid-utilities";
-import { RowDataPacket } from "mysql2";
-import { OnlinePlayerRank } from "@structures/utils/OnlinePlayerRank";
-import { readFile, stat } from "fs/promises";
-import { ApplicationCommandOptionChoiceData } from "discord.js";
-import { DatabaseManager } from "@database/DatabaseManager";
 import { BeatmapLeaderboardSortMode } from "@enums/interactions/BeatmapLeaderboardSortMode";
+import {
+    DroidAPIRequestBuilder,
+    DroidLegacyModConverter,
+    ModCustomSpeed,
+    ModDifficultyAdjust,
+    ModMap,
+    ModUtil,
+} from "@rian8337/osu-base";
+import { APIScore, Player, Score } from "@rian8337/osu-droid-utilities";
+import { OnlinePlayerRank } from "@structures/utils/OnlinePlayerRank";
+import { ApplicationCommandOptionChoiceData } from "discord.js";
+import { readFile, stat } from "fs/promises";
+import { RowDataPacket } from "mysql2";
 
 /**
  * A helper for osu!droid related requests.
@@ -34,7 +40,7 @@ export abstract class DroidHelper {
         hash: string,
         order: BeatmapLeaderboardSortMode = BeatmapLeaderboardSortMode.score,
         page: number = 1,
-        scoresPerPage: number = 100,
+        scoresPerPage: number = 100
     ): Promise<Score[]> {
         if (Config.isDebug) {
             const apiRequestBuilder = new DroidAPIRequestBuilder()
@@ -89,7 +95,7 @@ export abstract class DroidHelper {
                 score.pp as pp
                 FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.score)} score, ${constructOfficialDatabaseTable(OfficialDatabaseTables.user)} user
                 WHERE score.hash = ? AND score.score > 0 AND user.id = score.uid ORDER BY score.score DESC${order === BeatmapLeaderboardSortMode.pp ? ", score.pp DESC" : ""} LIMIT ? OFFSET ?;`,
-            [hash, scoresPerPage, (page - 1) * scoresPerPage],
+            [hash, scoresPerPage, (page - 1) * scoresPerPage]
         );
 
         // The query automatically converts TIMESTAMP columns to Date objects, but API returns a seconds
@@ -116,7 +122,7 @@ export abstract class DroidHelper {
      */
     static async getGlobalLeaderboard(
         page: number = 1,
-        scoresPerPage: number = 100,
+        scoresPerPage: number = 100
     ): Promise<OnlinePlayerRank[]> {
         // Page is 1-indexed, but the API is 0-indexed.
         --page;
@@ -145,9 +151,9 @@ export abstract class DroidHelper {
 
         const leaderboardQuery = await officialPool.query<RowDataPacket[]>(
             `SELECT id, username, pp, playcount, accuracy FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.user,
+                OfficialDatabaseTables.user
             )} WHERE banned = 0 AND restrict_mode = 0 AND archived = 0 ORDER BY pp DESC LIMIT ? OFFSET ?;`,
-            [scoresPerPage, page * scoresPerPage],
+            [scoresPerPage, page * scoresPerPage]
         );
 
         return leaderboardQuery[0] as OnlinePlayerRank[];
@@ -168,7 +174,7 @@ export abstract class DroidHelper {
         uid: number,
         amount: number = 50,
         offset: number = 0,
-        databaseColumns?: K[],
+        databaseColumns?: K[]
     ): Promise<Pick<OfficialDatabaseScore, K>[]> {
         if (Config.isDebug) {
             return [];
@@ -178,9 +184,9 @@ export abstract class DroidHelper {
             `SELECT ${
                 databaseColumns?.join() || "*"
             } FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.score,
+                OfficialDatabaseTables.score
             )} WHERE uid = ? AND score > 0 ORDER BY date DESC LIMIT ? OFFSET ?;`,
-            [uid, amount, offset],
+            [uid, amount, offset]
         );
 
         return scoreQuery[0] as OfficialDatabaseScore[];
@@ -197,7 +203,7 @@ export abstract class DroidHelper {
      */
     static async getTopScores(
         uid: number,
-        amount: number = 100,
+        amount: number = 100
     ): Promise<Score[]> {
         if (Config.isDebug) {
             const apiRequestBuilder = new DroidAPIRequestBuilder()
@@ -244,7 +250,7 @@ export abstract class DroidHelper {
                 score.pp as pp
                 FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.bestScore)} score, ${constructOfficialDatabaseTable(OfficialDatabaseTables.user)} user
                 WHERE score.uid = ? AND user.id = score.uid ORDER BY score.pp DESC LIMIT ?;`,
-            [uid, amount],
+            [uid, amount]
         );
 
         return (scoreQuery[0] as APIScore[]).map((v) => new Score(v));
@@ -261,7 +267,7 @@ export abstract class DroidHelper {
      */
     static async getPlayer<K extends keyof OfficialDatabaseUser>(
         uidOrUsername: string | number,
-        databaseColumns?: K[],
+        databaseColumns?: K[]
     ): Promise<Pick<OfficialDatabaseUser, K> | Player | null> {
         if (Config.isDebug) {
             return Player.getInformation(uidOrUsername);
@@ -271,11 +277,11 @@ export abstract class DroidHelper {
             `SELECT ${
                 databaseColumns?.join() || "*"
             } FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.user,
+                OfficialDatabaseTables.user
             )} WHERE ${
                 typeof uidOrUsername === "number" ? "id" : "username"
             } = ? AND banned = 0 AND restrict_mode = 0;`,
-            [uidOrUsername],
+            [uidOrUsername]
         );
 
         return (playerQuery[0] as OfficialDatabaseUser[]).at(0) ?? null;
@@ -296,9 +302,9 @@ export abstract class DroidHelper {
 
         const rankQuery = await officialPool.query<RowDataPacket[]>(
             `SELECT COUNT(*) + 1 FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.user,
+                OfficialDatabaseTables.user
             )} WHERE banned = 0 AND restrict_mode = 0 AND archived = 0 AND score > ?;`,
-            [score],
+            [score]
         );
 
         return (
@@ -322,12 +328,12 @@ export abstract class DroidHelper {
         }
 
         const table = constructOfficialDatabaseTable(
-            OfficialDatabaseTables.user,
+            OfficialDatabaseTables.user
         );
 
         const rankQuery = await officialPool.query<RowDataPacket[]>(
             `SELECT COUNT(*) + 1 FROM ${table} WHERE banned = 0 AND restrict_mode = 0 AND archived = 0 AND pp > (SELECT pp FROM ${table} WHERE id = ?);`,
-            [id],
+            [id]
         );
 
         return (
@@ -350,7 +356,7 @@ export abstract class DroidHelper {
     static async getScore<K extends keyof OfficialDatabaseScore>(
         uid: number,
         hash: string,
-        databaseColumns?: K[],
+        databaseColumns?: K[]
     ): Promise<Pick<OfficialDatabaseScore, K> | Score | null> {
         if (Config.isDebug) {
             return Score.getFromHash(uid, hash);
@@ -360,9 +366,9 @@ export abstract class DroidHelper {
             `SELECT ${
                 databaseColumns?.join() || "*"
             } FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.score,
+                OfficialDatabaseTables.score
             )} WHERE uid = ? AND hash = ? AND score > 0;`,
-            [uid, hash],
+            [uid, hash]
         );
 
         return (scoreQuery[0] as OfficialDatabaseScore[]).at(0) ?? null;
@@ -383,7 +389,7 @@ export abstract class DroidHelper {
         page: number = 1,
         scoresPerPage: number = 100,
         order: keyof OfficialDatabaseScore = "id",
-        databaseColumns?: K[],
+        databaseColumns?: K[]
     ): Promise<Pick<OfficialDatabaseScore, K>[] | Score[]> {
         if (Config.isDebug) {
             const apiRequestBuilder = new DroidAPIRequestBuilder()
@@ -412,113 +418,12 @@ export abstract class DroidHelper {
             `SELECT ${
                 databaseColumns?.join() || "*"
             } FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.score,
+                OfficialDatabaseTables.score
             )} WHERE uid = ? AND score > 0 ORDER BY ? DESC LIMIT ? OFFSET ?;`,
-            [uid, order, scoresPerPage, (page - 1) * scoresPerPage],
+            [uid, order, scoresPerPage, (page - 1) * scoresPerPage]
         );
 
         return scoreQuery[0] as OfficialDatabaseScore[];
-    }
-
-    /**
-     * Parses the mods of a score.
-     *
-     * @param modstring The raw string of mods received from score table.
-     * @returns The parsed mods.
-     */
-    static parseMods(modstring: string): OfficialDatabaseScoreMods {
-        // Taken directly from osu! core module.
-        const modstrings = modstring.split("|");
-        let actualMods = "";
-        let speedMultiplier = 1;
-        let forceCS: number | undefined;
-        let forceAR: number | undefined;
-        let forceOD: number | undefined;
-        let forceHP: number | undefined;
-        let flashlightFollowDelay: number | undefined;
-
-        for (const str of modstrings) {
-            if (!str) {
-                continue;
-            }
-
-            switch (true) {
-                // Forced stats
-                case str.startsWith("CS"):
-                    forceCS = parseFloat(str.replace("CS", ""));
-                    break;
-                case str.startsWith("AR"):
-                    forceAR = parseFloat(str.replace("AR", ""));
-                    break;
-                case str.startsWith("OD"):
-                    forceOD = parseFloat(str.replace("OD", ""));
-                    break;
-                case str.startsWith("HP"):
-                    forceHP = parseFloat(str.replace("HP", ""));
-                    break;
-                // FL follow delay
-                case str.startsWith("FLD"):
-                    flashlightFollowDelay = parseFloat(str.replace("FLD", ""));
-                    break;
-                // Speed multiplier
-                case str.startsWith("x"):
-                    speedMultiplier = parseFloat(str.replace("x", ""));
-                    break;
-                default:
-                    actualMods += str;
-            }
-        }
-
-        return {
-            mods: ModUtil.droidStringToMods(actualMods),
-            speedMultiplier,
-            forceCS,
-            forceAR,
-            forceOD,
-            forceHP,
-            flashlightFollowDelay,
-            oldStatistics: !modstring.includes("|"),
-        };
-    }
-
-    /**
-     * Converts a mods object to a database string.
-     *
-     * @param mods The mods object.
-     * @returns The database string.
-     */
-    static modsToDatabaseString(mods: OfficialDatabaseScoreMods): string {
-        let str = mods.mods.map((v) => v.droidString).join("");
-
-        if (!mods.oldStatistics) {
-            str += "|";
-        }
-
-        if (mods.speedMultiplier !== 1) {
-            str += `${mods.speedMultiplier}x|`;
-        }
-
-        if (mods.forceCS !== undefined) {
-            str += `CS${mods.forceCS}|`;
-        }
-
-        if (mods.forceAR !== undefined) {
-            str += `AR${mods.forceAR}|`;
-        }
-
-        if (mods.forceOD !== undefined) {
-            str += `OD${mods.forceOD}|`;
-        }
-
-        if (mods.forceHP !== undefined) {
-            str += `HP${mods.forceHP}|`;
-        }
-
-        if (mods.flashlightFollowDelay !== undefined) {
-            str += `FLD${mods.flashlightFollowDelay}|`;
-        }
-
-        return str.endsWith("|") ? str.slice(0, -1) : str;
     }
 
     /**
@@ -528,45 +433,13 @@ export abstract class DroidHelper {
      * @returns The complete mod string.
      */
     static getCompleteModString(modstring: string): string {
-        const parsedMods = this.parseMods(modstring);
+        const parsedMods = DroidLegacyModConverter.convert(modstring);
 
-        let finalString = `+${
-            parsedMods.mods.length > 0
-                ? parsedMods.mods.map((v) => v.acronym)
+        return `+${
+            !parsedMods.isEmpty
+                ? ModUtil.modsToOrderedString(parsedMods)
                 : "No Mod"
         }`;
-
-        const customStats: string[] = [];
-
-        if (parsedMods.speedMultiplier !== 1) {
-            customStats.push(`${parsedMods.speedMultiplier}x`);
-        }
-
-        if (parsedMods.forceAR !== undefined) {
-            customStats.push(`AR${parsedMods.forceAR}`);
-        }
-
-        if (parsedMods.forceOD !== undefined) {
-            customStats.push(`OD${parsedMods.forceOD}`);
-        }
-
-        if (parsedMods.forceCS !== undefined) {
-            customStats.push(`CS${parsedMods.forceCS}`);
-        }
-
-        if (parsedMods.forceHP !== undefined) {
-            customStats.push(`HP${parsedMods.forceHP}`);
-        }
-
-        if (parsedMods.flashlightFollowDelay !== undefined) {
-            customStats.push(`FLD${parsedMods.flashlightFollowDelay}`);
-        }
-
-        if (customStats.length > 0) {
-            finalString += ` (${customStats.join(", ")})`;
-        }
-
-        return finalString;
     }
 
     /**
@@ -577,6 +450,54 @@ export abstract class DroidHelper {
      */
     static getAvatarURL(uid: number): string {
         return `https://osudroid.moe/user/avatar?id=${uid}`;
+    }
+
+    /**
+     * Converts a `ModMap` to its legacy mod string counterpart.
+     *
+     * @param mods The `ModMap` to convert.
+     * @returns The legacy mod string.
+     */
+    static modMapToLegacyString(mods: ModMap): string {
+        let modstring = "";
+
+        for (const modType of ModUtil.allMods.values()) {
+            if (!mods.has(modType)) {
+                continue;
+            }
+
+            for (const legacyModKey of DroidLegacyModConverter.legacyStorableMods.keys()) {
+                if (
+                    modType ===
+                    DroidLegacyModConverter.legacyStorableMods.get(legacyModKey)
+                ) {
+                    modstring += legacyModKey;
+                    break;
+                }
+            }
+        }
+
+        const customSpeed = mods.get(ModCustomSpeed);
+        const difficultyAdjust = mods.get(ModDifficultyAdjust);
+
+        if (customSpeed) {
+            modstring += `|${customSpeed.trackRateMultiplier.toFixed(2)}`;
+        }
+
+        if (difficultyAdjust?.cs !== undefined) {
+            modstring += `|CS${difficultyAdjust.cs.toFixed(1)}`;
+        }
+        if (difficultyAdjust?.ar !== undefined) {
+            modstring += `|AR${difficultyAdjust.ar.toFixed(1)}`;
+        }
+        if (difficultyAdjust?.od !== undefined) {
+            modstring += `|OD${difficultyAdjust.od.toFixed(1)}`;
+        }
+        if (difficultyAdjust?.hp !== undefined) {
+            modstring += `|HP${difficultyAdjust.hp.toFixed(1)}`;
+        }
+
+        return modstring;
     }
 
     /**
@@ -619,7 +540,7 @@ export abstract class DroidHelper {
      */
     static async searchPlayersForAutocomplete(
         name: string,
-        amount = 25,
+        amount = 25
     ): Promise<ApplicationCommandOptionChoiceData<string>[]> {
         name = name.trim();
 
@@ -637,7 +558,7 @@ export abstract class DroidHelper {
         if (Config.isDebug) {
             return DatabaseManager.elainaDb.collections.userBind.searchPlayersForAutocomplete(
                 name,
-                amount,
+                amount
             );
         }
 

@@ -1,16 +1,16 @@
 import { DatabaseManager } from "@database/DatabaseManager";
-import { SlashSubcommand } from "structures/core/SlashSubcommand";
-import { EmbedCreator } from "@utils/creators/EmbedCreator";
-import { MessageCreator } from "@utils/creators/MessageCreator";
-import { bold } from "discord.js";
-import { Player, Score } from "@rian8337/osu-droid-utilities";
 import { Symbols } from "@enums/utils/Symbols";
 import { MatchLocalization } from "@localization/interactions/commands/Tournament/match/MatchLocalization";
+import { Player, Score } from "@rian8337/osu-droid-utilities";
+import { EmbedCreator } from "@utils/creators/EmbedCreator";
+import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { StringHelper } from "@utils/helpers/StringHelper";
-import { LocaleHelper } from "@utils/helpers/LocaleHelper";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import { LocaleHelper } from "@utils/helpers/LocaleHelper";
+import { StringHelper } from "@utils/helpers/StringHelper";
+import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { bold } from "discord.js";
+import { SlashSubcommand } from "structures/core/SlashSubcommand";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!interaction.channel?.isSendable()) {
@@ -18,7 +18,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     }
 
     const localization = new MatchLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const id = interaction.options.getString("id");
@@ -26,7 +26,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const match = id
         ? await DatabaseManager.elainaDb.collections.tournamentMatch.getById(id)
         : await DatabaseManager.elainaDb.collections.tournamentMatch.getByChannel(
-              interaction.channelId,
+              interaction.channelId
           );
 
     // Need to make cross-compatibility since this command is also called from match-start
@@ -34,12 +34,12 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         interaction.replied
             ? interaction.channel.send({
                   content: MessageCreator.createReject(
-                      localization.getTranslation("matchDoesntExist"),
+                      localization.getTranslation("matchDoesntExist")
                   ),
               })
             : InteractionHelper.reply(interaction, {
                   content: MessageCreator.createReject(
-                      localization.getTranslation("matchDoesntExist"),
+                      localization.getTranslation("matchDoesntExist")
                   ),
               });
 
@@ -50,19 +50,19 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     const pool =
         await DatabaseManager.elainaDb.collections.tournamentMappool.getFromId(
-            poolId,
+            poolId
         );
 
     if (!pool) {
         interaction.replied
             ? interaction.channel!.send({
                   content: MessageCreator.createReject(
-                      localization.getTranslation("mappoolNotFound"),
+                      localization.getTranslation("mappoolNotFound")
                   ),
               })
             : InteractionHelper.reply(interaction, {
                   content: MessageCreator.createReject(
-                      localization.getTranslation("mappoolNotFound"),
+                      localization.getTranslation("mappoolNotFound")
                   ),
               });
 
@@ -80,13 +80,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 ? interaction.channel!.send({
                       content: MessageCreator.createReject(
                           localization.getTranslation("playerNotFound"),
-                          p[1],
+                          p[1]
                       ),
                   })
                 : InteractionHelper.reply(interaction, {
                       content: MessageCreator.createReject(
                           localization.getTranslation("playerNotFound"),
-                          p[1],
+                          p[1]
                       ),
                   });
 
@@ -100,19 +100,19 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const map = match.getLastPlayedBeatmap(
         pool,
         playerList,
-        interaction.options.getString("pick")?.toUpperCase(),
+        interaction.options.getString("pick")?.toUpperCase()
     );
 
     if (!map) {
         interaction.replied
             ? interaction.channel!.send({
                   content: MessageCreator.createReject(
-                      localization.getTranslation("mapNotFound"),
+                      localization.getTranslation("mapNotFound")
                   ),
               })
             : InteractionHelper.reply(interaction, {
                   content: MessageCreator.createReject(
-                      localization.getTranslation("mapNotFound"),
+                      localization.getTranslation("mapNotFound")
                   ),
               });
 
@@ -124,19 +124,19 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     for (let i = 0; i < playerList.length; ++i) {
         (i % 2 ? team2ScoreList : team1ScoreList).push(
-            playerList[i].recentPlays[0],
+            playerList[i].recentPlays[0]
         );
     }
 
     const team1ScoreStatus = match.verifyTeamScore(
         team1ScoreList,
         map,
-        localization.language,
+        localization.language
     );
     const team2ScoreStatus = match.verifyTeamScore(
         team2ScoreList,
         map,
-        localization.language,
+        localization.language
     );
 
     const scoreV2List: number[] = [];
@@ -155,7 +155,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             score,
             map,
             teamScoreStatus.success,
-            localization.language,
+            localization.language
         );
 
         if (verificationResult.success && teamScoreStatus.success) {
@@ -164,7 +164,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 score.score,
                 score.accuracy.value(),
                 score.accuracy.nmiss,
-                score.mods,
+                score.mods
             );
 
             scoreV2List.push(scorev2);
@@ -173,18 +173,18 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         }
 
         const scoreString = `${match.player[i][0]} - (${
-            score.mods.map((v) => v.name).join(", ") || "NoMod"
+            [...score.mods.values()].map((v) => v.name).join(", ") || "NoMod"
         }): ${bold(
-            scoreV2List.at(-1)!.toString(),
+            scoreV2List.at(-1)!.toString()
         )} - ${BeatmapManager.getRankEmote(score.rank)} - ${(
             score.accuracy.value() * 100
         ).toFixed(2)}% - ${score.accuracy.nmiss} ${Symbols.missIcon}\n`;
         const failString = `${match.player[i][0]} - (N/A): ${bold(
-            "0",
+            "0"
         )} - ${bold(
             !teamScoreStatus.success
                 ? teamScoreStatus.reason!
-                : verificationResult.reason!,
+                : verificationResult.reason!
         )}\n`;
 
         if (i % 2 === 0) {
@@ -219,8 +219,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             ? match.team[0][0]
             : match.team[1][0],
         Math.abs(team1OverallScore - team2OverallScore).toLocaleString(
-            LocaleHelper.convertToBCP47(localization.language),
-        ),
+            LocaleHelper.convertToBCP47(localization.language)
+        )
     );
     let embedColor = 0;
 
@@ -252,13 +252,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             {
                 name: "=================================",
                 value: bold(description),
-            },
+            }
         );
 
     if (!interaction.replied) {
         await InteractionHelper.reply(interaction, {
             content: MessageCreator.createAccept(
-                localization.getTranslation("matchDataInProcess"),
+                localization.getTranslation("matchDataInProcess")
             ),
         });
     }
@@ -280,14 +280,14 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         return interaction.channel!.send({
             content: MessageCreator.createReject(
                 localization.getTranslation("submitMatchFailed"),
-                finalResult.reason!,
+                finalResult.reason!
             ),
         });
     }
 
     interaction.channel!.send({
         content: MessageCreator.createAccept(
-            localization.getTranslation("submitMatchSuccessful"),
+            localization.getTranslation("submitMatchSuccessful")
         ),
         embeds: [resultEmbed, summaryEmbed],
     });

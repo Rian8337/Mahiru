@@ -14,7 +14,7 @@ import { Collection, CommandInteraction, hyperlink } from "discord.js";
 import { BeatmapManager } from "./BeatmapManager";
 import { PPProcessorRESTManager } from "./PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { Modes, Accuracy } from "@rian8337/osu-base";
+import { Modes, Accuracy, ModUtil } from "@rian8337/osu-base";
 import { NumberHelper } from "@utils/helpers/NumberHelper";
 import { PPHelper } from "@utils/helpers/PPHelper";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
@@ -57,7 +57,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
     static queue(
         interaction: CommandInteraction,
         uid: number,
-        reworkType: string,
+        reworkType: string
     ): void {
         this._recalculationQueue.set(uid, {
             interaction: interaction,
@@ -77,7 +77,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
      */
     static async calculatePlayer(
         uid: number,
-        reworkType: string,
+        reworkType: string
     ): Promise<OperationResult> {
         const player = await DroidHelper.getPlayer(uid, ["id", "username"]);
 
@@ -93,7 +93,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
         if (!topScores) {
             return this.createOperationResult(
                 false,
-                "Failed to fetch top scores",
+                "Failed to fetch top scores"
             );
         }
 
@@ -112,7 +112,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     score.hash,
                     Modes.droid,
                     PPCalculationMethod.live,
-                    true,
+                    true
                 );
 
             if (!liveAttribs) {
@@ -125,7 +125,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     score.hash,
                     Modes.droid,
                     PPCalculationMethod.rebalance,
-                    true,
+                    true
                 );
 
             if (!rebalAttribs) {
@@ -167,18 +167,14 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 accuracy: NumberHelper.round(accuracy.value() * 100, 2),
                 combo: params.combo,
                 miss: accuracy.nmiss,
-                speedMultiplier:
-                    rebalParams.customSpeedMultiplier !== 1
-                        ? rebalParams.customSpeedMultiplier
-                        : undefined,
                 calculatedUnstableRate: rebalPerfResult.calculatedUnstableRate,
                 estimatedUnstableRate: NumberHelper.round(
                     rebalPerfResult.deviation * 10,
-                    2,
+                    2
                 ),
                 estimatedSpeedUnstableRate: NumberHelper.round(
                     rebalPerfResult.tapDeviation * 10,
-                    2,
+                    2
                 ),
                 overallDifficulty:
                     rebalAttribs.attributes.difficulty.overallDifficulty,
@@ -198,7 +194,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
 
             if (Config.isDebug) {
                 consola.info(
-                    `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP} ⮕  ${prototypeEntry.pp}`,
+                    `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP} ⮕  ${prototypeEntry.pp}`
                 );
             }
 
@@ -215,7 +211,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
 
         if (Config.isDebug) {
             consola.info(
-                `${currentTotal.toFixed(2)} ⮕  ${newTotal.toFixed(2)}`,
+                `${currentTotal.toFixed(2)} ⮕  ${newTotal.toFixed(2)}`
             );
         }
 
@@ -234,7 +230,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     scanDone: true,
                 },
             },
-            { upsert: true },
+            { upsert: true }
         );
     }
 
@@ -254,7 +250,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
             const { interaction, reworkType } = queue;
 
             const localization = this.getLocalization(
-                CommandHelper.getUserPreferredLocale(interaction),
+                CommandHelper.getUserPreferredLocale(interaction)
             );
 
             try {
@@ -265,21 +261,21 @@ export abstract class PrototypeRecalculationManager extends Manager {
                         await interaction.channel.send({
                             content: MessageCreator.createAccept(
                                 localization.getTranslation(
-                                    this.calculationSuccessResponse,
+                                    this.calculationSuccessResponse
                                 ),
                                 interaction.user.toString(),
-                                `uid ${hyperlink(uid.toString(), `https://droidpp.osudroid.moe/prototype/profile/${uid}/${reworkType}`)}`,
+                                `uid ${hyperlink(uid.toString(), `https://droidpp.osudroid.moe/prototype/profile/${uid}/${reworkType}`)}`
                             ),
                         });
                     } else if (result.failed()) {
                         await interaction.channel.send({
                             content: MessageCreator.createReject(
                                 localization.getTranslation(
-                                    this.calculationFailedResponse,
+                                    this.calculationFailedResponse
                                 ),
                                 interaction.user.toString(),
                                 `uid ${uid}`,
-                                result.reason,
+                                result.reason
                             ),
                         });
                     }
@@ -289,11 +285,11 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     await interaction.channel.send({
                         content: MessageCreator.createReject(
                             localization.getTranslation(
-                                this.calculationFailedResponse,
+                                this.calculationFailedResponse
                             ),
                             interaction.user.toString(),
                             `uid ${uid}`,
-                            <string>e,
+                            <string>e
                         ),
                     });
                 }
@@ -311,7 +307,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
      * @param language The language to localize.
      */
     private static getLocalization(
-        language: Language,
+        language: Language
     ): PrototypeRecalculationManagerLocalization {
         return new PrototypeRecalculationManagerLocalization(language);
     }

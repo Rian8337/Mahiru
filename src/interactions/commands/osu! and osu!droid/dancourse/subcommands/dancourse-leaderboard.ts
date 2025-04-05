@@ -2,6 +2,7 @@ import { DatabaseManager } from "@database/DatabaseManager";
 import { DanCourseLeaderboardScore } from "@database/utils/aliceDb/DanCourseLeaderboardScore";
 import { Symbols } from "@enums/utils/Symbols";
 import { DanCourseLocalization } from "@localization/interactions/commands/osu! and osu!droid/dancourse/DanCourseLocalization";
+import { Accuracy } from "@rian8337/osu-base";
 import { SlashSubcommand } from "@structures/core/SlashSubcommand";
 import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
@@ -9,27 +10,27 @@ import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
+import { DroidHelper } from "@utils/helpers/DroidHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { LocaleHelper } from "@utils/helpers/LocaleHelper";
 import { NumberHelper } from "@utils/helpers/NumberHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { Accuracy, ModUtil } from "@rian8337/osu-base";
 import { BaseMessageOptions, bold, Collection, EmbedBuilder } from "discord.js";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new DanCourseLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const course =
         await DatabaseManager.aliceDb.collections.danCourses.getCourse(
-            interaction.options.getString("name", true),
+            interaction.options.getString("name", true)
         );
 
     if (!course) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("courseNotFound"),
+                localization.getTranslation("courseNotFound")
             ),
         });
     }
@@ -41,72 +42,23 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const firstPageScores =
         await DatabaseManager.aliceDb.collections.danCourseLeaderboardScores.getLeaderboard(
             course.hash,
-            1,
+            1
         );
 
     if (firstPageScores.length === 0) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("courseHasNoScores"),
+                localization.getTranslation("courseHasNoScores")
             ),
         });
     }
 
     scoreCache.set(1, firstPageScores);
 
-    const getModString = (score: DanCourseLeaderboardScore): string => {
-        let mods = "";
-        let forcedAR: number | undefined;
-        let speedMultiplier = 1;
-
-        for (const s of score.modstring.split("|")) {
-            if (!s) {
-                continue;
-            }
-
-            if (s.startsWith("AR")) {
-                forcedAR = parseFloat(s.replace("AR", ""));
-            } else if (s.startsWith("x")) {
-                speedMultiplier = parseFloat(s.slice(1));
-            } else {
-                mods += s;
-            }
-        }
-
-        let res = ModUtil.droidStringToMods(mods).reduce(
-            (a, v) => a + v.acronym,
-            "",
-        );
-
-        if (res) {
-            res = "+" + res;
-        }
-
-        if (forcedAR !== undefined || speedMultiplier !== 1) {
-            res += " (";
-
-            if (forcedAR !== undefined) {
-                res += `AR${forcedAR}`;
-            }
-
-            if (speedMultiplier !== 1) {
-                if (forcedAR !== undefined) {
-                    res += ", ";
-                }
-
-                res += `${speedMultiplier}x`;
-            }
-
-            res += ")";
-        }
-
-        return res;
-    };
-
     const getScoreDescription = (score: DanCourseLeaderboardScore): string => {
         return (
             `${arrow} ${BeatmapManager.getRankEmote(
-                score.rank,
+                score.rank
             )} ${arrow} ${NumberHelper.round(
                 new Accuracy({
                     n300: score.perfect,
@@ -114,18 +66,18 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     n50: score.bad,
                     nmiss: score.miss,
                 }).value() * 100,
-                2,
+                2
             )}%\n` +
             `${arrow} ${bold(
-                NumberHelper.round(score.grade, 2).toString(),
+                NumberHelper.round(score.grade, 2).toString()
             )} ${arrow} ${score.score.toLocaleString(
-                LocaleHelper.convertToBCP47(localization.language),
+                LocaleHelper.convertToBCP47(localization.language)
             )} ${arrow} ${score.maxCombo}x ${arrow} [${score.perfect}/${
                 score.good
             }/${score.bad}/${score.miss}]\n` +
             `\`${DateTimeFormatHelper.dateToLocaleString(
                 new Date(score.date),
-                localization.language,
+                localization.language
             )}\``
         );
     };
@@ -138,7 +90,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             scoreCache.get(actualPage) ??
             (await DatabaseManager.aliceDb.collections.danCourseLeaderboardScores.getLeaderboard(
                 course.hash,
-                page,
+                page
             ));
 
         if (!scoreCache.has(actualPage)) {
@@ -150,23 +102,24 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         };
         const embed = <EmbedBuilder>embedOptions.embeds![0];
         const topScore = scoreCache.get(1)![0];
+        const modString = DroidHelper.getCompleteModString(topScore.modstring);
 
         embed.setTitle(course.courseName).addFields({
             name: `${bold(localization.getTranslation("topScore"))}`,
             value: `${bold(
-                `${topScore.username}${getModString(topScore)}`,
+                `${topScore.username} ${modString}`
             )}\n${getScoreDescription(topScore)}`,
         });
 
         const displayedScores = scores.slice(
             5 * pageRemainder,
-            5 + 5 * pageRemainder,
+            5 + 5 * pageRemainder
         );
         let i = 10 * actualPage + 5 * pageRemainder;
 
         for (const score of displayedScores) {
             embed.addFields({
-                name: `${++i} ${score.username}${getModString(score)}`,
+                name: `${++i} ${score.username} ${modString}`,
                 value: getScoreDescription(score),
             });
         }
@@ -180,6 +133,6 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         [interaction.user.id],
         1,
         120,
-        onPageChange,
+        onPageChange
     );
 };

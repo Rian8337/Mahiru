@@ -1,46 +1,47 @@
-import { ApplicationCommandOptionType } from "discord.js";
 import { CommandCategory } from "@enums/core/CommandCategory";
-import { SlashCommand } from "structures/core/SlashCommand";
-import { EmbedCreator } from "@utils/creators/EmbedCreator";
-import { MessageCreator } from "@utils/creators/MessageCreator";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { NumberHelper } from "@utils/helpers/NumberHelper";
-import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
+import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
+import { CalculateLocalization } from "@localization/interactions/commands/osu! and osu!droid/calculate/CalculateLocalization";
 import {
     Accuracy,
     MapInfo,
-    Modes,
     MathUtils,
+    ModCustomSpeed,
+    ModDifficultyAdjust,
+    Modes,
     ModUtil,
 } from "@rian8337/osu-base";
 import {
-    DroidDifficultyAttributes,
-    OsuDifficultyAttributes,
+    IDroidDifficultyAttributes,
+    IOsuDifficultyAttributes,
 } from "@rian8337/osu-difficulty-calculator";
 import {
-    DroidDifficultyAttributes as RebalanceDroidDifficultyAttributes,
-    OsuDifficultyAttributes as RebalanceOsuDifficultyAttributes,
+    IDroidDifficultyAttributes as IRebalanceDroidDifficultyAttributes,
+    IOsuDifficultyAttributes as IRebalanceOsuDifficultyAttributes,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
-import { CalculateLocalization } from "@localization/interactions/commands/osu! and osu!droid/calculate/CalculateLocalization";
-import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { InteractionHelper } from "@utils/helpers/InteractionHelper";
-import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { CompleteCalculationAttributes } from "@structures/difficultyattributes/CompleteCalculationAttributes";
 import { DroidPerformanceAttributes } from "@structures/difficultyattributes/DroidPerformanceAttributes";
 import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
-import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
-import { PPHelper } from "@utils/helpers/PPHelper";
 import { RebalanceDroidPerformanceAttributes } from "@structures/difficultyattributes/RebalanceDroidPerformanceAttributes";
-import { ResponseDifficultyAttributes } from "@structures/difficultyattributes/ResponseDifficultyAttributes";
 import { PPProcessorCalculationResponse } from "@structures/utils/PPProcessorCalculationResponse";
+import { EmbedCreator } from "@utils/creators/EmbedCreator";
+import { MessageCreator } from "@utils/creators/MessageCreator";
+import { CommandHelper } from "@utils/helpers/CommandHelper";
+import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import { NumberHelper } from "@utils/helpers/NumberHelper";
+import { PPHelper } from "@utils/helpers/PPHelper";
+import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
+import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
+import { ApplicationCommandOptionType } from "discord.js";
+import { SlashCommand } from "structures/core/SlashCommand";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new CalculateLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const beatmapID = BeatmapManager.getBeatmapID(
-        interaction.options.getString("beatmap") ?? "",
+        interaction.options.getString("beatmap") ?? ""
     )[0];
 
     const hash = BeatmapManager.getChannelLatestBeatmap(interaction.channelId);
@@ -48,7 +49,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!beatmapID && !hash) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noBeatmapProvided"),
+                localization.getTranslation("noBeatmapProvided")
             ),
         });
     }
@@ -59,7 +60,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     ) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapProvidedIsInvalid"),
+                localization.getTranslation("beatmapProvidedIsInvalid")
             ),
         });
     }
@@ -68,22 +69,43 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     const beatmap: MapInfo | null = await BeatmapManager.getBeatmap(
         beatmapID ?? hash,
-        { checkFile: false },
+        { checkFile: false }
     );
 
     if (!beatmap) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotFound"),
+                localization.getTranslation("beatmapNotFound")
             ),
         });
     }
 
     // Get calculation parameters
+    const mods = ModUtil.pcStringToMods(
+        interaction.options.getString("mods") ?? ""
+    );
+
+    const speedMultiplier = interaction.options.getNumber("speedmultiplier");
+    const forceCS = interaction.options.getNumber("circlesize");
+    const forceAR = interaction.options.getNumber("approachrate");
+    const forceOD = interaction.options.getNumber("overalldifficulty");
+
+    if (forceCS !== null || forceAR !== null || forceOD !== null) {
+        mods.set(
+            new ModDifficultyAdjust({
+                cs: forceCS ?? undefined,
+                ar: forceAR ?? undefined,
+                od: forceOD ?? undefined,
+            })
+        );
+    }
+
+    if (speedMultiplier !== null && speedMultiplier !== 1) {
+        mods.set(new ModCustomSpeed(speedMultiplier));
+    }
+
     const calcParams = new PerformanceCalculationParameters({
-        mods: ModUtil.pcStringToMods(
-            interaction.options.getString("mods") ?? "",
-        ),
+        mods: mods,
         accuracy: new Accuracy({
             n100: Math.max(0, interaction.options.getInteger("x100") ?? 0),
             n50: Math.max(0, interaction.options.getInteger("x50") ?? 0),
@@ -96,29 +118,23 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 ? MathUtils.clamp(
                       0,
                       interaction.options.getInteger("combo", true),
-                      beatmap.maxCombo,
+                      beatmap.maxCombo
                   )
                 : (beatmap.maxCombo ?? undefined),
-        forceCS: interaction.options.getNumber("circlesize") ?? undefined,
-        forceAR: interaction.options.getNumber("approachrate") ?? undefined,
-        forceOD:
-            interaction.options.getNumber("overalldifficulty") ?? undefined,
-        customSpeedMultiplier:
-            interaction.options.getNumber("speedmultiplier") ?? 1,
     });
 
     calcParams.recalculateAccuracy(beatmap.objects);
 
     let droidCalcResult: PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
-            DroidDifficultyAttributes | RebalanceDroidDifficultyAttributes,
+            IDroidDifficultyAttributes | IRebalanceDroidDifficultyAttributes,
             DroidPerformanceAttributes | RebalanceDroidPerformanceAttributes
         >,
         true
     > | null;
 
     let osuCalcResult: CompleteCalculationAttributes<
-        OsuDifficultyAttributes | RebalanceOsuDifficultyAttributes,
+        IOsuDifficultyAttributes | IRebalanceOsuDifficultyAttributes,
         OsuPerformanceAttributes
     > | null = null;
 
@@ -130,7 +146,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                     Modes.droid,
                     PPCalculationMethod.rebalance,
                     calcParams,
-                    true,
+                    true
                 );
 
             if (droidCalcResult) {
@@ -140,11 +156,12 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                             beatmap.beatmapId,
                             Modes.osu,
                             PPCalculationMethod.rebalance,
-                            calcParams,
+                            calcParams
                         )
                     )?.attributes ?? null;
             }
             break;
+
         default:
             droidCalcResult =
                 await PPProcessorRESTManager.getPerformanceAttributes(
@@ -152,7 +169,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                     Modes.droid,
                     PPCalculationMethod.live,
                     calcParams,
-                    true,
+                    true
                 );
 
             if (droidCalcResult) {
@@ -162,7 +179,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                             beatmap.beatmapId,
                             Modes.osu,
                             PPCalculationMethod.live,
-                            calcParams,
+                            calcParams
                         )
                     )?.attributes ?? null;
             }
@@ -171,7 +188,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!droidCalcResult || !osuCalcResult) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotFound"),
+                localization.getTranslation("beatmapNotFound")
             ),
         });
     }
@@ -184,7 +201,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         droidCalcResult.attributes.performance,
         osuCalcResult.performance,
         localization.language,
-        Buffer.from(droidCalcResult.strainChart),
+        Buffer.from(droidCalcResult.strainChart)
     );
 
     let string = "";
@@ -194,20 +211,16 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             interaction.options.getInteger("calculationmethod") ===
             PPCalculationMethod.rebalance
                 ? PPHelper.getRebalanceDroidDifficultyAttributesInfo(
-                      <
-                          ResponseDifficultyAttributes<RebalanceDroidDifficultyAttributes>
-                      >droidCalcResult.attributes.difficulty,
+                      droidCalcResult.attributes.difficulty
                   )
                 : PPHelper.getDroidDifficultyAttributesInfo(
-                      <ResponseDifficultyAttributes<DroidDifficultyAttributes>>(
-                          droidCalcResult.attributes.difficulty
-                      ),
+                      droidCalcResult.attributes.difficulty
                   )
         }`;
         string += `\n${localization.getTranslation(
-            "rawDroidPp",
+            "rawDroidPp"
         )}: ${PPHelper.getDroidPerformanceAttributesInfo(
-            droidCalcResult.attributes.performance,
+            droidCalcResult.attributes.performance
         )}\n`;
     }
 
@@ -216,17 +229,15 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             interaction.options.getInteger("calculationmethod") ===
             PPCalculationMethod.rebalance
                 ? PPHelper.getRebalanceOsuDifficultyAttributesInfo(
-                      <
-                          ResponseDifficultyAttributes<RebalanceOsuDifficultyAttributes>
-                      >osuCalcResult.difficulty,
+                      osuCalcResult.difficulty
                   )
                 : PPHelper.getOsuDifficultyAttributesInfo(
-                      osuCalcResult.difficulty,
+                      osuCalcResult.difficulty
                   )
         }\n${localization.getTranslation(
-            "rawPcPp",
+            "rawPcPp"
         )}: ${PPHelper.getOsuPerformanceAttributesInfo(
-            osuCalcResult.performance,
+            osuCalcResult.performance
         )}`;
     }
 

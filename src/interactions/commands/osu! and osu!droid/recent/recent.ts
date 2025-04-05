@@ -1,36 +1,36 @@
 import { Constants } from "@core/Constants";
 import { DatabaseManager } from "@database/DatabaseManager";
-import { UserBind } from "@database/utils/elainaDb/UserBind";
-import {
-    ApplicationCommandOptionType,
-    InteractionReplyOptions,
-} from "discord.js";
-import { CommandCategory } from "@enums/core/CommandCategory";
-import { SlashCommand } from "structures/core/SlashCommand";
-import { EmbedCreator } from "@utils/creators/EmbedCreator";
-import { MessageCreator } from "@utils/creators/MessageCreator";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { GuildMember } from "discord.js";
-import { Player, Score } from "@rian8337/osu-droid-utilities";
-import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { RecentLocalization } from "@localization/interactions/commands/osu! and osu!droid/recent/RecentLocalization";
-import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
-import { InteractionHelper } from "@utils/helpers/InteractionHelper";
-import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
-import { Modes } from "@rian8337/osu-base";
-import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { ReplayHelper } from "@utils/helpers/ReplayHelper";
-import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
+import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
+import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
 import { RecentPlay } from "@database/utils/aliceDb/RecentPlay";
+import { UserBind } from "@database/utils/elainaDb/UserBind";
+import { CommandCategory } from "@enums/core/CommandCategory";
+import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
+import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
+import { RecentLocalization } from "@localization/interactions/commands/osu! and osu!droid/recent/RecentLocalization";
+import { DroidLegacyModConverter, Modes } from "@rian8337/osu-base";
+import { Player, Score } from "@rian8337/osu-droid-utilities";
+import { EmbedCreator } from "@utils/creators/EmbedCreator";
+import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
+import { MessageCreator } from "@utils/creators/MessageCreator";
+import { CommandHelper } from "@utils/helpers/CommandHelper";
+import { DroidHelper } from "@utils/helpers/DroidHelper";
+import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { ScoreHelper } from "@utils/helpers/ScoreHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
-import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
-import { DroidHelper } from "@utils/helpers/DroidHelper";
-import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
+import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
+import {
+    ApplicationCommandOptionType,
+    GuildMember,
+    InteractionReplyOptions,
+} from "discord.js";
+import { SlashCommand } from "structures/core/SlashCommand";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new RecentLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const discordid = interaction.options.getUser("user")?.id;
@@ -44,7 +44,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("tooManyOptions"),
+                localization.getTranslation("tooManyOptions")
             ),
         });
     }
@@ -67,7 +67,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             if (!StringHelper.isUsernameValid(username)) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
-                        localization.getTranslation("playerNotFound"),
+                        localization.getTranslation("playerNotFound")
                     ),
                 });
             }
@@ -86,19 +86,19 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                         _id: 0,
                         uid: 1,
                     },
-                },
+                }
             );
 
             if (!bindInfo) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
                         new ConstantsLocalization(
-                            localization.language,
+                            localization.language
                         ).getTranslation(
                             discordid
                                 ? Constants.userNotBindedReject
-                                : Constants.selfNotBindedReject,
-                        ),
+                                : Constants.selfNotBindedReject
+                        )
                     ),
                 });
             }
@@ -112,7 +112,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerNotFound"),
+                localization.getTranslation("playerNotFound")
             ),
         });
     }
@@ -147,7 +147,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         if (recentPlays.length === 0) {
             return InteractionHelper.reply(interaction, {
                 content: MessageCreator.createReject(
-                    localization.getTranslation("playerHasNoRecentPlays"),
+                    localization.getTranslation("playerHasNoRecentPlays")
                 ),
             });
         }
@@ -172,17 +172,17 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 "bad",
                 "mark",
                 "date",
-            ],
+            ]
         ).then((res) =>
             considerNonOverwrite
                 ? ScoreHelper.getRecentScores(player.id, res)
-                : res,
+                : res
         );
 
         if (recentPlays.length === 0) {
             return InteractionHelper.reply(interaction, {
                 content: MessageCreator.createReject(
-                    localization.getTranslation("playerHasNoRecentPlays"),
+                    localization.getTranslation("playerHasNoRecentPlays")
                 ),
             });
         }
@@ -194,7 +194,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 localization.getTranslation("playIndexOutOfBounds"),
-                index.toString(),
+                index.toString()
             ),
         });
     }
@@ -209,14 +209,14 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                       score.uid,
                       score.hash,
                       Modes.droid,
-                      PPCalculationMethod.live,
+                      PPCalculationMethod.live
                   )
               )?.attributes;
 
     const options: InteractionReplyOptions = {
         content: MessageCreator.createAccept(
             localization.getTranslation("recentPlayDisplay"),
-            player.username,
+            player.username
         ),
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(
@@ -226,7 +226,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 score instanceof RecentPlay
                     ? (score.osuAttribs ?? null)
                     : undefined,
-                localization.language,
+                localization.language
             ),
         ],
     };
@@ -247,7 +247,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             replay.data,
             score instanceof Score || score instanceof RecentPlay
                 ? score.mods
-                : DroidHelper.parseMods(score.mode).mods,
+                : DroidLegacyModConverter.convert(score.mode)
         );
     } else {
         InteractionHelper.reply(interaction, options);
