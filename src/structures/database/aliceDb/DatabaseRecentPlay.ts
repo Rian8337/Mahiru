@@ -80,31 +80,6 @@ export interface DatabaseRecentPlay extends BaseDocument {
     hash: string;
 
     /**
-     * The speed multiplier of this play. Should default to 1.
-     */
-    speedMultiplier?: number;
-
-    /**
-     * The force CS of this play.
-     */
-    forceCS?: number;
-
-    /**
-     * The force AR of this play.
-     */
-    forceAR?: number;
-
-    /**
-     * The force OD of this play.
-     */
-    forceOD?: number;
-
-    /**
-     * The force HP of this play.
-     */
-    forceHP?: number;
-
-    /**
      * Information about this play's hit error.
      */
     hitError?: HitErrorInformation;

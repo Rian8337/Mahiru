@@ -62,31 +62,6 @@ export class RecentPlay extends Manager {
     readonly hash: string;
 
     /**
-     * The speed multiplier of this play. Should default to 1.
-     */
-    readonly speedMultiplier?: number;
-
-    /**
-     * The force CS of this play.
-     */
-    readonly forceCS?: number;
-
-    /**
-     * The force AR of this play.
-     */
-    readonly forceAR?: number;
-
-    /**
-     * The force OD of this play.
-     */
-    readonly forceOD?: number;
-
-    /**
-     * The force HP of this play.
-     */
-    readonly forceHP?: number;
-
-    /**
      * Information about this play's hit error.
      */
     readonly hitError?: HitErrorInformation;
@@ -148,11 +123,6 @@ export class RecentPlay extends Manager {
         this.accuracy = new Accuracy(data.accuracy);
         this.mods = ModUtil.deserializeMods(data.mods);
         this.hash = data.hash;
-        this.speedMultiplier = data.speedMultiplier;
-        this.forceCS = data.forceCS;
-        this.forceAR = data.forceAR;
-        this.forceOD = data.forceOD;
-        this.forceHP = data.forceHP;
         this.hitError = data.hitError;
         this.sliderTickInformation = data.sliderTickInformation;
         this.sliderEndInformation = data.sliderEndInformation;
