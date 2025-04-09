@@ -583,6 +583,10 @@ export abstract class DroidHelper {
      * @returns The cleaned up filename.
      */
     static cleanupFilename(filename: string): string {
+        if (!filename.endsWith(".osu")) {
+            return filename;
+        }
+
         return filename.substring(0, filename.length - 4).replace(/_/g, " ");
     }
 }
