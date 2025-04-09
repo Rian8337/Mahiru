@@ -1,3 +1,4 @@
+import { Config } from "@core/Config";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { Modes, RequestResponse } from "@rian8337/osu-base";
 import {
@@ -25,10 +26,9 @@ import { RESTManager } from "./RESTManager";
  * A REST manager for the performance points processor backend.
  */
 export abstract class PPProcessorRESTManager extends RESTManager {
-    private static readonly endpoint =
-        /* Config.isDebug
+    private static readonly endpoint = Config.isDebug
         ? "https://droidpp.osudroid.moe/api/dpp/processor/"
-        :  */ "http://localhost:3006/api/dpp/processor/";
+        : "http://localhost:3006/api/dpp/processor/";
 
     /**
      * Retrieves a difficulty attributes from the backend.
