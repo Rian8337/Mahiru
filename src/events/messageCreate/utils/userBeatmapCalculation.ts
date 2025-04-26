@@ -234,7 +234,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                     )
                 );
 
-            for (let i = 0; i < beatmapInformations.length; i++) {
+            for (let i = 0; i < Math.min(3, beatmapInformations.length); i++) {
                 const beatmapInfo = beatmapInformations[i];
 
                 const droidDiffAttribs =
