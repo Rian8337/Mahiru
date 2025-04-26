@@ -168,12 +168,12 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                     )
                     .addTextDisplayComponents(
                         new TextDisplayBuilder().setContent(
-                            hyperlink(
-                                heading(
+                            heading(
+                                hyperlink(
                                     `${firstBeatmap.artist} - ${firstBeatmap.title} by ${firstBeatmap.creator}`,
-                                    HeadingLevel.Two
+                                    firstBeatmap.beatmapSetLink
                                 ),
-                                firstBeatmap.beatmapSetLink
+                                HeadingLevel.Two
                             )
                         )
                     )
@@ -224,7 +224,10 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                         .addSeparatorComponents(new SeparatorBuilder())
                         .addTextDisplayComponents(
                             new TextDisplayBuilder().setContent(
-                                heading(underline(beatmapInfo.version))
+                                heading(
+                                    underline(beatmapInfo.version),
+                                    HeadingLevel.Three
+                                )
                             ),
                             new TextDisplayBuilder().setContent(
                                 `${BeatmapManager.showStatistics(
