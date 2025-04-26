@@ -1,28 +1,30 @@
-import {
-    ActionRowBuilder,
-    APIActionRowComponent,
-    APIMessageActionRowComponent,
-    InteractionReplyOptions,
-    RepliableInteraction,
-    StringSelectMenuBuilder,
-    SelectMenuComponentOptionData,
-    StringSelectMenuComponent,
-    StringSelectMenuInteraction,
-    Snowflake,
-    ComponentType,
-    ChannelType,
-    ChannelSelectMenuBuilder,
-    ChannelSelectMenuInteraction,
-    ChannelSelectMenuComponent,
-} from "discord.js";
-import { InteractionCollectorCreator } from "@utils/base/InteractionCollectorCreator";
-import { MessageCreator } from "./MessageCreator";
-import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
-import { MessageButtonCreator } from "./MessageButtonCreator";
 import { Language } from "@localization/base/Language";
 import { SelectMenuCreatorLocalization } from "@localization/utils/creators/SelectMenuCreator/SelectMenuCreatorLocalization";
+import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
+import { InteractionCollectorCreator } from "@utils/base/InteractionCollectorCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import {
+    ActionRow,
+    ActionRowBuilder,
+    APIActionRowComponent,
+    APIChannelSelectComponent,
+    APIStringSelectComponent,
+    ChannelSelectMenuBuilder,
+    ChannelSelectMenuComponent,
+    ChannelSelectMenuInteraction,
+    ChannelType,
+    ComponentType,
+    InteractionReplyOptions,
+    RepliableInteraction,
+    SelectMenuComponentOptionData,
+    Snowflake,
+    StringSelectMenuBuilder,
+    StringSelectMenuComponent,
+    StringSelectMenuInteraction,
+} from "discord.js";
+import { MessageButtonCreator } from "./MessageButtonCreator";
+import { MessageCreator } from "./MessageCreator";
 
 /**
  * A utility to create message select menus.
@@ -43,10 +45,10 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
         options: InteractionReplyOptions,
         choices: SelectMenuComponentOptionData[],
         users: readonly Snowflake[],
-        duration: number,
+        duration: number
     ): Promise<StringSelectMenuInteraction | null> {
         const localization = this.getLocalization(
-            CommandHelper.getLocale(interaction),
+            CommandHelper.getLocale(interaction)
         );
 
         const selectMenu = new StringSelectMenuBuilder()
@@ -55,12 +57,12 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
 
         const component =
             new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-                selectMenu,
+                selectMenu
             );
 
         const onPageChange: OnButtonPageChange = async (_, page) => {
             selectMenu.setOptions(
-                choices.slice(25 * (page - 1), 25 + 25 * (page - 1)),
+                choices.slice(25 * (page - 1), 25 + 25 * (page - 1))
             );
 
             component.setComponents(selectMenu);
@@ -82,7 +84,7 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
                 1,
                 Math.ceil(choices.length / 25),
                 duration,
-                onPageChange,
+                onPageChange
             );
 
         const collectorOptions =
@@ -95,8 +97,10 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
                     users.includes(i.user.id),
                 (m) => {
                     const row = m.components.find(
-                        (c) => c.components.length === 1,
-                    );
+                        (c) =>
+                            (c as ActionRow<StringSelectMenuComponent>)
+                                .components.length === 1
+                    ) as ActionRow<StringSelectMenuComponent>;
 
                     if (!row) {
                         return false;
@@ -107,7 +111,7 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
                             StringSelectMenuComponent &&
                         row.components[0].customId === selectMenu.data.custom_id
                     );
-                },
+                }
             );
 
         const { collector } = collectorOptions;
@@ -122,7 +126,7 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
 
                 if (i) {
                     const index = (<
-                        APIActionRowComponent<APIMessageActionRowComponent>[]
+                        APIActionRowComponent<APIStringSelectComponent>[]
                     >options.components).findIndex((v) => {
                         return (
                             v.components.length === 1 &&
@@ -142,12 +146,12 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
                     interaction.isMessageComponent()
                         ? await InteractionHelper.update(interaction, {
                               content: MessageCreator.createReject(
-                                  localization.getTranslation("timedOut"),
+                                  localization.getTranslation("timedOut")
                               ),
                           })
                         : await InteractionHelper.reply(interaction, {
                               content: MessageCreator.createReject(
-                                  localization.getTranslation("timedOut"),
+                                  localization.getTranslation("timedOut")
                               ),
                           });
 
@@ -178,10 +182,10 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
         options: InteractionReplyOptions,
         channelTypes: ChannelType[],
         users: readonly Snowflake[],
-        duration: number,
+        duration: number
     ): Promise<ChannelSelectMenuInteraction | null> {
         const localization = this.getLocalization(
-            CommandHelper.getLocale(interaction),
+            CommandHelper.getLocale(interaction)
         );
 
         const selectMenu = new ChannelSelectMenuBuilder()
@@ -190,7 +194,7 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
 
         const component =
             new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
-                selectMenu,
+                selectMenu
             );
 
         options.components ??= [];
@@ -215,8 +219,10 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
                     users.includes(i.user.id),
                 (m) => {
                     const row = m.components.find(
-                        (c) => c.components.length === 1,
-                    );
+                        (c) =>
+                            (c as ActionRow<StringSelectMenuComponent>)
+                                .components.length === 1
+                    ) as ActionRow<StringSelectMenuComponent>;
 
                     if (!row) {
                         return false;
@@ -227,7 +233,7 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
                             StringSelectMenuComponent &&
                         row.components[0].customId === selectMenu.data.custom_id
                     );
-                },
+                }
             );
 
         const { collector } = collectorOptions;
@@ -242,7 +248,7 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
 
                 if (i) {
                     const index = (<
-                        APIActionRowComponent<APIMessageActionRowComponent>[]
+                        APIActionRowComponent<APIChannelSelectComponent>[]
                     >options.components).findIndex((v) => {
                         return (
                             v.components.length === 1 &&
@@ -262,12 +268,12 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
                     interaction.isMessageComponent()
                         ? await InteractionHelper.update(interaction, {
                               content: MessageCreator.createReject(
-                                  localization.getTranslation("timedOut"),
+                                  localization.getTranslation("timedOut")
                               ),
                           })
                         : await InteractionHelper.reply(interaction, {
                               content: MessageCreator.createReject(
-                                  localization.getTranslation("timedOut"),
+                                  localization.getTranslation("timedOut")
                               ),
                           });
 
@@ -289,7 +295,7 @@ export abstract class SelectMenuCreator extends InteractionCollectorCreator {
      * @param language The language to localize.
      */
     private static getLocalization(
-        language: Language,
+        language: Language
     ): SelectMenuCreatorLocalization {
         return new SelectMenuCreatorLocalization(language);
     }

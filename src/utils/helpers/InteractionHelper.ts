@@ -17,17 +17,22 @@ export abstract class InteractionHelper {
      *
      * @param interaction The interaction to defer.
      * @param ephemeral Whether the reply should be ephemeral. Defaults to the interaction's `ephemeral` property.
+     * @param isComponentsV2 Whether to use the V2 components.
      */
     static async deferReply(
         interaction: RepliableInteraction,
         ephemeral?: boolean,
+        isComponentsV2 = false
     ): Promise<InteractionResponse | void> {
         if (!interaction.deferred && !interaction.replied) {
             return interaction.deferReply({
                 flags:
                     ephemeral || interaction.ephemeral
-                        ? MessageFlags.Ephemeral
-                        : undefined,
+                        ? MessageFlags.Ephemeral |
+                          (isComponentsV2 ? MessageFlags.IsComponentsV2 : 0)
+                        : isComponentsV2
+                          ? MessageFlags.IsComponentsV2
+                          : undefined,
             });
         }
     }
@@ -38,7 +43,7 @@ export abstract class InteractionHelper {
      * @param interaction The interaction to defer.
      */
     static async deferUpdate(
-        interaction: MessageComponentInteraction,
+        interaction: MessageComponentInteraction
     ): Promise<InteractionResponse | void> {
         if (!interaction.deferred && !interaction.replied) {
             return interaction.deferUpdate();
@@ -50,11 +55,13 @@ export abstract class InteractionHelper {
      *
      * @param interaction The interaction to reply to.
      * @param reply The reply to send.
+     * @param isComponentsV2 Whether to use the V2 components.
      * @returns The response of the interaction.
      */
     static async reply(
         interaction: RepliableInteraction,
         reply: InteractionEditReplyOptions | InteractionReplyOptions,
+        isComponentsV2 = false
     ): Promise<Message> {
         // Reset message components
         reply.components ??= [];
@@ -64,15 +71,22 @@ export abstract class InteractionHelper {
         if (interaction.deferred || interaction.replied) {
             message = await interaction.editReply({
                 ...reply,
-                flags: undefined,
+                flags:
+                    ((reply.flags ?? 0) as number) |
+                    (isComponentsV2 ? MessageFlags.IsComponentsV2 : 0),
             });
         } else {
             const callback = await interaction.reply({
                 ...reply,
                 content: reply.content ?? undefined,
-                flags: interaction.ephemeral
-                    ? MessageFlags.Ephemeral
-                    : undefined,
+                flags:
+                    ((reply.flags ?? 0) as number) |
+                    (interaction.ephemeral
+                        ? MessageFlags.Ephemeral |
+                          (isComponentsV2 ? MessageFlags.IsComponentsV2 : 0)
+                        : isComponentsV2
+                          ? MessageFlags.IsComponentsV2
+                          : 0),
                 withResponse: true,
             });
 
@@ -93,7 +107,7 @@ export abstract class InteractionHelper {
      */
     static async update(
         interaction: MessageComponentInteraction,
-        response: InteractionEditReplyOptions | InteractionReplyOptions,
+        response: InteractionEditReplyOptions | InteractionReplyOptions
     ): Promise<Message> {
         // Reset message components
         response.components ??= [];

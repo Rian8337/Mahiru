@@ -1,38 +1,33 @@
 import { Symbols } from "@enums/utils/Symbols";
-import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
 import { Language } from "@localization/base/Language";
 import { MessageButtonCreatorLocalization } from "@localization/utils/creators/MessageButtonCreator/MessageButtonCreatorLocalization";
+import { Beatmap, ModMap } from "@rian8337/osu-base";
+import { ReplayData } from "@rian8337/osu-droid-replay-analyzer";
+import { OnButtonCollectorEnd } from "@structures/utils/OnButtonCollectorEnd";
+import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
+import { OnButtonPressed } from "@structures/utils/OnButtonPressed";
 import { InteractionCollectorCreator } from "@utils/base/InteractionCollectorCreator";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import { CacheManager } from "@utils/managers/CacheManager";
+import { MissAnalyzer } from "@utils/missanalyzer/MissAnalyzer";
+import { TimingDistributionChart } from "@utils/timingdistribution/TimingDistributionChart";
 import {
-    InteractionReplyOptions,
-    Message,
-    Snowflake,
-    ButtonBuilder,
-    ButtonStyle,
+    ActionRow,
     ActionRowBuilder,
     APIButtonComponentWithCustomId,
-    ButtonComponent,
-    APIActionRowComponent,
-    APIMessageActionRowComponent,
     APIEmbed,
-    isJSONEncodable,
     AttachmentBuilder,
+    ButtonBuilder,
+    ButtonComponent,
+    ButtonStyle,
+    InteractionReplyOptions,
+    isJSONEncodable,
+    Message,
+    MessageFlags,
     RepliableInteraction,
+    Snowflake,
 } from "discord.js";
 import { MessageCreator } from "./MessageCreator";
-import { MissAnalyzer } from "@utils/missanalyzer/MissAnalyzer";
-import { ReplayData } from "@rian8337/osu-droid-replay-analyzer";
-import { OnButtonPressed } from "@structures/utils/OnButtonPressed";
-import { OnButtonCollectorEnd } from "@structures/utils/OnButtonCollectorEnd";
-import { CacheManager } from "@utils/managers/CacheManager";
-import {
-    Beatmap,
-    IModApplicableToDroid,
-    Mod,
-    ModMap,
-} from "@rian8337/osu-base";
-import { TimingDistributionChart } from "@utils/timingdistribution/TimingDistributionChart";
 
 /**
  * A utility to create message buttons.
@@ -527,13 +522,16 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                     for (const row of m.components) {
                         if (
                             component.components.length !==
-                            row.components.length
+                            (row as ActionRow<ButtonComponent>).components
+                                .length
                         ) {
                             continue;
                         }
 
                         if (
-                            row.components.every(
+                            (
+                                row as ActionRow<ButtonComponent>
+                            ).components.every(
                                 (c, i) =>
                                     c instanceof ButtonComponent &&
                                     c.customId ===
@@ -630,22 +628,24 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         return;
                 }
 
-                const row = <ActionRowBuilder>options.components?.find((c) => {
-                    c = <APIActionRowComponent<APIMessageActionRowComponent>>c;
+                const row = <ActionRowBuilder<ButtonBuilder>>(
+                    options.components?.find((c) => {
+                        const typedC = <ActionRow<ButtonComponent>>c;
 
-                    return (
-                        c.components.length === buttons.length &&
-                        c.components.every(
-                            (b, i) =>
-                                b instanceof ButtonBuilder &&
-                                (<APIButtonComponentWithCustomId>b.data)
-                                    .custom_id ===
-                                    (<APIButtonComponentWithCustomId>(
-                                        buttons[i].data
-                                    )).custom_id
-                        )
-                    );
-                });
+                        return (
+                            typedC.components.length === buttons.length &&
+                            typedC.components.every(
+                                (b, i) =>
+                                    b instanceof ButtonBuilder &&
+                                    (<APIButtonComponentWithCustomId>b.data)
+                                        .custom_id ===
+                                        (<APIButtonComponentWithCustomId>(
+                                            buttons[i].data
+                                        )).custom_id
+                            )
+                        );
+                    })
+                );
 
                 row?.setComponents(
                     this.createPagingButtons(currentPage, maxPage)
@@ -670,7 +670,12 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                 }
 
                 await onPageChange(options, currentPage, ...onPageChangeArgs);
-                await i.editReply({ ...options, flags: undefined });
+                await i.editReply({
+                    ...options,
+                    flags:
+                        ((options.flags ?? 0) as number) ^
+                        MessageFlags.Ephemeral,
+                });
             },
             async (c) => {
                 const index = (<ActionRowBuilder<ButtonBuilder>[]>(

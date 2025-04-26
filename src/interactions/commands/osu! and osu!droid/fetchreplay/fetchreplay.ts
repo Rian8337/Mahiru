@@ -26,11 +26,19 @@ import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
+import { ProfileManager } from "@utils/managers/ProfileManager";
 import AdmZip from "adm-zip";
 import {
     ApplicationCommandOptionType,
     AttachmentBuilder,
+    ContainerBuilder,
     EmbedBuilder,
+    FileBuilder,
+    heading,
+    HeadingLevel,
+    hideLinkEmbed,
+    hyperlink,
+    TextDisplayBuilder,
 } from "discord.js";
 import { SlashCommand } from "structures/core/SlashCommand";
 
@@ -191,10 +199,12 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     zip.addFile("entry.json", Buffer.from(JSON.stringify(json, null, 2)));
 
+    const replayFilename = `${data.fileName.substring(0, data.fileName.length - 4)} [${
+        data.isReplayV3() ? data.playerName : username
+    }]-${json.replaydata.time}.edr`;
+
     const replayAttachment = new AttachmentBuilder(zip.toBuffer(), {
-        name: `${data.fileName.substring(0, data.fileName.length - 4)} [${
-            data.isReplayV3() ? data.playerName : username
-        }]-${json.replaydata.time}.edr`,
+        name: replayFilename,
     });
 
     if (!beatmapInfo) {
@@ -270,7 +280,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         });
     }
 
-    const calcEmbedOptions = EmbedCreator.createCalculationEmbed(
+    const options = EmbedCreator.createCalculationEmbed(
         beatmapInfo,
         BeatmapDifficultyHelper.getCalculationParamsFromScore(score),
         droidAttribs.attributes.difficulty,
@@ -284,33 +294,61 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     replay.beatmap ??= beatmapInfo.beatmap ?? undefined;
 
     const hitErrorInformation = replay.calculateHitError();
-    const embed = EmbedBuilder.from(calcEmbedOptions.embeds![0]);
 
-    embed.setAuthor({
-        name: StringHelper.formatString(
-            localization.getTranslation("playInfo"),
-            username
+    options.components = [
+        new TextDisplayBuilder().setContent(
+            StringHelper.formatString(
+                localization.getTranslation("playInfo"),
+                hyperlink(
+                    username,
+                    hideLinkEmbed(ProfileManager.getProfileLink(uid))
+                ) + ":"
+            )
         ),
-        iconURL: embed.data.author?.icon_url,
-    });
+        ...options.components!,
+    ];
+
+    const containerBuilder = options.components[
+        options.components.length - 1
+    ] as ContainerBuilder;
 
     if (hitErrorInformation) {
-        embed.addFields({
-            name: localization.getTranslation("hitErrorInfo"),
-            value: `${hitErrorInformation.negativeAvg.toFixed(
-                2
-            )}ms - ${hitErrorInformation.positiveAvg.toFixed(
-                2
-            )}ms ${localization.getTranslation(
-                "hitErrorAvg"
-            )} | ${hitErrorInformation.unstableRate.toFixed(2)} UR`,
-        });
+        options.components = options.components.concat(
+            new ContainerBuilder()
+                .setAccentColor(containerBuilder.data.accent_color!)
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(
+                        heading(
+                            localization.getTranslation("hitErrorInfo"),
+                            HeadingLevel.Three
+                        )
+                    )
+                )
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(
+                        `${hitErrorInformation.negativeAvg.toFixed(
+                            2
+                        )}ms - ${hitErrorInformation.positiveAvg.toFixed(
+                            2
+                        )}ms ${localization.getTranslation(
+                            "hitErrorAvg"
+                        )} | ${hitErrorInformation.unstableRate.toFixed(2)} UR`
+                    )
+                )
+                .addFileComponents(
+                    new FileBuilder().setURL(`attachment://${replayFilename}`)
+                )
+        );
+    } else {
+        containerBuilder.addFileComponents(
+            new FileBuilder().setURL(`attachment://${replayFilename}`)
+        );
     }
 
-    calcEmbedOptions.files ??= [];
-    calcEmbedOptions.files = calcEmbedOptions.files.concat(replayAttachment);
+    options.files ??= [];
+    options.files = options.files.concat(replayAttachment);
 
-    InteractionHelper.reply(interaction, calcEmbedOptions);
+    InteractionHelper.reply(interaction, options);
 };
 
 export const category: SlashCommand["category"] = CommandCategory.osu;

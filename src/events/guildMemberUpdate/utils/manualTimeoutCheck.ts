@@ -1,19 +1,12 @@
 import { Constants } from "@core/Constants";
-import { DatabaseManager } from "@database/DatabaseManager";
-import { EventUtil } from "structures/core/EventUtil";
 import { ManualTimeoutCheckLocalization } from "@localization/events/guildMemberUpdate/manualTimeoutCheck/ManualTimeoutCheckLocalization";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
-import { LoungeLockManager } from "@utils/managers/LoungeLockManager";
-import {
-    GuildMember,
-    EmbedBuilder,
-    AuditLogEvent,
-    bold,
-    User,
-} from "discord.js";
 import { CacheManager } from "@utils/managers/CacheManager";
+import { LoungeLockManager } from "@utils/managers/LoungeLockManager";
+import { AuditLogEvent, bold, EmbedBuilder, GuildMember } from "discord.js";
+import { EventUtil } from "structures/core/EventUtil";
 
 export const run: EventUtil["run"] = async (
     client,
@@ -85,7 +78,7 @@ export const run: EventUtil["run"] = async (
 
         const timeoutEmbed = new EmbedBuilder()
             .setAuthor({
-                name: auditLog.executor.tag,
+                name: auditLog.executor.tag!,
                 iconURL: auditLog.executor.avatarURL()!,
             })
             .setTitle(localization.getTranslation("timeoutExecuted"))
@@ -194,7 +187,7 @@ export const run: EventUtil["run"] = async (
 
         const untimeoutEmbed = new EmbedBuilder()
             .setAuthor({
-                name: auditLog.executor.tag,
+                name: auditLog.executor.tag!,
                 iconURL: auditLog.executor.avatarURL()!,
             })
             .setTitle(localization.getTranslation("untimeoutExecuted"))
@@ -212,7 +205,7 @@ export const run: EventUtil["run"] = async (
 
         const userUntimeoutEmbed = new EmbedBuilder()
             .setAuthor({
-                name: auditLog.executor.tag,
+                name: auditLog.executor.tag!,
                 iconURL: auditLog.executor.avatarURL()!,
             })
             .setTitle(userLocalization.getTranslation("untimeoutExecuted"))

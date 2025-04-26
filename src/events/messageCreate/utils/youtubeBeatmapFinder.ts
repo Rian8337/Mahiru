@@ -1,16 +1,26 @@
-import { Message, EmbedBuilder, bold, underscore } from "discord.js";
-import { EventUtil } from "structures/core/EventUtil";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { Symbols } from "@enums/utils/Symbols";
+import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
+import { YoutubeBeatmapFinderLocalization } from "@localization/events/messageCreate/youtubeBeatmapFinder/YoutubeBeatmapFinderLocalization";
+import { Modes } from "@rian8337/osu-base";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { BeatmapDifficultyHelper } from "@utils/helpers/BeatmapDifficultyHelper";
-import { YouTubeRESTManager } from "@utils/managers/YouTubeRESTManager";
-import { Modes } from "@rian8337/osu-base";
-import { YoutubeBeatmapFinderLocalization } from "@localization/events/messageCreate/youtubeBeatmapFinder/YoutubeBeatmapFinderLocalization";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
+import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
-import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
+import { YouTubeRESTManager } from "@utils/managers/YouTubeRESTManager";
+import {
+    bold,
+    ContainerBuilder,
+    heading,
+    HeadingLevel,
+    hyperlink,
+    Message,
+    MessageFlags,
+    SeparatorBuilder,
+    TextDisplayBuilder,
+    underline,
+} from "discord.js";
+import { EventUtil } from "structures/core/EventUtil";
 
 export const run: EventUtil["run"] = async (_, message: Message) => {
     if (message.author.bot || !message.channel.isSendable()) {
@@ -82,19 +92,27 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                     beatmapInfo.hash
                 );
 
-                const embedOptions = EmbedCreator.createBeatmapEmbed(
+                const options = EmbedCreator.createBeatmapEmbed(
                     beatmapInfo,
                     calcParams,
                     localization.language
                 );
 
-                embedOptions.allowedMentions = { repliedUser: false };
+                options.allowedMentions = { repliedUser: false };
 
-                const embed = <EmbedBuilder>embedOptions.embeds![0];
+                const containerBuilder = options
+                    .components![0] as ContainerBuilder;
 
-                embed.spliceFields(0, embed.data.fields!.length);
+                containerBuilder.spliceComponents(
+                    1,
+                    containerBuilder.components.length
+                );
 
-                message.reply(embedOptions);
+                // TODO: allowedMentions is bugged, see https://github.com/discordjs/discord.js/pull/10852.
+                message.channel.send({
+                    ...options,
+                    flags: MessageFlags.IsComponentsV2,
+                });
             } else if (beatmapsetID) {
                 // Retrieve beatmap file one by one to not overcreate requests
                 const beatmapInformations = await BeatmapManager.getBeatmaps(
@@ -122,49 +140,63 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
 
                 const firstBeatmap = beatmapInformations[0];
 
-                const embedOptions = EmbedCreator.createBeatmapEmbed(
+                const options = EmbedCreator.createBeatmapEmbed(
                     firstBeatmap,
                     undefined,
                     localization.language
                 );
 
+                const containerBuilder = options
+                    .components![0] as ContainerBuilder;
+
                 if (string) {
-                    embedOptions.content = string;
+                    options.components = [
+                        new TextDisplayBuilder().setContent(string),
+                        ...options.components!,
+                    ];
                 }
 
-                embedOptions.allowedMentions = { repliedUser: false };
+                options.allowedMentions = { repliedUser: false };
 
                 // Empty files, we don't need it here.
-                embedOptions.files = [];
+                options.files = [];
 
-                const embed = <EmbedBuilder>embedOptions.embeds![0];
-
-                embed
-                    .spliceFields(0, embed.data.fields!.length)
-                    .setTitle(
-                        `${firstBeatmap.artist} - ${firstBeatmap.title} by ${firstBeatmap.creator}`
-                    )
-                    .setColor(
+                containerBuilder
+                    .spliceComponents(0, containerBuilder.components.length)
+                    .setAccentColor(
                         BeatmapManager.getStatusColor(firstBeatmap.approved)
                     )
-                    .setAuthor({ name: "Beatmap Information" })
-                    .setURL(firstBeatmap.beatmapSetLink)
-                    .setDescription(
-                        `${BeatmapManager.showStatistics(firstBeatmap, 1)}\n` +
-                            `${bold("BPM")}: ${BeatmapManager.convertBPM(
-                                firstBeatmap.bpm
-                            )} - ${bold(
-                                "Length"
-                            )}: ${BeatmapManager.convertTime(
-                                firstBeatmap.hitLength,
-                                firstBeatmap.totalLength
-                            )}`
+                    .addTextDisplayComponents(
+                        new TextDisplayBuilder().setContent(
+                            hyperlink(
+                                heading(
+                                    `${firstBeatmap.artist} - ${firstBeatmap.title} by ${firstBeatmap.creator}`,
+                                    HeadingLevel.Two
+                                ),
+                                firstBeatmap.beatmapSetLink
+                            )
+                        )
+                    )
+                    .addTextDisplayComponents(
+                        new TextDisplayBuilder().setContent(
+                            `${BeatmapManager.showStatistics(firstBeatmap, 1)}\n` +
+                                `${bold("BPM")}: ${BeatmapManager.convertBPM(
+                                    firstBeatmap.bpm
+                                )} - ${bold(
+                                    "Length"
+                                )}: ${BeatmapManager.convertTime(
+                                    firstBeatmap.hitLength,
+                                    firstBeatmap.totalLength
+                                )}`
+                        )
                     );
 
-                for (const beatmapInfo of beatmapInformations) {
-                    if (embed.data.fields!.length === 3) {
-                        break;
-                    }
+                for (
+                    let i = 0;
+                    i < Math.min(3, beatmapInformations.length);
+                    i++
+                ) {
+                    const beatmapInfo = beatmapInformations[i];
 
                     const droidAttribs =
                         await PPProcessorRESTManager.getDifficultyAttributes(
@@ -188,34 +220,39 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                         continue;
                     }
 
-                    embed.addFields({
-                        name: `${underscore(
-                            beatmapInfo.version
-                        )} (${droidAttribs.attributes.starRating.toFixed(2)} ${
-                            Symbols.star
-                        } | ${osuAttribs.attributes.starRating.toFixed(2)} ${
-                            Symbols.star
-                        })`,
-                        value:
-                            `${BeatmapManager.showStatistics(
-                                beatmapInfo,
-                                2
-                            )}\n` +
-                            `${BeatmapManager.showStatistics(
-                                beatmapInfo,
-                                3
-                            )}\n` +
-                            `${BeatmapManager.showStatistics(
-                                beatmapInfo,
-                                4
-                            )}\n` +
-                            `${bold(
-                                droidAttribs.attributes.starRating.toFixed(2)
-                            )}dpp - ${osuAttribs.attributes.starRating.toFixed(2)}pp`,
-                    });
+                    containerBuilder
+                        .addSeparatorComponents(new SeparatorBuilder())
+                        .addTextDisplayComponents(
+                            new TextDisplayBuilder().setContent(
+                                heading(underline(beatmapInfo.version))
+                            ),
+                            new TextDisplayBuilder().setContent(
+                                `${BeatmapManager.showStatistics(
+                                    beatmapInfo,
+                                    2
+                                )}\n` +
+                                    `${BeatmapManager.showStatistics(
+                                        beatmapInfo,
+                                        3
+                                    )}\n` +
+                                    `${BeatmapManager.showStatistics(
+                                        beatmapInfo,
+                                        4
+                                    )}\n` +
+                                    `${bold(
+                                        droidAttribs.attributes.starRating.toFixed(
+                                            2
+                                        )
+                                    )}dpp - ${osuAttribs.attributes.starRating.toFixed(2)}pp`
+                            )
+                        );
                 }
 
-                message.reply(embedOptions);
+                // TODO: allowedMentions is bugged, see https://github.com/discordjs/discord.js/pull/10852.
+                message.channel.send({
+                    ...options,
+                    flags: MessageFlags.IsComponentsV2,
+                });
             }
 
             ++validCount;

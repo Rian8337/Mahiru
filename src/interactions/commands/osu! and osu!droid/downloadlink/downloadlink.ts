@@ -1,56 +1,97 @@
-import { MapInfo } from "@rian8337/osu-base";
 import { CommandCategory } from "@enums/core/CommandCategory";
-import { SlashCommand } from "structures/core/SlashCommand";
-import { MessageCreator } from "@utils/creators/MessageCreator";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
-import { EmbedBuilder, BaseMessageOptions } from "discord.js";
-import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { DownloadlinkLocalization } from "@localization/interactions/commands/osu! and osu!droid/downloadlink/DownloadlinkLocalization";
+import { RankedStatus } from "@rian8337/osu-base";
+import { EmbedCreator } from "@utils/creators/EmbedCreator";
+import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ContainerBuilder,
+} from "discord.js";
+import { SlashCommand } from "structures/core/SlashCommand";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
-    const localization: DownloadlinkLocalization = new DownloadlinkLocalization(
-        CommandHelper.getLocale(interaction),
+    const localization = new DownloadlinkLocalization(
+        CommandHelper.getLocale(interaction)
     );
 
-    const beatmapHash: string | undefined =
-        BeatmapManager.getChannelLatestBeatmap(interaction.channelId);
+    const beatmapHash = BeatmapManager.getChannelLatestBeatmap(
+        interaction.channelId
+    );
 
     if (!beatmapHash) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noCachedBeatmap"),
+                localization.getTranslation("noCachedBeatmap")
             ),
         });
     }
 
     await InteractionHelper.deferReply(interaction);
 
-    const beatmapInfo: MapInfo<false> | null = await BeatmapManager.getBeatmap(
-        beatmapHash,
-        { checkFile: false },
-    );
+    const beatmap = await BeatmapManager.getBeatmap(beatmapHash, {
+        checkFile: false,
+    });
 
-    if (!beatmapInfo) {
+    if (!beatmap) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotAvailable"),
+                localization.getTranslation("beatmapNotAvailable")
             ),
         });
     }
 
-    const embedOptions: BaseMessageOptions = EmbedCreator.createBeatmapEmbed(
-        beatmapInfo,
+    const options = EmbedCreator.createBeatmapEmbed(
+        beatmap,
         undefined,
-        localization.language,
+        localization.language
     );
 
-    const embed: EmbedBuilder = EmbedBuilder.from(embedOptions.embeds![0]);
+    const downloadActionRow =
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+                .setLabel("osu!")
+                .setStyle(ButtonStyle.Link)
+                .setURL(`https://osu.ppy.sh/d/${beatmap.beatmapSetId}`),
+            new ButtonBuilder()
+                .setLabel("Sayobot")
+                .setStyle(ButtonStyle.Link)
+                .setURL(
+                    `https://txy1.sayobot.cn/beatmaps/download/full/${beatmap.beatmapSetId}`
+                ),
+            new ButtonBuilder()
+                .setLabel("Beatconnect")
+                .setStyle(ButtonStyle.Link)
+                .setURL(`https://beatconnect.io/b/${beatmap.beatmapSetId}`),
+            new ButtonBuilder()
+                .setLabel("Nerina")
+                .setStyle(ButtonStyle.Link)
+                .setURL(`https://api.nerinyan.moe/d/${beatmap.beatmapSetId}`)
+        );
 
-    embed.spliceFields(0, embed.data.fields!.length);
+    if (
+        beatmap.approved >= RankedStatus.ranked &&
+        beatmap.approved !== RankedStatus.qualified
+    ) {
+        downloadActionRow.addComponents(
+            new ButtonBuilder()
+                .setLabel("Ripple")
+                .setStyle(ButtonStyle.Link)
+                .setURL(`https://storage.ripple.moe/d/${beatmap.beatmapSetId}`)
+        );
+    }
 
-    InteractionHelper.reply(interaction, embedOptions);
+    const containerBuilder = options.components![0] as ContainerBuilder;
+
+    containerBuilder
+        .spliceComponents(2, containerBuilder.components.length)
+        .addActionRowComponents(downloadActionRow);
+
+    InteractionHelper.reply(interaction, options, true);
 };
 
 export const category: SlashCommand["category"] = CommandCategory.osu;

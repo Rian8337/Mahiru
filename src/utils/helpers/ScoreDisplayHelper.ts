@@ -21,13 +21,20 @@ import { MessageCreator } from "@utils/creators/MessageCreator";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import {
+    BaseMessageOptions,
     bold,
     Collection,
-    EmbedBuilder,
+    ContainerBuilder,
     GuildMember,
+    heading,
+    HeadingLevel,
     Message,
+    MessageFlags,
     RepliableInteraction,
+    SectionBuilder,
+    SeparatorBuilder,
     Snowflake,
+    TextDisplayBuilder,
 } from "discord.js";
 import { CommandHelper } from "./CommandHelper";
 import { DateTimeFormatHelper } from "./DateTimeFormatHelper";
@@ -376,44 +383,71 @@ export abstract class ScoreDisplayHelper {
                 leaderboardCache.set(actualPage, scores);
             }
 
-            const embedOptions = beatmapInfo
+            const newOptions: BaseMessageOptions = beatmapInfo
                 ? EmbedCreator.createBeatmapEmbed(
                       beatmapInfo,
                       undefined,
                       localization.language
                   )
-                : { embeds: [EmbedCreator.createNormalEmbed()] };
+                : { components: [new ContainerBuilder()] };
 
-            const embed = <EmbedBuilder>embedOptions.embeds![0];
+            const containerBuilder = newOptions
+                .components![0] as ContainerBuilder;
 
-            embed.data.fields!.pop();
+            containerBuilder.spliceComponents(
+                containerBuilder.components.length - 1,
+                1
+            );
 
             const topScore = leaderboardCache.get(1)![0];
 
-            if (!embed.data.title) {
-                embed.setTitle(topScore.title);
-            } else if (noModDroidAttribs && noModOsuAttribs) {
-                embed.setTitle(
-                    embed.data.title +
+            if (
+                containerBuilder.components.length > 0 &&
+                noModDroidAttribs &&
+                noModOsuAttribs
+            ) {
+                const sectionBuilder = containerBuilder
+                    .components[0] as SectionBuilder;
+                const titleBuilder = sectionBuilder
+                    .components[0] as TextDisplayBuilder;
+
+                titleBuilder.setContent(
+                    titleBuilder.data.content! +
                         ` [${noModDroidAttribs.attributes.starRating.toFixed(2)}${
                             Symbols.star
                         } | ${noModOsuAttribs.attributes.starRating.toFixed(2)}${
                             Symbols.star
                         }]`
                 );
+            } else {
+                containerBuilder
+                    .addTextDisplayComponents(
+                        new TextDisplayBuilder().setContent(
+                            heading(topScore.title, HeadingLevel.Two)
+                        )
+                    )
+                    .addSeparatorComponents(new SeparatorBuilder());
             }
 
-            embed.addFields({
-                name: bold(localization.getTranslation("topScore")),
-                value:
-                    `${bold(
-                        `${topScore.username}${
-                            !topScore.mods.isEmpty
-                                ? ` (${topScore.completeModString})`
-                                : ""
-                        }`
-                    )}\n` + (await getScoreDescription(topScore)),
-            });
+            containerBuilder
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(
+                        heading(
+                            localization.getTranslation("topScore"),
+                            HeadingLevel.Three
+                        ) +
+                            "\n" +
+                            `${bold(
+                                `${topScore.username}${
+                                    !topScore.mods.isEmpty
+                                        ? ` (${topScore.completeModString})`
+                                        : ""
+                                }`
+                            )}\n` +
+                            (await getScoreDescription(topScore))
+                    )
+                )
+                .addSeparatorComponents(new SeparatorBuilder());
 
             const displayedScores = scores.slice(
                 5 * pageRemainder,
@@ -423,19 +457,26 @@ export abstract class ScoreDisplayHelper {
             let i = 20 * actualPage + 5 * pageRemainder;
 
             for (const score of displayedScores) {
-                embed.addFields({
-                    name: `${bold(
-                        `#${++i} ${score.username}${
-                            !score.mods.isEmpty
-                                ? ` (${score.completeModString})`
-                                : ""
-                        }`
-                    )}`,
-                    value: await getScoreDescription(score),
-                });
+                containerBuilder.addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(
+                        bold(
+                            `#${++i} ${score.username}${
+                                !score.mods.isEmpty
+                                    ? ` (${score.completeModString})`
+                                    : ""
+                            }` +
+                                "\n" +
+                                (await getScoreDescription(score)) +
+                                "\n\n"
+                        )
+                    )
+                );
             }
 
-            Object.assign(options, embedOptions);
+            Object.assign(options, {
+                ...newOptions,
+                flags: MessageFlags.IsComponentsV2,
+            });
         };
 
         MessageButtonCreator.createLimitlessButtonBasedPaging(

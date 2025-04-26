@@ -16,11 +16,9 @@ import {
 } from "@localization/utils/creators/EmbedCreator/EmbedCreatorLocalization";
 import {
     Accuracy,
-    DroidLegacyModConverter,
     MapInfo,
     ModUtil,
     Modes,
-    Precision,
     Slider,
     SliderTail,
     SliderTick,
@@ -58,19 +56,29 @@ import { DifficultyCalculationParameters } from "@utils/pp/DifficultyCalculation
 import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
 import {
     ActionRowBuilder,
+    AttachmentBuilder,
     BaseMessageOptions,
     ButtonBuilder,
     ButtonStyle,
     ColorResolvable,
+    ContainerBuilder,
     EmbedBuilder,
     Guild,
     GuildEmoji,
     GuildMember,
+    HeadingLevel,
+    MediaGalleryBuilder,
+    MediaGalleryItemBuilder,
     RepliableInteraction,
+    SectionBuilder,
+    SeparatorBuilder,
+    TextDisplayBuilder,
+    ThumbnailBuilder,
     bold,
     channelMention,
+    heading,
     hyperlink,
-    underscore,
+    underline,
     userMention,
 } from "discord.js";
 
@@ -123,82 +131,128 @@ export abstract class EmbedCreator {
     /**
      * Creates a beatmap embed.
      *
-     * @param beatmapInfo The beatmap to create the beatmap embed from.
+     * @param beatmap The beatmap to create the beatmap embed from.
      * @param calculationParams The calculation parameters to be applied towards beatmap statistics.
      * @param language The locale of the user who attempted to create the beatmap embed. Defaults to English.
      */
     static createBeatmapEmbed(
-        beatmapInfo: MapInfo,
+        beatmap: MapInfo,
         calculationParams?: DifficultyCalculationParameters,
         language: Language = "en"
     ): BaseMessageOptions {
         const localization = new EmbedCreatorLocalization(language);
 
-        const embed = this.createNormalEmbed({
-            color: <ColorResolvable>(
-                BeatmapManager.getBeatmapDifficultyColor(
-                    parseFloat((beatmapInfo.totalDifficulty ?? 0).toFixed(2))
-                )
-            ),
-        });
-
-        const totalDifficulty = beatmapInfo.totalDifficulty ?? 0;
         const mods = calculationParams?.mods;
+        const totalDifficulty = beatmap.totalDifficulty ?? 0;
 
-        embed
-            .setAuthor({
-                name: localization.getTranslation("beatmapInfo"),
-                iconURL: `attachment://osu-${totalDifficulty.toFixed(2)}.png`,
-            })
-            .setTitle(BeatmapManager.showStatistics(beatmapInfo, 0, mods))
-            .setDescription(
-                BeatmapManager.showStatistics(beatmapInfo, 1, mods) +
-                    "\n" +
-                    BeatmapManager.showStatistics(beatmapInfo, 2, mods)
+        const builder = new ContainerBuilder()
+            .setAccentColor(
+                parseInt(
+                    BeatmapManager.getBeatmapDifficultyColor(
+                        parseFloat((beatmap.totalDifficulty ?? 0).toFixed(2))
+                    ).replace("#", "0x")
+                )
             )
-            .setURL(beatmapInfo.beatmapLink)
-            .addFields(
-                {
-                    name: bold(
-                        localization.getTranslation("beatmapDroidStatistics")
-                    ),
-                    value: BeatmapManager.showStatistics(beatmapInfo, 3, mods),
-                },
-                {
-                    name: bold(
-                        localization.getTranslation("beatmapOsuStatistics")
-                    ),
-                    value: BeatmapManager.showStatistics(beatmapInfo, 4, mods),
-                },
-                {
-                    name: bold(
-                        localization.getTranslation("beatmapGeneralStatistics")
-                    ),
-                    value: BeatmapManager.showStatistics(beatmapInfo, 5, mods),
-                },
-                {
-                    name: BeatmapManager.showStatistics(beatmapInfo, 6, mods),
-                    value: BeatmapManager.showStatistics(beatmapInfo, 7, mods),
-                },
-                {
-                    name: localization.getTranslation("starRating"),
-                    value: `${Symbols.star.repeat(
-                        Math.floor(totalDifficulty)
-                    )} ${bold(
-                        `${totalDifficulty.toFixed(
-                            2
-                        )} ${localization.getTranslation("pcStars")}`
-                    )}`,
-                }
+            .addSectionComponents(
+                new SectionBuilder()
+                    .addTextDisplayComponents(
+                        new TextDisplayBuilder().setContent(
+                            heading(
+                                hyperlink(
+                                    BeatmapManager.showStatistics(
+                                        beatmap,
+                                        0,
+                                        mods
+                                    ),
+                                    beatmap.beatmapLink
+                                ),
+                                HeadingLevel.Two
+                            )
+                        ),
+                        (builder) => {
+                            const str = `🖼️ ${
+                                beatmap.storyboardAvailable ? "✅" : "❎"
+                            } ${bold("|")} 🎞️ ${beatmap.videoAvailable ? "✅" : "❎"}\n`;
+
+                            const secondPart: string[] = [];
+
+                            if (beatmap.source) {
+                                secondPart.push(
+                                    `${bold("Source")}: ${beatmap.source}`
+                                );
+                            }
+
+                            secondPart.push(
+                                bold(
+                                    hyperlink(
+                                        "Beatmap Preview",
+                                        `https://osu-preview.jmir.ml/preview#${beatmap.beatmapId}`
+                                    )
+                                )
+                            );
+
+                            builder.setContent(
+                                str +
+                                    secondPart.join(" - ") +
+                                    "\n" +
+                                    BeatmapManager.showStatistics(
+                                        beatmap,
+                                        2,
+                                        mods
+                                    )
+                            );
+
+                            return builder;
+                        }
+                    )
+                    .setThumbnailAccessory(
+                        new ThumbnailBuilder()
+                            .setURL(
+                                `https://b.ppy.sh/thumb/${beatmap.beatmapSetId}l.jpg`
+                            )
+                            .setDescription("Beatmap Thumbnail")
+                    )
+            )
+            .addSeparatorComponents(new SeparatorBuilder())
+            .addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(
+                    heading("Statistics", HeadingLevel.Three) +
+                        "\n" +
+                        bold("osu!droid") +
+                        "\n" +
+                        BeatmapManager.showStatistics(beatmap, 3, mods) +
+                        "\n\n" +
+                        bold("osu!") +
+                        "\n" +
+                        BeatmapManager.showStatistics(beatmap, 4, mods) +
+                        "\n\n" +
+                        bold("General") +
+                        "\n" +
+                        BeatmapManager.showStatistics(beatmap, 5, mods) +
+                        "\n" +
+                        BeatmapManager.showStatistics(beatmap, 6, mods)
+                )
+            )
+            .addSeparatorComponents(new SeparatorBuilder())
+            .addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(
+                    heading(
+                        localization.getTranslation("starRating"),
+                        HeadingLevel.Three
+                    ) +
+                        "\n" +
+                        `${Symbols.star.repeat(
+                            Math.floor(totalDifficulty)
+                        )} ${bold(
+                            `${totalDifficulty.toFixed(
+                                2
+                            )} ${localization.getTranslation("pcStars")}`
+                        )}`
+                )
             );
 
         return {
-            embeds: [embed],
-            files: [
-                BeatmapManager.getBeatmapDifficultyIconAttachment(
-                    parseFloat(totalDifficulty.toFixed(2))
-                ),
-            ],
+            components: [builder],
         };
     }
 
@@ -307,14 +361,22 @@ export abstract class EmbedCreator {
     ): BaseMessageOptions {
         const localization = this.getLocalization(language);
 
-        const embedOptions = this.createBeatmapEmbed(
+        const files: AttachmentBuilder[] = [];
+
+        const options = this.createBeatmapEmbed(
             beatmap,
             calculationParams,
             language
         );
 
-        const embed = EmbedBuilder.from(embedOptions.embeds![0]);
-        const files = embedOptions.files?.slice() ?? [];
+        const components = options.components!;
+
+        const containerBuilder = components[0] as ContainerBuilder;
+
+        containerBuilder.spliceComponents(
+            containerBuilder.components.length - 1,
+            1
+        );
 
         if (
             calculationParams instanceof PerformanceCalculationParameters &&
@@ -328,60 +390,48 @@ export abstract class EmbedCreator {
                 nobjects: beatmap.objects,
             });
 
-            const { mods, accuracy } = calculationParams;
+            const { accuracy } = calculationParams;
 
-            embed
-                .setColor(
-                    <ColorResolvable>(
+            containerBuilder
+                .setAccentColor(
+                    parseInt(
                         BeatmapManager.getBeatmapDifficultyColor(
                             osuDiffAttribs.starRating
-                        )
+                        ).replace("#", "0x")
                     )
                 )
-                .spliceFields(embed.data.fields!.length - 2, 2)
-                .addFields(
-                    {
-                        name: BeatmapManager.showStatistics(beatmap, 6, mods),
-                        value: `${BeatmapManager.showStatistics(
-                            beatmap,
-                            7,
-                            mods
-                        )}\n${bold(
-                            `${localization.getTranslation("result")}`
-                        )}: ${combo}/${droidDiffAttribs.maxCombo}x | ${(
-                            accuracy.value() * 100
-                        ).toFixed(2)}% | [${accuracy.n300}/${accuracy.n100}/${
-                            accuracy.n50
-                        }/${accuracy.nmiss}]`,
-                    },
-                    {
-                        name: `${bold(
-                            localization.getTranslation("droidPP")
-                        )}: ${underscore(
-                            `${droidPerfAttribs.total.toFixed(2)} pp`
-                        )} - ${droidDiffAttribs.starRating.toFixed(2)}${
-                            Symbols.star
-                        }`,
-                        value: `${bold(
-                            localization.getTranslation("pcPP")
-                        )}: ${osuPerfAttribs.total.toFixed(2)} pp - ${osuDiffAttribs.starRating.toFixed(2)}${
-                            Symbols.star
-                        }`,
-                    }
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(
+                        heading(
+                            localization.getTranslation("result"),
+                            HeadingLevel.Three
+                        ) +
+                            "\n" +
+                            `${combo}/${droidDiffAttribs.maxCombo}x | ${(
+                                accuracy.value() * 100
+                            ).toFixed(
+                                2
+                            )}% | [${accuracy.n300}/${accuracy.n100}/${
+                                accuracy.n50
+                            }/${accuracy.nmiss}]` +
+                            "\n" +
+                            `${bold(
+                                `${underline(droidPerfAttribs.total.toFixed(2))}dpp`
+                            )} (${droidDiffAttribs.starRating.toFixed(2)}${
+                                Symbols.star
+                            }) - ${bold(osuPerfAttribs.total.toFixed(2))}pp (${osuDiffAttribs.starRating.toFixed(2)}${
+                                Symbols.star
+                            })`
+                    )
                 );
         } else {
-            embed
-                .setColor(
-                    <ColorResolvable>(
-                        BeatmapManager.getBeatmapDifficultyColor(
-                            osuDiffAttribs.starRating
-                        )
-                    )
-                )
-                .spliceFields(embed.data.fields!.length - 1, 1)
-                .addFields({
-                    name: bold(localization.getTranslation("starRating")),
-                    value:
+            containerBuilder.addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(
+                    heading(
+                        localization.getTranslation("starRating"),
+                        HeadingLevel.Three
+                    ) +
+                        "\n" +
                         `${Symbols.star.repeat(
                             Math.min(
                                 10,
@@ -389,50 +439,33 @@ export abstract class EmbedCreator {
                             )
                         )} ${droidDiffAttribs.starRating.toFixed(
                             2
-                        )} ${localization.getTranslation("droidStars")}\n` +
+                        )} ${localization.getTranslation("droidStars")}` +
+                        "\n" +
                         `${Symbols.star.repeat(
                             Math.min(10, Math.floor(osuDiffAttribs.starRating))
                         )} ${osuDiffAttribs.starRating.toFixed(
                             2
-                        )} ${localization.getTranslation("pcStars")}`,
-                });
-        }
-
-        if (
-            beatmap.totalDifficulty !== null &&
-            !Precision.almostEqualsNumber(
-                osuDiffAttribs.starRating,
-                beatmap.totalDifficulty
-            )
-        ) {
-            // Recreate difficulty icon if difficulty is different.
-            files.length = 0;
-
-            files.push(
-                BeatmapManager.getBeatmapDifficultyIconAttachment(
-                    osuDiffAttribs.starRating
+                        )} ${localization.getTranslation("pcStars")}`
                 )
             );
-
-            embed.setAuthor({
-                name: localization.getTranslation("beatmapInfo"),
-                iconURL: `attachment://osu-${osuDiffAttribs.starRating.toFixed(
-                    2
-                )}.png`,
-            });
         }
 
         if (strainChart) {
-            embed.setImage("attachment://strain-chart.png");
+            containerBuilder.addMediaGalleryComponents(
+                new MediaGalleryBuilder().addItems(
+                    new MediaGalleryItemBuilder().setURL(
+                        "attachment://strain-chart.png"
+                    )
+                )
+            );
 
-            files.push({
-                name: "strain-chart.png",
-                attachment: strainChart,
-            });
+            files.push(
+                new AttachmentBuilder(strainChart, { name: "strain-chart.png" })
+            );
         }
 
         return {
-            embeds: [embed],
+            components: components,
             files: files,
         };
     }

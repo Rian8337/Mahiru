@@ -1,6 +1,5 @@
 import { Config } from "@core/Config";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { Symbols } from "@enums/utils/Symbols";
 import { UserBeatmapCalculationLocalization } from "@localization/events/messageCreate/userBeatmapCalculation/UserBeatmapCalculationLocalization";
 import { MapInfo, Modes, ModUtil } from "@rian8337/osu-base";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
@@ -11,7 +10,18 @@ import { PPHelper } from "@utils/helpers/PPHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
-import { bold, EmbedBuilder, Message, underline } from "discord.js";
+import {
+    bold,
+    ContainerBuilder,
+    heading,
+    HeadingLevel,
+    hyperlink,
+    Message,
+    MessageFlags,
+    SeparatorBuilder,
+    TextDisplayBuilder,
+    underline,
+} from "discord.js";
 import { EventUtil } from "structures/core/EventUtil";
 
 export const run: EventUtil["run"] = async (_, message: Message) => {
@@ -89,7 +99,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                 continue;
             }
 
-            const calcEmbedOptions = EmbedCreator.createCalculationEmbed(
+            const options = EmbedCreator.createCalculationEmbed(
                 beatmapInfo,
                 calcParams,
                 droidAttribs.attributes.difficulty,
@@ -100,7 +110,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                 Buffer.from(droidAttribs.strainChart)
             );
 
-            calcEmbedOptions.allowedMentions = { repliedUser: false };
+            options.allowedMentions = { repliedUser: false };
 
             let string = "";
 
@@ -129,10 +139,17 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             }
 
             if (string) {
-                calcEmbedOptions.content = string;
+                options.components = [
+                    new TextDisplayBuilder().setContent(string),
+                    ...options.components!,
+                ];
             }
 
-            message.reply(calcEmbedOptions);
+            // TODO: allowedMentions is bugged, see https://github.com/discordjs/discord.js/pull/10852.
+            message.channel.send({
+                ...options,
+                flags: MessageFlags.IsComponentsV2,
+            });
         } else if (beatmapsetId) {
             // Retrieve beatmap file one by one to not overcreate requests
             const beatmapInformations = await BeatmapManager.getBeatmaps(
@@ -159,56 +176,66 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
 
             const firstBeatmap = beatmapInformations[0];
 
-            const embedOptions = EmbedCreator.createBeatmapEmbed(
+            const options = EmbedCreator.createBeatmapEmbed(
                 firstBeatmap,
                 undefined,
                 localization.language
             );
 
+            const containerBuilder = options.components![0] as ContainerBuilder;
+
             if (string) {
-                embedOptions.content = string;
+                options.components = [
+                    new TextDisplayBuilder().setContent(string),
+                    ...options.components!,
+                ];
             }
 
-            embedOptions.allowedMentions = { repliedUser: false };
+            options.allowedMentions = { repliedUser: false };
 
             // Empty files first, we will reenter all attachments later
-            embedOptions.files = [];
+            options.files = [];
 
-            const embed = EmbedBuilder.from(embedOptions.embeds![0]);
             const { mods } = calcParams;
 
             const speedMultiplier = ModUtil.calculateRateWithMods(
                 mods.values()
             );
 
-            embed
-                .spliceFields(0, embed.data.fields!.length)
-                .setTitle(
-                    `${firstBeatmap.artist} - ${firstBeatmap.title} by ${firstBeatmap.creator}`
+            containerBuilder
+                .spliceComponents(0, containerBuilder.components.length)
+                .setAccentColor(
+                    BeatmapManager.getStatusColor(firstBeatmap.approved)
                 )
-                .setColor(BeatmapManager.getStatusColor(firstBeatmap.approved))
-                .setAuthor({ name: "Beatmap Information" })
-                .setURL(firstBeatmap.beatmapSetLink)
-                .setDescription(
-                    `${BeatmapManager.showStatistics(
-                        firstBeatmap,
-                        1,
-                        mods
-                    )}\n` +
-                        `${bold("BPM")}: ${BeatmapManager.convertBPM(
-                            firstBeatmap.bpm,
-                            speedMultiplier
-                        )} - ${bold("Length")}: ${BeatmapManager.convertTime(
-                            firstBeatmap.hitLength,
-                            firstBeatmap.totalLength,
-                            speedMultiplier
-                        )}`
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(
+                        hyperlink(
+                            heading(
+                                `${firstBeatmap.artist} - ${firstBeatmap.title} by ${firstBeatmap.creator}`,
+                                HeadingLevel.Two
+                            ),
+                            firstBeatmap.beatmapSetLink
+                        )
+                    )
+                )
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(
+                        `${BeatmapManager.showStatistics(firstBeatmap, 1)}\n` +
+                            `${bold("BPM")}: ${BeatmapManager.convertBPM(
+                                firstBeatmap.bpm,
+                                speedMultiplier
+                            )} - ${bold(
+                                "Length"
+                            )}: ${BeatmapManager.convertTime(
+                                firstBeatmap.hitLength,
+                                firstBeatmap.totalLength,
+                                speedMultiplier
+                            )}`
+                    )
                 );
 
-            for (const beatmapInfo of beatmapInformations) {
-                if (embed.data.fields!.length === 3) {
-                    break;
-                }
+            for (let i = 0; i < beatmapInformations.length; i++) {
+                const beatmapInfo = beatmapInformations[i];
 
                 const droidDiffAttribs =
                     await PPProcessorRESTManager.getDifficultyAttributes(
@@ -230,37 +257,39 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                     continue;
                 }
 
-                embed.addFields({
-                    name: `${underline(
-                        beatmapInfo.version
-                    )} (${droidDiffAttribs.attributes.starRating.toFixed(2)} ${
-                        Symbols.star
-                    } | ${osuDiffAttribs.attributes.starRating.toFixed(2)} ${
-                        Symbols.star
-                    })`,
-                    value:
-                        `${BeatmapManager.showStatistics(
-                            beatmapInfo,
-                            2,
-                            mods
-                        )}\n` +
-                        `${BeatmapManager.showStatistics(
-                            beatmapInfo,
-                            3,
-                            mods
-                        )}\n` +
-                        `${BeatmapManager.showStatistics(
-                            beatmapInfo,
-                            4,
-                            mods
-                        )}\n` +
-                        `${bold(
-                            droidDiffAttribs.attributes.starRating.toFixed(2)
-                        )}dpp - ${osuDiffAttribs.attributes.starRating.toFixed(2)}pp`,
-                });
+                containerBuilder
+                    .addSeparatorComponents(new SeparatorBuilder())
+                    .addTextDisplayComponents(
+                        new TextDisplayBuilder().setContent(
+                            heading(underline(beatmapInfo.version))
+                        ),
+                        new TextDisplayBuilder().setContent(
+                            `${BeatmapManager.showStatistics(
+                                beatmapInfo,
+                                2,
+                                mods
+                            )}\n` +
+                                `${BeatmapManager.showStatistics(
+                                    beatmapInfo,
+                                    3,
+                                    mods
+                                )}\n` +
+                                `${BeatmapManager.showStatistics(
+                                    beatmapInfo,
+                                    4,
+                                    mods
+                                )}\n` +
+                                `${bold(
+                                    droidDiffAttribs.attributes.starRating.toFixed(
+                                        2
+                                    )
+                                )}dpp - ${osuDiffAttribs.attributes.starRating.toFixed(2)}pp`
+                        )
+                    );
             }
 
-            message.reply(embedOptions);
+            // TODO: allowedMentions is bugged, see https://github.com/discordjs/discord.js/pull/10852.
+            message.channel.send(options);
         }
     }
 };

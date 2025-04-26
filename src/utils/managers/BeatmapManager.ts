@@ -494,7 +494,7 @@ export abstract class BeatmapManager extends Manager {
      */
     static showStatistics(
         beatmapInfo: MapInfo,
-        option: number,
+        option: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7,
         mods?: ModMap
     ): string {
         switch (option) {
@@ -619,11 +619,6 @@ export abstract class BeatmapManager extends Manager {
                 const modifiedOD = NumberHelper.round(modifiedDifficulty.od, 2);
                 const modifiedHP = NumberHelper.round(modifiedDifficulty.hp, 2);
 
-                const maxScore =
-                    (option === 3
-                        ? beatmapInfo.beatmap?.maxDroidScore(mods)
-                        : beatmapInfo.beatmap?.maxOsuScore(mods)) ?? 0;
-
                 return `${bold("CS")}: ${beatmapInfo.cs}${
                     Precision.almostEqualsNumber(beatmapInfo.cs, modifiedCS)
                         ? ""
@@ -640,10 +635,6 @@ export abstract class BeatmapManager extends Manager {
                     Precision.almostEqualsNumber(beatmapInfo.hp, modifiedHP)
                         ? ""
                         : ` (${modifiedHP})`
-                }${
-                    maxScore > 0
-                        ? `\n${bold("Max Score")}: ${maxScore.toLocaleString()}`
-                        : ""
                 }`;
             }
 
@@ -785,7 +776,7 @@ export abstract class BeatmapManager extends Manager {
      *
      * Useful to make embed messages.
      */
-    static getStatusColor(status: RankedStatus): ColorResolvable {
+    static getStatusColor(status: RankedStatus): number {
         switch (status) {
             case RankedStatus.graveyard:
                 return 16711711; // Graveyard: red

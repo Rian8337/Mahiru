@@ -1,34 +1,25 @@
-import {
-    AuditLogEvent,
-    GuildAuditLogs,
-    GuildAuditLogsEntry,
-    GuildBan,
-    User,
-} from "discord.js";
-import { EventUtil } from "structures/core/EventUtil";
 import { Constants } from "@core/Constants";
 import { LoungeLockManager } from "@utils/managers/LoungeLockManager";
+import { AuditLogEvent, GuildBan, User } from "discord.js";
+import { EventUtil } from "structures/core/EventUtil";
 
 export const run: EventUtil["run"] = async (_, guildBan: GuildBan) => {
     if (guildBan.guild.id !== Constants.mainServer) {
         return;
     }
 
-    const auditLogEntries: GuildAuditLogs<AuditLogEvent.MemberBanAdd> =
-        await guildBan.guild.fetchAuditLogs({
-            limit: 1,
-            type: AuditLogEvent.MemberBanAdd,
-        });
+    const auditLogEntries = await guildBan.guild.fetchAuditLogs({
+        limit: 1,
+        type: AuditLogEvent.MemberBanAdd,
+    });
 
-    const banLog:
-        | GuildAuditLogsEntry<AuditLogEvent.MemberBanAdd, "Delete", "User">
-        | undefined = auditLogEntries.entries.first();
+    const banLog = auditLogEntries.entries.first();
 
     if (!banLog) {
         return;
     }
 
-    const target: User = banLog.target!;
+    const target = banLog.target as User;
 
     if (target.id !== guildBan.user.id) {
         return;
@@ -37,7 +28,7 @@ export const run: EventUtil["run"] = async (_, guildBan: GuildBan) => {
     await LoungeLockManager.lock(
         target.id,
         "Banned from server",
-        Number.POSITIVE_INFINITY,
+        Number.POSITIVE_INFINITY
     );
 };
 

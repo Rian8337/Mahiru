@@ -32,7 +32,7 @@ import { PPHelper } from "@utils/helpers/PPHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
-import { ApplicationCommandOptionType } from "discord.js";
+import { ApplicationCommandOptionType, TextDisplayBuilder } from "discord.js";
 import { SlashCommand } from "structures/core/SlashCommand";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
@@ -193,7 +193,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         });
     }
 
-    const calcEmbedOptions = EmbedCreator.createCalculationEmbed(
+    const options = EmbedCreator.createCalculationEmbed(
         beatmap,
         calcParams,
         droidCalcResult.attributes.difficulty,
@@ -242,12 +242,15 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     }
 
     if (string) {
-        calcEmbedOptions.content = string;
+        options.components = [
+            new TextDisplayBuilder().setContent(string),
+            ...options.components!,
+        ];
     }
 
     BeatmapManager.setChannelLatestBeatmap(interaction.channelId, beatmap.hash);
 
-    InteractionHelper.reply(interaction, calcEmbedOptions);
+    InteractionHelper.reply(interaction, options, true);
 };
 
 export const category: SlashCommand["category"] = CommandCategory.osu;

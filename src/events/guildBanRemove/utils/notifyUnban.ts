@@ -1,7 +1,7 @@
-import { GuildBan, AuditLogEvent } from "discord.js";
-import { EventUtil } from "structures/core/EventUtil";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { CacheManager } from "@utils/managers/CacheManager";
+import { AuditLogEvent, GuildBan } from "discord.js";
+import { EventUtil } from "structures/core/EventUtil";
 
 export const run: EventUtil["run"] = async (_, guildBan: GuildBan) => {
     const auditLogEntries = await guildBan.guild.fetchAuditLogs({
@@ -47,7 +47,7 @@ export const run: EventUtil["run"] = async (_, guildBan: GuildBan) => {
 
     if (unbanLog.executor) {
         embed.setAuthor({
-            name: unbanLog.executor.tag,
+            name: unbanLog.executor.tag!,
             iconURL: unbanLog.executor.avatarURL()!,
         });
     }
