@@ -232,19 +232,23 @@ export abstract class EmbedCreator {
                 new TextDisplayBuilder().setContent(
                     (Precision.almostEqualsNumber(
                         droidBeatmapDifficulty.cs,
-                        osuBeatmapDifficulty.cs
+                        osuBeatmapDifficulty.cs,
+                        1e-2
                     ) &&
                     Precision.almostEqualsNumber(
                         droidBeatmapDifficulty.ar,
-                        osuBeatmapDifficulty.ar
+                        osuBeatmapDifficulty.ar,
+                        1e-2
                     ) &&
                     Precision.almostEqualsNumber(
                         droidBeatmapDifficulty.od,
-                        osuBeatmapDifficulty.od
+                        osuBeatmapDifficulty.od,
+                        1e-2
                     ) &&
                     Precision.almostEqualsNumber(
                         droidBeatmapDifficulty.hp,
-                        osuBeatmapDifficulty.hp
+                        osuBeatmapDifficulty.hp,
+                        1e-2
                     )
                         ? BeatmapManager.showStatistics(beatmap, 3, mods)
                         : EmoteManager.osudroidLogo +
