@@ -157,8 +157,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                         beatmap.beatmapId,
                         Modes.osu,
                         PPCalculationMethod.rebalance,
-                        calcParams,
-                        true
+                        calcParams
                     )) ?? null;
             }
             break;
