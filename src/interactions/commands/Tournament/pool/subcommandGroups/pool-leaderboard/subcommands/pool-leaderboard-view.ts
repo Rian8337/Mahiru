@@ -1,7 +1,6 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import { Symbols } from "@enums/utils/Symbols";
 import { PoolLocalization } from "@localization/interactions/commands/Tournament/pool/PoolLocalization";
-import { ModUtil } from "@rian8337/osu-base";
 import { TournamentScore } from "@structures/tournament/TournamentScore";
 import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
@@ -11,7 +10,7 @@ import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { LocaleHelper } from "@utils/helpers/LocaleHelper";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { EmoteManager } from "@utils/managers/EmoteManager";
 import { GuildMember, bold } from "discord.js";
 import { SlashSubcommand } from "structures/core/SlashSubcommand";
 
@@ -70,7 +69,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         const arrow = Symbols.rightArrowSmall;
 
         return (
-            `${arrow} ${BeatmapManager.getRankEmote(
+            `${arrow} ${EmoteManager.getRankEmote(
                 score.score.rank
             )} ${arrow} ${(score.score.accuracy.value() * 100).toFixed(2)}%\n` +
             `${arrow} ${bold(

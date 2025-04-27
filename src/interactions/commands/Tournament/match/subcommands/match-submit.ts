@@ -8,7 +8,7 @@ import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { LocaleHelper } from "@utils/helpers/LocaleHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { EmoteManager } from "@utils/managers/EmoteManager";
 import { bold } from "discord.js";
 import { SlashSubcommand } from "structures/core/SlashSubcommand";
 
@@ -176,7 +176,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             [...score.mods.values()].map((v) => v.name).join(", ") || "NoMod"
         }): ${bold(
             scoreV2List.at(-1)!.toString()
-        )} - ${BeatmapManager.getRankEmote(score.rank)} - ${(
+        )} - ${EmoteManager.getRankEmote(score.rank)} - ${(
             score.accuracy.value() * 100
         ).toFixed(2)}% - ${score.accuracy.nmiss} ${Symbols.missIcon}\n`;
         const failString = `${match.player[i][0]} - (N/A): ${bold(

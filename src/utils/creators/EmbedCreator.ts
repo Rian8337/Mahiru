@@ -19,6 +19,7 @@ import {
     MapInfo,
     ModUtil,
     Modes,
+    Precision,
     Slider,
     SliderTail,
     SliderTick,
@@ -49,6 +50,7 @@ import { LocaleHelper } from "@utils/helpers/LocaleHelper";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { EmoteManager } from "@utils/managers/EmoteManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { ProfileManager } from "@utils/managers/ProfileManager";
 import { MusicQueue } from "@utils/music/MusicQueue";
@@ -145,6 +147,18 @@ export abstract class EmbedCreator {
         const mods = calculationParams?.mods;
         const totalDifficulty = beatmap.totalDifficulty ?? 0;
 
+        const droidBeatmapDifficulty = BeatmapManager.getDifficultyWithMods(
+            beatmap,
+            Modes.droid,
+            mods
+        );
+
+        const osuBeatmapDifficulty = BeatmapManager.getDifficultyWithMods(
+            beatmap,
+            Modes.osu,
+            mods
+        );
+
         const builder = new ContainerBuilder()
             .setAccentColor(
                 parseInt(
@@ -216,17 +230,30 @@ export abstract class EmbedCreator {
             .addSeparatorComponents(new SeparatorBuilder())
             .addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
-                    heading("Statistics", HeadingLevel.Three) +
-                        "\n" +
-                        bold("osu!droid") +
-                        "\n" +
-                        BeatmapManager.showStatistics(beatmap, 3, mods) +
-                        "\n\n" +
-                        bold("osu!") +
-                        "\n" +
-                        BeatmapManager.showStatistics(beatmap, 4, mods) +
-                        "\n\n" +
-                        bold("General") +
+                    (Precision.almostEqualsNumber(
+                        droidBeatmapDifficulty.cs,
+                        osuBeatmapDifficulty.cs
+                    ) &&
+                    Precision.almostEqualsNumber(
+                        droidBeatmapDifficulty.ar,
+                        osuBeatmapDifficulty.ar
+                    ) &&
+                    Precision.almostEqualsNumber(
+                        droidBeatmapDifficulty.od,
+                        osuBeatmapDifficulty.od
+                    ) &&
+                    Precision.almostEqualsNumber(
+                        droidBeatmapDifficulty.hp,
+                        osuBeatmapDifficulty.hp
+                    )
+                        ? BeatmapManager.showStatistics(beatmap, 3, mods)
+                        : EmoteManager.osudroidLogo +
+                          " | " +
+                          BeatmapManager.showStatistics(beatmap, 3, mods) +
+                          "\n" +
+                          EmoteManager.osuLazerLogo +
+                          " | " +
+                          BeatmapManager.showStatistics(beatmap, 4, mods)) +
                         "\n" +
                         BeatmapManager.showStatistics(beatmap, 5, mods) +
                         "\n" +
@@ -236,18 +263,11 @@ export abstract class EmbedCreator {
             .addSeparatorComponents(new SeparatorBuilder())
             .addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
-                    heading(
-                        localization.getTranslation("starRating"),
-                        HeadingLevel.Three
-                    ) +
-                        "\n" +
-                        `${Symbols.star.repeat(
-                            Math.floor(totalDifficulty)
-                        )} ${bold(
-                            `${totalDifficulty.toFixed(
-                                2
-                            )} ${localization.getTranslation("pcStars")}`
-                        )}`
+                    `${Symbols.star.repeat(Math.floor(totalDifficulty))} ${bold(
+                        `${totalDifficulty.toFixed(
+                            2
+                        )} ${localization.getTranslation("pcStars")}`
+                    )}`
                 )
             );
 
@@ -342,7 +362,8 @@ export abstract class EmbedCreator {
      * @param droidPerfAttribs The osu!droid performance attributes.
      * @param osuPerfAttribs The osu!standard performance attributes.
      * @param language The locale of the user who attempted to create the embed. Defaults to English.
-     * @param strainChart The strain chart of the beatmap, if any.
+     * @param droidStrainChart The osu!droid strain chart of the beatmap, if any.
+     * @param osuStrainChart The osu!standard strain chart of the beatmap, if any.
      * @returns The message options that contains the embed.
      */
     static createCalculationEmbed(
@@ -357,7 +378,8 @@ export abstract class EmbedCreator {
         droidPerfAttribs?: DroidPerformanceAttributes,
         osuPerfAttribs?: OsuPerformanceAttributes,
         language: Language = "en",
-        strainChart?: Buffer
+        droidStrainChart?: Buffer,
+        osuStrainChart?: Buffer
     ): BaseMessageOptions {
         const localization = this.getLocalization(language);
 
@@ -402,18 +424,11 @@ export abstract class EmbedCreator {
                 )
                 .addTextDisplayComponents(
                     new TextDisplayBuilder().setContent(
-                        heading(
-                            localization.getTranslation("result"),
-                            HeadingLevel.Three
-                        ) +
-                            "\n" +
-                            `${combo}/${droidDiffAttribs.maxCombo}x | ${(
-                                accuracy.value() * 100
-                            ).toFixed(
-                                2
-                            )}% | [${accuracy.n300}/${accuracy.n100}/${
-                                accuracy.n50
-                            }/${accuracy.nmiss}]` +
+                        `${combo}/${droidDiffAttribs.maxCombo}x | ${(
+                            accuracy.value() * 100
+                        ).toFixed(2)}% | [${accuracy.n300}/${accuracy.n100}/${
+                            accuracy.n50
+                        }/${accuracy.nmiss}]` +
                             "\n" +
                             `${bold(
                                 `${underline(droidPerfAttribs.total.toFixed(2))}dpp`
@@ -427,19 +442,11 @@ export abstract class EmbedCreator {
         } else {
             containerBuilder.addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
-                    heading(
-                        localization.getTranslation("starRating"),
-                        HeadingLevel.Three
-                    ) +
-                        "\n" +
-                        `${Symbols.star.repeat(
-                            Math.min(
-                                10,
-                                Math.floor(droidDiffAttribs.starRating)
-                            )
-                        )} ${droidDiffAttribs.starRating.toFixed(
-                            2
-                        )} ${localization.getTranslation("droidStars")}` +
+                    `${Symbols.star.repeat(
+                        Math.min(10, Math.floor(droidDiffAttribs.starRating))
+                    )} ${droidDiffAttribs.starRating.toFixed(
+                        2
+                    )} ${localization.getTranslation("droidStars")}` +
                         "\n" +
                         `${Symbols.star.repeat(
                             Math.min(10, Math.floor(osuDiffAttribs.starRating))
@@ -450,17 +457,39 @@ export abstract class EmbedCreator {
             );
         }
 
-        if (strainChart) {
-            containerBuilder.addMediaGalleryComponents(
-                new MediaGalleryBuilder().addItems(
-                    new MediaGalleryItemBuilder().setURL(
-                        "attachment://strain-chart.png"
-                    )
+        const mediaGalleryItems: MediaGalleryItemBuilder[] = [];
+
+        if (droidStrainChart) {
+            mediaGalleryItems.push(
+                new MediaGalleryItemBuilder().setURL(
+                    "attachment://droid-strain-chart.png"
                 )
             );
 
             files.push(
-                new AttachmentBuilder(strainChart, { name: "strain-chart.png" })
+                new AttachmentBuilder(droidStrainChart, {
+                    name: "droid-strain-chart.png",
+                })
+            );
+        }
+
+        if (osuStrainChart) {
+            mediaGalleryItems.push(
+                new MediaGalleryItemBuilder().setURL(
+                    "attachment://osu-strain-chart.png"
+                )
+            );
+
+            files.push(
+                new AttachmentBuilder(osuStrainChart, {
+                    name: "osu-strain-chart.png",
+                })
+            );
+        }
+
+        if (mediaGalleryItems.length > 0) {
+            containerBuilder.addMediaGalleryComponents(
+                new MediaGalleryBuilder().addItems(mediaGalleryItems)
             );
         }
 
@@ -564,7 +593,7 @@ export abstract class EmbedCreator {
                       )?.attributes;
         }
 
-        let beatmapInformation = `${arrow} ${BeatmapManager.getRankEmote(
+        let beatmapInformation = `${arrow} ${EmoteManager.getRankEmote(
             score instanceof Score || score instanceof RecentPlay
                 ? score.rank
                 : score.mark

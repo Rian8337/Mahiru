@@ -292,7 +292,10 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             }
 
             // TODO: allowedMentions is bugged, see https://github.com/discordjs/discord.js/pull/10852.
-            message.channel.send(options);
+            message.channel.send({
+                ...options,
+                flags: MessageFlags.IsComponentsV2,
+            });
         }
     }
 };

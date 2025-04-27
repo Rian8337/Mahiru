@@ -14,7 +14,7 @@ import { DroidHelper } from "@utils/helpers/DroidHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { LocaleHelper } from "@utils/helpers/LocaleHelper";
 import { NumberHelper } from "@utils/helpers/NumberHelper";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { EmoteManager } from "@utils/managers/EmoteManager";
 import { BaseMessageOptions, bold, Collection, EmbedBuilder } from "discord.js";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
@@ -57,7 +57,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     const getScoreDescription = (score: DanCourseLeaderboardScore): string => {
         return (
-            `${arrow} ${BeatmapManager.getRankEmote(
+            `${arrow} ${EmoteManager.getRankEmote(
                 score.rank
             )} ${arrow} ${NumberHelper.round(
                 new Accuracy({

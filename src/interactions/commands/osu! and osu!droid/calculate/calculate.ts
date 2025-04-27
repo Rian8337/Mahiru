@@ -133,9 +133,11 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         true
     > | null;
 
-    let osuCalcResult: CompleteCalculationAttributes<
-        IOsuDifficultyAttributes | IRebalanceOsuDifficultyAttributes,
-        OsuPerformanceAttributes
+    let osuCalcResult: PPProcessorCalculationResponse<
+        CompleteCalculationAttributes<
+            IOsuDifficultyAttributes | IRebalanceOsuDifficultyAttributes,
+            OsuPerformanceAttributes
+        >
     > | null = null;
 
     switch (interaction.options.getInteger("calculationmethod")) {
@@ -151,14 +153,13 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
             if (droidCalcResult) {
                 osuCalcResult =
-                    (
-                        await PPProcessorRESTManager.getPerformanceAttributes(
-                            beatmap.beatmapId,
-                            Modes.osu,
-                            PPCalculationMethod.rebalance,
-                            calcParams
-                        )
-                    )?.attributes ?? null;
+                    (await PPProcessorRESTManager.getPerformanceAttributes(
+                        beatmap.beatmapId,
+                        Modes.osu,
+                        PPCalculationMethod.rebalance,
+                        calcParams,
+                        true
+                    )) ?? null;
             }
             break;
 
@@ -174,14 +175,12 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
             if (droidCalcResult) {
                 osuCalcResult =
-                    (
-                        await PPProcessorRESTManager.getPerformanceAttributes(
-                            beatmap.beatmapId,
-                            Modes.osu,
-                            PPCalculationMethod.live,
-                            calcParams
-                        )
-                    )?.attributes ?? null;
+                    (await PPProcessorRESTManager.getPerformanceAttributes(
+                        beatmap.beatmapId,
+                        Modes.osu,
+                        PPCalculationMethod.live,
+                        calcParams
+                    )) ?? null;
             }
     }
 
@@ -197,9 +196,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         beatmap,
         calcParams,
         droidCalcResult.attributes.difficulty,
-        osuCalcResult.difficulty,
+        osuCalcResult.attributes.difficulty,
         droidCalcResult.attributes.performance,
-        osuCalcResult.performance,
+        osuCalcResult.attributes.performance,
         localization.language,
         Buffer.from(droidCalcResult.strainChart)
     );
@@ -229,15 +228,15 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             interaction.options.getInteger("calculationmethod") ===
             PPCalculationMethod.rebalance
                 ? PPHelper.getRebalanceOsuDifficultyAttributesInfo(
-                      osuCalcResult.difficulty
+                      osuCalcResult.attributes.difficulty
                   )
                 : PPHelper.getOsuDifficultyAttributesInfo(
-                      osuCalcResult.difficulty
+                      osuCalcResult.attributes.difficulty
                   )
         }\n${localization.getTranslation(
             "rawPcPp"
         )}: ${PPHelper.getOsuPerformanceAttributesInfo(
-            osuCalcResult.performance
+            osuCalcResult.attributes.performance
         )}`;
     }
 

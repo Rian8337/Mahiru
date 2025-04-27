@@ -19,6 +19,7 @@ import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { EmoteManager } from "@utils/managers/EmoteManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import {
     BaseMessageOptions,
@@ -113,7 +114,7 @@ export abstract class ScoreDisplayHelper {
                               nmiss: score.miss,
                           });
 
-                let fieldName = `${i + 1}. ${BeatmapManager.getRankEmote(
+                let fieldName = `${i + 1}. ${EmoteManager.getRankEmote(
                     score instanceof Score || score instanceof RecentPlay
                         ? score.rank
                         : score.mark
@@ -328,7 +329,7 @@ export abstract class ScoreDisplayHelper {
             const attribs = await getCalculationResult(score);
 
             return (
-                `${arrow} ${BeatmapManager.getRankEmote(score.rank)} ${
+                `${arrow} ${EmoteManager.getRankEmote(score.rank)} ${
                     attribs[0] && attribs[1]
                         ? `${arrow} ${bold(
                               `${attribs[0].performance.total.toFixed(
