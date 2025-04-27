@@ -14,7 +14,7 @@ import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 
 export const run: SlashCommand["run"] = async (client, interaction) => {
     const localization: BotinfoLocalization = new BotinfoLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const embed: EmbedBuilder = EmbedCreator.createNormalEmbed({
@@ -29,7 +29,6 @@ export const run: SlashCommand["run"] = async (client, interaction) => {
             | "osu-rebalance-difficulty-calculator"
             | "osu-droid-replay-analyzer"
             | "osu-droid-utilities"
-            | "osu-strain-graph-generator",
     ): string => {
         let version: string = (
             packages[`node_modules/@rian8337/${moduleName}`] ??
@@ -55,20 +54,20 @@ export const run: SlashCommand["run"] = async (client, interaction) => {
                 "https://github.com/NeroYuki",
                 "https://osudroid.moe",
                 "https://discord.gg/nyD92cE",
-                "https://ko-fi.com/rian8337",
-            ),
+                "https://ko-fi.com/rian8337"
+            )
         )
         .addFields(
             {
                 name: localization.getTranslation("botInfo"),
                 value:
                     `${localization.getTranslation(
-                        "botVersion",
+                        "botVersion"
                     )}: ${version}\n` +
                     `${localization.getTranslation(
-                        "botUptime",
+                        "botUptime"
                     )}: ${DateTimeFormatHelper.secondsToDHMS(
-                        client.uptime / 1000,
+                        client.uptime / 1000
                     )}`,
             },
             {
@@ -80,45 +79,38 @@ export const run: SlashCommand["run"] = async (client, interaction) => {
                 value:
                     `${localization.getTranslation("discordJs")}: ${hyperlink(
                         packages["node_modules/discord.js"].version,
-                        "https://discord.js.org",
+                        "https://discord.js.org"
                     )}\n` +
                     `${localization.getTranslation("typescript")}: ${hyperlink(
                         packages["node_modules/typescript"].version,
-                        "https://typescriptlang.org",
+                        "https://typescriptlang.org"
                     )}`,
             },
             {
                 name: localization.getTranslation("osuLibraries"),
                 value:
                     `${localization.getTranslation(
-                        "osuBase",
+                        "osuBase"
                     )}: ${getOsuModuleVersionAndSource("osu-base")}\n` +
                     `${localization.getTranslation(
-                        "osuDiffCalc",
+                        "osuDiffCalc"
                     )}: ${getOsuModuleVersionAndSource(
-                        "osu-difficulty-calculator",
+                        "osu-difficulty-calculator"
                     )}\n` +
                     `${localization.getTranslation(
-                        "osuRebalDiffCalc",
+                        "osuRebalDiffCalc"
                     )}: ${getOsuModuleVersionAndSource(
-                        "osu-rebalance-difficulty-calculator",
+                        "osu-rebalance-difficulty-calculator"
                     )}\n` +
                     `${localization.getTranslation(
-                        "osuDroidReplayAnalyzer",
+                        "osuDroidReplayAnalyzer"
                     )}: ${getOsuModuleVersionAndSource(
-                        "osu-droid-replay-analyzer",
+                        "osu-droid-replay-analyzer"
                     )}\n` +
                     `${localization.getTranslation(
-                        "osuDroidUtilities",
-                    )}: ${getOsuModuleVersionAndSource(
-                        "osu-droid-utilities",
-                    )}\n` +
-                    `${localization.getTranslation(
-                        "osuStrainGraphGenerator",
-                    )}: ${getOsuModuleVersionAndSource(
-                        "osu-strain-graph-generator",
-                    )}`,
-            },
+                        "osuDroidUtilities"
+                    )}: ${getOsuModuleVersionAndSource("osu-droid-utilities")}`,
+            }
         );
 
     InteractionHelper.reply(interaction, {
