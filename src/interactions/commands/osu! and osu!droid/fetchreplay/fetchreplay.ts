@@ -4,15 +4,7 @@ import { CommandCategory } from "@enums/core/CommandCategory";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { FetchreplayLocalization } from "@localization/interactions/commands/osu! and osu!droid/fetchreplay/FetchreplayLocalization";
-import {
-    Accuracy,
-    DroidLegacyModConverter,
-    MapInfo,
-    ModCustomSpeed,
-    ModDifficultyAdjust,
-    Modes,
-    ModUtil,
-} from "@rian8337/osu-base";
+import { Accuracy, Modes } from "@rian8337/osu-base";
 import { ExportedReplayJSONV2 } from "@rian8337/osu-droid-replay-analyzer";
 import { Score } from "@rian8337/osu-droid-utilities";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
@@ -23,7 +15,6 @@ import { DroidHelper } from "@utils/helpers/DroidHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { LocaleHelper } from "@utils/helpers/LocaleHelper";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
-import { StringHelper } from "@utils/helpers/StringHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { ProfileManager } from "@utils/managers/ProfileManager";
@@ -32,12 +23,12 @@ import {
     ApplicationCommandOptionType,
     AttachmentBuilder,
     ContainerBuilder,
-    EmbedBuilder,
     FileBuilder,
     heading,
     HeadingLevel,
     hideLinkEmbed,
     hyperlink,
+    SeparatorBuilder,
     TextDisplayBuilder,
 } from "discord.js";
 import { SlashCommand } from "structures/core/SlashCommand";
@@ -50,7 +41,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     const beatmapLink = interaction.options.getString("beatmap", true);
     const beatmapID = BeatmapManager.getBeatmapID(beatmapLink)[0];
     let uid = interaction.options.getInteger("uid");
-    let hash = beatmapLink?.startsWith("h:") ? beatmapLink.slice(2) : "";
+    let hash = beatmapLink.startsWith("h:") ? beatmapLink.slice(2) : "";
 
     if (!beatmapID && !hash) {
         return InteractionHelper.reply(interaction, {
@@ -87,7 +78,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     await InteractionHelper.deferReply(interaction);
 
-    const beatmapInfo: MapInfo | null = await BeatmapManager.getBeatmap(
+    const beatmapInfo = await BeatmapManager.getBeatmap(
         hash ? hash : beatmapID,
         { checkFile: false }
     );
@@ -154,7 +145,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     const zip = new AdmZip();
 
-    zip.addFile(`${score.id}.odr`, replay.originalODR!);
+    zip.addFile(`${score.id.toString()}.odr`, replay.originalODR!);
 
     let modstring: string;
 
@@ -180,7 +171,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         replaydata: {
             filename: `${data.folderName}\\/${data.fileName}`,
             playername: data.isReplayV3() ? data.playerName : username,
-            replayfile: `${score.id}.odr`,
+            replayfile: `${score.id.toString()}.odr`,
             beatmapMD5: score.hash,
             mod: modstring,
             score: score.score,
@@ -199,9 +190,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     zip.addFile("entry.json", Buffer.from(JSON.stringify(json, null, 2)));
 
-    const replayFilename = `${data.fileName.substring(0, data.fileName.length - 4)} [${
-        data.isReplayV3() ? data.playerName : username
-    }]-${json.replaydata.time}.edr`;
+    const replayFilename = `replay-${score.id.toString()}.edr`;
 
     const replayAttachment = new AttachmentBuilder(zip.toBuffer(), {
         name: replayFilename,
@@ -291,13 +280,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         Buffer.from(droidAttribs.strainChart)
     );
 
-    replay.beatmap ??= beatmapInfo.beatmap ?? undefined;
-
-    const hitErrorInformation = replay.calculateHitError();
-
     options.components = [
         new TextDisplayBuilder().setContent(
-            StringHelper.formatString(
+            MessageCreator.createAccept(
                 localization.getTranslation("playInfo"),
                 hyperlink(
                     username,
@@ -312,20 +297,18 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         options.components.length - 1
     ] as ContainerBuilder;
 
+    const hitErrorInformation = droidAttribs.attributes.replay?.hitError;
+
     if (hitErrorInformation) {
-        options.components = options.components.concat(
-            new ContainerBuilder()
-                .setAccentColor(containerBuilder.data.accent_color!)
-                .addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent(
-                        heading(
-                            localization.getTranslation("hitErrorInfo"),
-                            HeadingLevel.Three
-                        )
-                    )
-                )
-                .addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent(
+        containerBuilder
+            .addSeparatorComponents(new SeparatorBuilder())
+            .addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(
+                    heading(
+                        localization.getTranslation("hitErrorInfo"),
+                        HeadingLevel.Three
+                    ) +
+                        "\n" +
                         `${hitErrorInformation.negativeAvg.toFixed(
                             2
                         )}ms - ${hitErrorInformation.positiveAvg.toFixed(
@@ -333,22 +316,18 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                         )}ms ${localization.getTranslation(
                             "hitErrorAvg"
                         )} | ${hitErrorInformation.unstableRate.toFixed(2)} UR`
-                    )
                 )
-                .addFileComponents(
-                    new FileBuilder().setURL(`attachment://${replayFilename}`)
-                )
-        );
-    } else {
-        containerBuilder.addFileComponents(
-            new FileBuilder().setURL(`attachment://${replayFilename}`)
-        );
+            );
     }
+
+    containerBuilder.addFileComponents(
+        new FileBuilder().setURL(`attachment://${replayFilename}`)
+    );
 
     options.files ??= [];
     options.files = options.files.concat(replayAttachment);
 
-    InteractionHelper.reply(interaction, options);
+    await InteractionHelper.reply(interaction, options, true);
 };
 
 export const category: SlashCommand["category"] = CommandCategory.osu;
