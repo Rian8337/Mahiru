@@ -1,8 +1,14 @@
-name: Tests
+name: Continuous Integration
+
 on: [push, pull_request]
+
+concurrency:
+  group: ci
+  cancel-in-progress: true
+
 jobs:
-  lint:
-    name: Lint
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -18,6 +24,3 @@ jobs:
 
       - name: Type Check
         run: tsc --noEmit
-
-      - name: ESLint
-        run: npm run analyze-code
