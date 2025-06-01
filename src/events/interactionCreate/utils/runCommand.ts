@@ -22,14 +22,14 @@ import { consola } from "consola";
 
 export const run: EventUtil["run"] = async (
     client,
-    interaction: BaseInteraction,
+    interaction: BaseInteraction
 ) => {
     if (!interaction.isChatInputCommand()) {
         return;
     }
 
     const localization = new RunCommandLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const botOwnerExecution = CommandHelper.isExecutedByBotOwner(interaction);
@@ -37,7 +37,7 @@ export const run: EventUtil["run"] = async (
     if (Config.isDebug && !botOwnerExecution) {
         return interaction.reply({
             content: MessageCreator.createReject(
-                localization.getTranslation("debugModeActive"),
+                localization.getTranslation("debugModeActive")
             ),
             ephemeral: true,
         });
@@ -48,7 +48,7 @@ export const run: EventUtil["run"] = async (
     if (!command) {
         return interaction.reply({
             content: MessageCreator.createReject(
-                localization.getTranslation("commandNotFound"),
+                localization.getTranslation("commandNotFound")
             ),
             ephemeral: true,
         });
@@ -60,8 +60,8 @@ export const run: EventUtil["run"] = async (
             content: MessageCreator.createReject(
                 StringHelper.formatString(
                     localization.getTranslation("maintenanceMode"),
-                    Config.maintenanceReason,
-                ),
+                    Config.maintenanceReason
+                )
             ),
             ephemeral: true,
         });
@@ -72,19 +72,17 @@ export const run: EventUtil["run"] = async (
         command.config.permissions &&
         !CommandHelper.userFulfillsCommandPermission(
             interaction,
-            command.config.permissions,
+            command.config.permissions
         )
     ) {
         return interaction.reply({
             content: MessageCreator.createReject(
                 `${new ConstantsLocalization(
-                    localization.language,
+                    localization.language
                 ).getTranslation(
-                    Constants.noPermissionReject,
+                    Constants.noPermissionReject
                 )} ${localization.getTranslation("requiredPermissions")}`,
-                PermissionHelper.getPermissionString(
-                    command.config.permissions,
-                ),
+                PermissionHelper.getPermissionString(command.config.permissions)
             ),
             ephemeral: true,
         });
@@ -104,7 +102,7 @@ export const run: EventUtil["run"] = async (
         ) {
             return interaction.reply({
                 content: MessageCreator.createReject(
-                    localization.getTranslation("commandInCooldown"),
+                    localization.getTranslation("commandInCooldown")
                 ),
                 ephemeral: true,
             });
@@ -124,28 +122,28 @@ export const run: EventUtil["run"] = async (
             // Channel command cooldown
             CommandUtilManager.channelDisabledCommands
                 .get(interaction.channelId)
-                ?.get(interaction.commandName)?.cooldown ?? 0,
+                ?.get(interaction.commandName)?.cooldown ?? 0
         );
 
         const globalCooldown = Math.max(
             // Global command cooldown
             CommandUtilManager.globallyDisabledCommands.get(
-                interaction.commandName,
+                interaction.commandName
             ) ?? 0,
             // Global cooldown
-            CommandUtilManager.globalCommandCooldown,
+            CommandUtilManager.globalCommandCooldown
         );
 
         CommandHelper.setCooldown(
             globalCooldown > channelCooldown ||
                 (globalCooldown === channelCooldown &&
                     (CommandUtilManager.globallyDisabledCommands.get(
-                        interaction.commandName,
+                        interaction.commandName
                     ) ||
                         CommandUtilManager.globalCommandCooldown))
                 ? globalCooldownKey
                 : channelCooldownKey,
-            Math.max(channelCooldown, globalCooldown),
+            Math.max(channelCooldown, globalCooldown)
         );
     }
 
@@ -230,7 +228,7 @@ export const run: EventUtil["run"] = async (
     command.run(client, interaction).catch((e: Error) => {
         InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("commandExecutionFailed"),
+                localization.getTranslation("commandExecutionFailed")
             ),
         });
 

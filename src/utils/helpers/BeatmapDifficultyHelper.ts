@@ -219,7 +219,7 @@ export abstract class BeatmapDifficultyHelper<
             const customSpeed =
                 mods.get(ModCustomSpeed) ?? new ModCustomSpeed();
 
-            customSpeed.trackRateMultiplier = customSpeedMultiplier;
+            customSpeed.trackRateMultiplier.value = customSpeedMultiplier;
 
             mods.set(customSpeed);
         }

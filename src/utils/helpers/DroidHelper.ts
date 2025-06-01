@@ -481,20 +481,20 @@ export abstract class DroidHelper {
         const difficultyAdjust = mods.get(ModDifficultyAdjust);
 
         if (customSpeed) {
-            modstring += `|${customSpeed.trackRateMultiplier.toFixed(2)}`;
+            modstring += `|${customSpeed.trackRateMultiplier.value.toFixed(2)}`;
         }
 
-        if (difficultyAdjust?.cs !== undefined) {
-            modstring += `|CS${difficultyAdjust.cs.toFixed(1)}`;
+        if (typeof difficultyAdjust?.cs.value === "number") {
+            modstring += `|CS${difficultyAdjust.cs.value.toFixed(1)}`;
         }
-        if (difficultyAdjust?.ar !== undefined) {
-            modstring += `|AR${difficultyAdjust.ar.toFixed(1)}`;
+        if (typeof difficultyAdjust?.ar.value === "number") {
+            modstring += `|AR${difficultyAdjust.ar.value.toFixed(1)}`;
         }
-        if (difficultyAdjust?.od !== undefined) {
-            modstring += `|OD${difficultyAdjust.od.toFixed(1)}`;
+        if (typeof difficultyAdjust?.od.value === "number") {
+            modstring += `|OD${difficultyAdjust.od.value.toFixed(1)}`;
         }
-        if (difficultyAdjust?.hp !== undefined) {
-            modstring += `|HP${difficultyAdjust.hp.toFixed(1)}`;
+        if (typeof difficultyAdjust?.hp.value === "number") {
+            modstring += `|HP${difficultyAdjust.hp.value.toFixed(1)}`;
         }
 
         return modstring;

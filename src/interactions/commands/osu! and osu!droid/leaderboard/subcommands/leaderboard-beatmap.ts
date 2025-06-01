@@ -10,25 +10,23 @@ import { BeatmapLeaderboardSortMode } from "@enums/interactions/BeatmapLeaderboa
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new LeaderboardLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const beatmapID = BeatmapManager.getBeatmapID(
-        interaction.options.getString("beatmap") ?? "",
+        interaction.options.getString("beatmap") ?? ""
     )[0];
 
     let hash = BeatmapManager.getChannelLatestBeatmap(interaction.channelId);
 
     const page = interaction.options.getInteger("page") ?? 1;
-    const order = <BeatmapLeaderboardSortMode>(
-        (interaction.options.getInteger("order") ??
-            BeatmapLeaderboardSortMode.score)
-    );
+    const order = (interaction.options.getInteger("order") ??
+        BeatmapLeaderboardSortMode.score) as BeatmapLeaderboardSortMode;
 
     if (!beatmapID && !hash) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noBeatmapFound"),
+                localization.getTranslation("noBeatmapFound")
             ),
         });
     }
@@ -36,7 +34,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!NumberHelper.isPositive(page)) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("invalidPage"),
+                localization.getTranslation("invalidPage")
             ),
         });
     }
@@ -44,7 +42,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     await InteractionHelper.deferReply(interaction);
 
     if (beatmapID) {
-        const beatmapInfo = await BeatmapManager.getBeatmap(beatmapID ?? hash, {
+        const beatmapInfo = await BeatmapManager.getBeatmap(beatmapID, {
             checkFile: false,
         });
 
@@ -54,7 +52,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!hash) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noBeatmapFound"),
+                localization.getTranslation("noBeatmapFound")
             ),
         });
     }

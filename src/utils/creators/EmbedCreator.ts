@@ -526,7 +526,6 @@ export abstract class EmbedCreator {
                   | "mode"
                   | "date"
                   | "filename"
-                  | "hash"
                   | "perfect"
                   | "good"
                   | "bad"

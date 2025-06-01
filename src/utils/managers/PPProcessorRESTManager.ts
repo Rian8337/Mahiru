@@ -450,6 +450,10 @@ export abstract class PPProcessorRESTManager extends RESTManager {
     > | null> {
         const url = new URL(`${this.endpoint}get-online-score-attributes`);
 
+        // const url = new URL(
+        //     `${calculationMethod === PPCalculationMethod.rebalance ? "http://localhost:3006/api/dpp/processor" : "https://droidpp.osudroid.moe/api/dpp/processor"}/get-online-score-attributes`
+        // );
+
         url.searchParams.set("key", process.env.DROID_SERVER_INTERNAL_KEY!);
         url.searchParams.set("uid", uid.toString());
         url.searchParams.set("hash", hash);

@@ -1,10 +1,8 @@
-import { NumberHelper } from "@utils/helpers/NumberHelper";
 import {
     BeatmapMetadata,
     DroidHitWindow,
     HitWindow,
     Interpolation,
-    Modes,
     PlaceableHitObject,
     Playfield,
     RGBColor,
@@ -20,6 +18,7 @@ import {
     MovementType,
     ReplayObjectData,
 } from "@rian8337/osu-droid-replay-analyzer";
+import { NumberHelper } from "@utils/helpers/NumberHelper";
 import { Canvas } from "canvas";
 
 /**
@@ -153,7 +152,7 @@ export class MissInformation {
         cursorGroups: CursorOccurrenceGroup[][],
         verdict?: string,
         closestCursorPosition?: Vector2,
-        closestHit?: number,
+        closestHit?: number
     ) {
         this.metadata = metadata;
         this.object = object;
@@ -219,17 +218,17 @@ export class MissInformation {
         context.fillText(
             `${this.metadata.artist} - ${this.metadata.title} [${this.metadata.version}]`,
             textPadding,
-            textPadding + 10,
+            textPadding + 10
         );
         context.fillText(
             `Object ${this.objectIndex + 1} of ${this.totalObjects}`,
             5,
-            textPadding + 40,
+            textPadding + 40
         );
         context.fillText(
             `Miss ${this.missIndex + 1} of ${this.totalMisses}`,
             5,
-            textPadding + 70,
+            textPadding + 70
         );
 
         let startTime = Math.floor(this.object.startTime / this.clockRate);
@@ -245,7 +244,7 @@ export class MissInformation {
                 .toString()
                 .padStart(2, "0")}.${startTime.toString().padStart(3, "0")}`,
             textPadding,
-            985 - textPadding,
+            985 - textPadding
         );
 
         if (this.verdict) {
@@ -255,7 +254,7 @@ export class MissInformation {
                 this.canvas.width -
                     textPadding -
                     context.measureText(verdictText).width,
-                (this.closestHit !== undefined ? 955 : 985) - textPadding,
+                (this.closestHit !== undefined ? 955 : 985) - textPadding
             );
         }
 
@@ -275,7 +274,7 @@ export class MissInformation {
             if (this.closestCursorPosition) {
                 const distanceToObject =
                     this.closestCursorPosition.getDistance(
-                        this.object.getStackedPosition(Modes.droid),
+                        this.object.stackedPosition
                     ) - this.object.radius;
 
                 if (distanceToObject > 0) {
@@ -292,7 +291,7 @@ export class MissInformation {
                 this.canvas.width -
                     textPadding -
                     context.measureText(closestHitText).width,
-                985 - textPadding,
+                985 - textPadding
             );
         }
 
@@ -317,7 +316,7 @@ export class MissInformation {
         context.translate(
             // Put (0, 0) in the top-left corner of the playfield.
             (this.canvas.width - scaledPlayfieldX) / 2,
-            (this.canvas.height - scaledPlayfieldY) / 2,
+            (this.canvas.height - scaledPlayfieldY) / 2
         );
         context.scale(this.playfieldScale, this.playfieldScale);
         context.lineWidth = 3;
@@ -334,14 +333,14 @@ export class MissInformation {
             this.drawObject(
                 this.previousObjects[i],
                 this.previousObjectData[i].result,
-                i + 1,
+                i + 1
             );
         }
 
         this.drawObject(
             this.object,
             HitResult.miss,
-            this.previousObjects.length + 1,
+            this.previousObjects.length + 1
         );
     }
 
@@ -355,7 +354,7 @@ export class MissInformation {
     private drawObject(
         object: PlaceableHitObject,
         objectHitResult: HitResult,
-        objectIndex: number,
+        objectIndex: number
     ): void {
         if (!this.canvas) {
             return;
@@ -396,7 +395,7 @@ export class MissInformation {
 
         const context = this.canvas.getContext("2d");
 
-        const startPosition = object.getStackedPosition(Modes.droid);
+        const startPosition = object.stackedPosition;
         const { radius } = object;
         const circleBorder = radius / 8;
         const shadowBlur = radius / 16;
@@ -450,9 +449,7 @@ export class MissInformation {
                     continue;
                 }
 
-                const drawPosition = nestedObject.getStackedPosition(
-                    Modes.droid,
-                );
+                const drawPosition = nestedObject.stackedPosition;
 
                 context.beginPath();
                 context.arc(
@@ -460,7 +457,7 @@ export class MissInformation {
                     drawPosition.y,
                     radius / 16,
                     0,
-                    2 * Math.PI,
+                    2 * Math.PI
                 );
                 context.stroke();
                 context.closePath();
@@ -477,7 +474,7 @@ export class MissInformation {
             startPosition.y,
             radius - circleBorder / 2,
             0,
-            2 * Math.PI,
+            2 * Math.PI
         );
         context.fill();
 
@@ -495,7 +492,7 @@ export class MissInformation {
         context.fillText(
             objectIndex.toString(),
             startPosition.x,
-            startPosition.y,
+            startPosition.y
         );
     }
 
@@ -510,7 +507,7 @@ export class MissInformation {
         const context = this.canvas.getContext("2d");
         const centerCoordinate = new Vector2(
             Playfield.baseSize.x / 2,
-            Playfield.baseSize.y * 1.1,
+            Playfield.baseSize.y * 1.1
         );
 
         context.globalAlpha = 1;
@@ -527,7 +524,7 @@ export class MissInformation {
 
         const drawBar = (
             ms: number,
-            hitResult: Exclude<HitResult, HitResult.miss>,
+            hitResult: Exclude<HitResult, HitResult.miss>
         ): void => {
             const drawDistance = calculateDrawDistance(ms);
 
@@ -535,11 +532,11 @@ export class MissInformation {
             context.beginPath();
             context.moveTo(
                 centerCoordinate.x - drawDistance,
-                centerCoordinate.y,
+                centerCoordinate.y
             );
             context.lineTo(
                 centerCoordinate.x + drawDistance,
-                centerCoordinate.y,
+                centerCoordinate.y
             );
             context.stroke();
             context.closePath();
@@ -556,11 +553,11 @@ export class MissInformation {
         context.beginPath();
         context.moveTo(
             centerCoordinate.x,
-            centerCoordinate.y - Playfield.baseSize.y / 20,
+            centerCoordinate.y - Playfield.baseSize.y / 20
         );
         context.lineTo(
             centerCoordinate.x,
-            centerCoordinate.y + Playfield.baseSize.y / 20,
+            centerCoordinate.y + Playfield.baseSize.y / 20
         );
         context.stroke();
         context.closePath();
@@ -590,7 +587,7 @@ export class MissInformation {
             }
 
             const distanceFromCenter = calculateDrawDistance(
-                objectData.accuracy,
+                objectData.accuracy
             );
 
             context.globalAlpha = NumberHelper.clamp(
@@ -598,20 +595,20 @@ export class MissInformation {
                     Math.pow(
                         (this.object.startTime - prevObject.startTime) /
                             this.object.timePreempt,
-                        2,
+                        2
                     ),
                 0.15,
-                1,
+                1
             );
             context.strokeStyle = `rgb(${this.hitColors[objectData.result]})`;
             context.beginPath();
             context.moveTo(
                 centerCoordinate.x + distanceFromCenter,
-                centerCoordinate.y - Playfield.baseSize.y / 30,
+                centerCoordinate.y - Playfield.baseSize.y / 30
             );
             context.lineTo(
                 centerCoordinate.x + distanceFromCenter,
-                centerCoordinate.y + Playfield.baseSize.y / 30,
+                centerCoordinate.y + Playfield.baseSize.y / 30
             );
             context.stroke();
             context.closePath();
@@ -701,7 +698,7 @@ export class MissInformation {
                     }
 
                     const drawPosition = this.flipVectorVertically(
-                        occurrence.position,
+                        occurrence.position
                     );
 
                     if (occurrence.id === MovementType.down) {
@@ -714,18 +711,18 @@ export class MissInformation {
                             drawPosition.y,
                             5,
                             0,
-                            2 * Math.PI,
+                            2 * Math.PI
                         );
                         context.fill();
                         context.closePath();
                     } else {
                         const prevOccurrence = allOccurrences[j - 1];
                         const previousDrawPosition = this.flipVectorVertically(
-                            prevOccurrence.position,
+                            prevOccurrence.position
                         );
 
                         travelDistance += occurrence.position.getDistance(
-                            prevOccurrence.position,
+                            prevOccurrence.position
                         );
 
                         applyHitColor(prevOccurrence.time);
@@ -733,7 +730,7 @@ export class MissInformation {
                         context.beginPath();
                         context.moveTo(
                             previousDrawPosition.x,
-                            previousDrawPosition.y,
+                            previousDrawPosition.y
                         );
                         context.lineTo(drawPosition.x, drawPosition.y);
                         context.stroke();
@@ -764,7 +761,7 @@ export class MissInformation {
                                 const cursorPosition = Interpolation.lerp(
                                     prevOccurrence.position,
                                     occurrence.position,
-                                    t,
+                                    t
                                 );
 
                                 const cursorDrawPosition =
@@ -779,7 +776,7 @@ export class MissInformation {
                                     cursorDrawPosition.y,
                                     5,
                                     0,
-                                    2 * Math.PI,
+                                    2 * Math.PI
                                 );
                                 context.stroke();
                                 context.closePath();
@@ -790,13 +787,13 @@ export class MissInformation {
                         if (travelDistance >= arrowDistanceRate) {
                             // Draw direction arrow.
                             const displacement = occurrence.position.subtract(
-                                prevOccurrence.position,
+                                prevOccurrence.position
                             );
                             const drawDisplacement =
                                 drawPosition.subtract(previousDrawPosition);
                             const angle = Math.atan2(
                                 drawDisplacement.y,
-                                drawDisplacement.x,
+                                drawDisplacement.x
                             );
 
                             const prevDistanceTravelled =
@@ -814,7 +811,7 @@ export class MissInformation {
                                 const cursorTime = Interpolation.lerp(
                                     prevOccurrence.time,
                                     occurrence.time,
-                                    t,
+                                    t
                                 );
                                 const timeOffset =
                                     cursorTime - this.object.startTime;
@@ -829,14 +826,14 @@ export class MissInformation {
                                             Interpolation.lerp(
                                                 prevOccurrence.position.x,
                                                 occurrence.position.x,
-                                                t,
+                                                t
                                             ),
                                             Interpolation.lerp(
                                                 prevOccurrence.position.y,
                                                 occurrence.position.y,
-                                                t,
-                                            ),
-                                        ),
+                                                t
+                                            )
+                                        )
                                     );
                                 const headLength = 10;
 
@@ -858,7 +855,7 @@ export class MissInformation {
                                 context.beginPath();
                                 context.moveTo(
                                     cursorDrawPosition.x,
-                                    cursorDrawPosition.y,
+                                    cursorDrawPosition.y
                                 );
                                 context.lineTo(
                                     cursorDrawPosition.x -
@@ -866,11 +863,11 @@ export class MissInformation {
                                             Math.cos(angle - Math.PI / 6),
                                     cursorDrawPosition.y -
                                         headLength *
-                                            Math.sin(angle - Math.PI / 6),
+                                            Math.sin(angle - Math.PI / 6)
                                 );
                                 context.moveTo(
                                     cursorDrawPosition.x,
-                                    cursorDrawPosition.y,
+                                    cursorDrawPosition.y
                                 );
                                 context.lineTo(
                                     cursorDrawPosition.x -
@@ -878,7 +875,7 @@ export class MissInformation {
                                             Math.cos(angle + Math.PI / 6),
                                     cursorDrawPosition.y -
                                         headLength *
-                                            Math.sin(angle + Math.PI / 6),
+                                            Math.sin(angle + Math.PI / 6)
                                 );
                                 context.stroke();
                                 context.closePath();
@@ -903,7 +900,7 @@ export class MissInformation {
         const context = this.canvas.getContext("2d");
 
         const drawPosition = this.flipVectorVertically(
-            this.closestCursorPosition,
+            this.closestCursorPosition
         );
 
         const gradient = context.createRadialGradient(
@@ -912,7 +909,7 @@ export class MissInformation {
             0,
             drawPosition.x,
             drawPosition.y,
-            10,
+            10
         );
 
         gradient.addColorStop(0, "#ffffff");

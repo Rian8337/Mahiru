@@ -2,10 +2,7 @@ import {
     Beatmap,
     Circle,
     DroidPlayableBeatmap,
-    IModApplicableToDroid,
     Interpolation,
-    Mod,
-    Modes,
     ModHardRock,
     ModMap,
     ModUtil,
@@ -288,9 +285,9 @@ export class MissAnalyzer {
                 }
 
                 if (occurrence.id === MovementType.down) {
-                    const distanceToObject = object
-                        .getStackedPosition(Modes.droid)
-                        .getDistance(occurrence.position);
+                    const distanceToObject = object.stackedPosition.getDistance(
+                        occurrence.position
+                    );
 
                     if (acceptDistance(distanceToObject)) {
                         closestDistance = distanceToObject;
@@ -343,9 +340,10 @@ export class MissAnalyzer {
                                       )
                                     : occurrence.position;
 
-                            const distanceToObject: number = object
-                                .getStackedPosition(Modes.droid)
-                                .getDistance(cursorPosition);
+                            const distanceToObject: number =
+                                object.stackedPosition.getDistance(
+                                    cursorPosition
+                                );
 
                             if (acceptDistance(distanceToObject)) {
                                 closestDistance = distanceToObject;
