@@ -22,8 +22,10 @@ import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { EmoteManager } from "@utils/managers/EmoteManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import {
+    ActionRowBuilder,
     BaseMessageOptions,
     bold,
+    ButtonBuilder,
     Collection,
     ContainerBuilder,
     GuildMember,
@@ -214,9 +216,9 @@ export abstract class ScoreDisplayHelper {
     static async showBeatmapLeaderboard(
         interaction: RepliableInteraction,
         hash: string,
-        page: number = 1,
-        order: BeatmapLeaderboardSortMode = BeatmapLeaderboardSortMode.score,
-        cacheBeatmapToChannel: boolean = true
+        page = 1,
+        order = BeatmapLeaderboardSortMode.score,
+        cacheBeatmapToChannel = true
     ): Promise<void> {
         await InteractionHelper.deferReply(interaction);
 
@@ -256,7 +258,7 @@ export abstract class ScoreDisplayHelper {
 
         // Check first page first for score availability
         const firstPageScores = await DroidHelper.getBeatmapLeaderboard(
-            beatmapInfo?.hash ?? hash!,
+            beatmapInfo?.hash ?? hash,
             order
         );
 
@@ -375,7 +377,7 @@ export abstract class ScoreDisplayHelper {
             const scores =
                 leaderboardCache.get(actualPage) ??
                 (await DroidHelper.getBeatmapLeaderboard(
-                    beatmapInfo?.hash ?? hash!,
+                    beatmapInfo?.hash ?? hash,
                     order,
                     page
                 ));
@@ -392,8 +394,10 @@ export abstract class ScoreDisplayHelper {
                   )
                 : { components: [new ContainerBuilder()] };
 
-            const containerBuilder = newOptions
-                .components![0] as ContainerBuilder;
+            const newComponents = newOptions.components!.slice();
+            newOptions.components = newComponents;
+
+            const containerBuilder = newComponents[0] as ContainerBuilder;
 
             containerBuilder.spliceComponents(
                 containerBuilder.components.length - 1,
@@ -430,30 +434,29 @@ export abstract class ScoreDisplayHelper {
                     .addSeparatorComponents(new SeparatorBuilder());
             }
 
-            containerBuilder
-                .addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent(
-                        heading(
-                            localization.getTranslation("topScore"),
-                            HeadingLevel.Three
-                        ) +
-                            "\n" +
-                            `${bold(
-                                `${topScore.username}${
-                                    !topScore.mods.isEmpty
-                                        ? ` (${topScore.completeModString})`
-                                        : ""
-                                }`
-                            )}\n` +
-                            (await getScoreDescription(topScore))
-                    )
-                )
-                .addSeparatorComponents(new SeparatorBuilder());
-
             const displayedScores = scores.slice(
                 5 * pageRemainder,
                 5 + 5 * pageRemainder
             );
+
+            if (options.components) {
+                const pagingRow = options.components.at(
+                    -1
+                ) as ActionRowBuilder<ButtonBuilder>;
+
+                const buttons = pagingRow.components;
+
+                buttons[buttons.length - 2].setDisabled(
+                    displayedScores.length < 5
+                );
+
+                buttons[buttons.length - 1].setDisabled(
+                    displayedScores.length < 5
+                );
+
+                // Preserve paging action row buttons
+                newComponents.push(pagingRow);
+            }
 
             let i = 20 * actualPage + 5 * pageRemainder;
 
@@ -465,11 +468,10 @@ export abstract class ScoreDisplayHelper {
                                 !score.mods.isEmpty
                                     ? ` (${score.completeModString})`
                                     : ""
-                            }` +
-                                "\n" +
-                                (await getScoreDescription(score)) +
-                                "\n\n"
-                        )
+                            }`
+                        ) +
+                            "\n" +
+                            (await getScoreDescription(score))
                     )
                 );
             }
