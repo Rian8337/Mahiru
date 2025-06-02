@@ -153,7 +153,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
             if (pp) {
                 const modstring = pp.mods
-                    ? `+${ModUtil.modsToOrderedString(ModUtil.deserializeMods(pp.mods))}`
+                    ? `+${ModUtil.modsToOrderedString(ModUtil.deserializeMods(pp.mods), false)}`
                     : "";
 
                 embed.addFields({

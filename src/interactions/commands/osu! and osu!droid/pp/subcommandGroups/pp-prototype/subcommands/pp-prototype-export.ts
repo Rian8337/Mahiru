@@ -95,7 +95,10 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     for (const pp of ppInfo.pp.values()) {
         const modstring = pp.mods
-            ? ModUtil.modsToOrderedString(ModUtil.deserializeMods(pp.mods))
+            ? ModUtil.modsToOrderedString(
+                  ModUtil.deserializeMods(pp.mods),
+                  false
+              )
             : "NM";
 
         csvString += `"${pp.title.replace(/"/g, '""')}","${modstring}",${
