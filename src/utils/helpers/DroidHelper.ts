@@ -513,11 +513,11 @@ export abstract class DroidHelper {
         if (Config.isDebug) {
             return fetch(this.getAvatarURL(uid))
                 .then((res) => res.arrayBuffer())
-                .then(Buffer.from)
+                .then(Buffer.from.bind(Buffer))
                 .catch(() => null);
         }
 
-        const avatarBasePath = "/DroidData/osudroid/zip/avatar/";
+        const avatarBasePath = "/hdd/osudroid/avatar/";
         let avatarPath = `${avatarBasePath}${uid}.png`;
 
         const avatarStats = await stat(avatarPath).catch(() => null);
