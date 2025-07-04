@@ -43,4 +43,5 @@ export enum Symbols {
     speaker = "🔊",
     music = "🎵",
     lightBulb = "💡",
+    handPointingDown = "👇",
 }
