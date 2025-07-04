@@ -1,7 +1,7 @@
 import { Config } from "@core/Config";
 import { GoogleGenAI } from "@google/genai";
 import { EventUtil } from "@structures/core/EventUtil";
-import { Message } from "discord.js";
+import { heading, HeadingLevel, Message } from "discord.js";
 
 const ai = new GoogleGenAI({});
 
@@ -28,12 +28,20 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
         config: {
             systemInstruction:
                 // lol system instruction but let's see for now
-                "You are a personalized AI assistant contained within a Discord bot. Respond to the user's request in a helpful and informative manner, and with less than 2000 characters.",
+                "You are a personalized AI assistant contained within a Discord bot. Respond to the user's request in a helpful and informative manner, and with less than 1000 characters.",
         },
     });
 
+    let text = response.text;
+
+    if (text) {
+        text += `\n\n-${heading("This is an AI generated response. Please verify its accuracy.", HeadingLevel.One)}`;
+    } else {
+        text = "The model did not return a response.";
+    }
+
     await message.reply({
-        content: response.text ?? "The model did not return a response.",
+        content: text,
         allowedMentions: { repliedUser: false },
     });
 };
