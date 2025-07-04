@@ -34,6 +34,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
 
     await message.reply({
         content: response.text ?? "The model did not return a response.",
+        allowedMentions: { repliedUser: false },
     });
 };
 
