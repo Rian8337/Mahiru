@@ -108,10 +108,10 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                     containerBuilder.components.length
                 );
 
-                // TODO: allowedMentions is bugged, see https://github.com/discordjs/discord.js/pull/10852.
                 message.channel.send({
                     ...options,
                     flags: MessageFlags.IsComponentsV2,
+                    allowedMentions: { repliedUser: false },
                 });
             } else if (beatmapsetID) {
                 // Retrieve beatmap file one by one to not overcreate requests
@@ -251,10 +251,10 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                         );
                 }
 
-                // TODO: allowedMentions is bugged, see https://github.com/discordjs/discord.js/pull/10852.
                 message.channel.send({
                     ...options,
                     flags: MessageFlags.IsComponentsV2,
+                    allowedMentions: { repliedUser: false },
                 });
             }
 
