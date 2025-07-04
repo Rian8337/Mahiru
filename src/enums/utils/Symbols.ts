@@ -42,4 +42,5 @@ export enum Symbols {
     wrench = "🔧",
     speaker = "🔊",
     music = "🎵",
+    lightBulb = "💡",
 }

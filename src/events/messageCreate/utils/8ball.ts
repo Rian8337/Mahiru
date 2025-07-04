@@ -22,7 +22,7 @@ function getResponseType(message: Message): EightBallResponseType {
 
     function containsWord(words: string[]): boolean {
         return words.some(
-            (w) => message.content.search(new RegExp(w, "i")) !== -1,
+            (w) => message.content.search(new RegExp(w, "i")) !== -1
         );
     }
 
@@ -49,11 +49,8 @@ function getResponseType(message: Message): EightBallResponseType {
 
 export const run: EventUtil["run"] = async (_, message: Message) => {
     if (
-        (!message.content.startsWith("Mahiru, ") &&
-            !(
-                message.author.id === "386742340968120321" &&
-                message.content.startsWith("Dear, ")
-            )) ||
+        !message.content.startsWith("Mahiru, ") ||
+        Config.botOwners.includes(message.author.id) ||
         !message.content.endsWith("?") ||
         Config.maintenance ||
         message.author.bot ||
@@ -98,7 +95,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
     }
 
     embed.setDescription(
-        `${bold("Q")}: ${message.content}\n${bold("A")}: ${answer}`,
+        `${bold("Q")}: ${message.content}\n${bold("A")}: ${answer}`
     );
 
     message.reply({
@@ -108,7 +105,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
     DatabaseManager.aliceDb.collections.askCount.updateOne(
         { discordid: message.author.id },
         { $inc: { count: 1 } },
-        { upsert: true },
+        { upsert: true }
     );
 };
 
