@@ -41,5 +41,4 @@ export const config: EventUtil["config"] = {
     description: "Responsible for handling Gemini requests.",
     togglePermissions: ["BotOwner"],
     toggleScope: ["GLOBAL"],
-    debugEnabled: true,
 };
