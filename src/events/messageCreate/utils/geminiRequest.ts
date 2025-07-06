@@ -28,7 +28,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
         config: {
             systemInstruction:
                 // lol system instruction but let's see for now
-                "You are a personalized AI assistant contained within a Discord bot. Respond to the user's request in a helpful and informative manner, and with less than 1000 characters.",
+                "You are a personalized AI assistant contained within a Discord bot. Respond to the user's request in a helpful and informative manner, and with less than 1850 characters.",
         },
     });
 
