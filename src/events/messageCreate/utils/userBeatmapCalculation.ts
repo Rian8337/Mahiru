@@ -145,7 +145,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                 ];
             }
 
-            message.channel.send({
+            await message.reply({
                 ...options,
                 flags: MessageFlags.IsComponentsV2,
                 allowedMentions: { repliedUser: false },
@@ -224,7 +224,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                             `${bold("BPM")}: ${BeatmapManager.convertBPM(
                                 firstBeatmap.bpm,
                                 speedMultiplier
-                            )} - ${bold(
+                            ).toString()} - ${bold(
                                 "Length"
                             )}: ${BeatmapManager.convertTime(
                                 firstBeatmap.hitLength,
@@ -291,7 +291,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                     );
             }
 
-            message.channel.send({
+            await message.reply({
                 ...options,
                 flags: MessageFlags.IsComponentsV2,
                 allowedMentions: { repliedUser: false },

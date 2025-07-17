@@ -2,10 +2,10 @@ import { Constants } from "@core/Constants";
 import { MainServerVoiceChannels as VoiceChannels } from "@enums/utils/MainServerVoiceChannels";
 import { Symbols } from "@enums/utils/Symbols";
 import { EventUtil } from "@structures/core/EventUtil";
-import { Guild, GuildPremiumTier, Snowflake } from "discord.js";
+import { Guild, GuildPremiumTier } from "discord.js";
 
 interface VoiceChannelSetting {
-    readonly id: Snowflake;
+    readonly id: VoiceChannels;
     readonly name: string;
     readonly bitrate: number;
 }
@@ -59,31 +59,31 @@ function createVoiceChannelSetting(
                 case VoiceChannels.main128Kbps:
                 case VoiceChannels.main256Kbps:
                 case VoiceChannels.main384Kbps:
-                    return `${Symbols.speaker} ${bitrateKbps}kbps${order ? ` (#${order})` : ""}`;
+                    return `${Symbols.speaker} ${bitrateKbps.toString()}kbps${order ? ` (#${order.toString()})` : ""}`;
 
                 case VoiceChannels.fancy64Kbps:
                 case VoiceChannels.fancy128Kbps:
                 case VoiceChannels.fancy256Kbps:
                 case VoiceChannels.fancy384Kbps:
-                    return `${Symbols.speaker} Fancy (${bitrateKbps}kbps)${order ? ` (#${order})` : ""}`;
+                    return `${Symbols.speaker} Fancy (${bitrateKbps.toString()}kbps)${order ? ` (#${order.toString()})` : ""}`;
 
                 case VoiceChannels.streaming64Kbps:
                 case VoiceChannels.streaming128Kbps:
                 case VoiceChannels.streaming256Kbps:
                 case VoiceChannels.streaming384Kbps:
-                    return `Streaming (${bitrateKbps}kbps)${order ? ` (#${order})` : ""}`;
+                    return `Streaming (${bitrateKbps.toString()}kbps)${order ? ` (#${order.toString()})` : ""}`;
 
                 case VoiceChannels.music64Kbps:
                 case VoiceChannels.music128Kbps:
                 case VoiceChannels.music256Kbps:
                 case VoiceChannels.music384Kbps:
-                    return `${Symbols.music} Music (${bitrateKbps}kbps)${order ? ` (#${order})` : ""}`;
+                    return `${Symbols.music} Music (${bitrateKbps.toString()}kbps)${order ? ` (#${order.toString()})` : ""}`;
 
                 case VoiceChannels.fancyMusic64Kbps:
                 case VoiceChannels.fancyMusic128Kbps:
                 case VoiceChannels.fancyMusic256Kbps:
                 case VoiceChannels.fancyMusic384Kbps:
-                    return `${Symbols.music} Fancy Music (${bitrateKbps}kbps)${order ? ` (#${order})` : ""}`;
+                    return `${Symbols.music} Fancy Music (${bitrateKbps.toString()}kbps)${order ? ` (#${order.toString()})` : ""}`;
 
                 default:
                     throw new Error("Invalid voice channel");

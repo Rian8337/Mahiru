@@ -41,7 +41,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
     );
 
     for (const arg of message.content.split(/\s+/g)) {
-        const match = arg.match(ytRegex);
+        const match = ytRegex.exec(arg);
 
         if (!match) {
             continue;
@@ -108,7 +108,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                     containerBuilder.components.length
                 );
 
-                message.channel.send({
+                await message.reply({
                     ...options,
                     flags: MessageFlags.IsComponentsV2,
                     allowedMentions: { repliedUser: false },
@@ -182,7 +182,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                             `${BeatmapManager.showStatistics(firstBeatmap, 1)}\n` +
                                 `${bold("BPM")}: ${BeatmapManager.convertBPM(
                                     firstBeatmap.bpm
-                                )} - ${bold(
+                                ).toString()} - ${bold(
                                     "Length"
                                 )}: ${BeatmapManager.convertTime(
                                     firstBeatmap.hitLength,
@@ -251,7 +251,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                         );
                 }
 
-                message.channel.send({
+                await message.reply({
                     ...options,
                     flags: MessageFlags.IsComponentsV2,
                     allowedMentions: { repliedUser: false },
