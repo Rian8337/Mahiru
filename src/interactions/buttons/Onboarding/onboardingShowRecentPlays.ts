@@ -11,7 +11,7 @@ import { Player } from "@rian8337/osu-droid-utilities";
 
 export const run: ButtonCommand["run"] = async (_, interaction) => {
     const localization = new OnboardingShowRecentPlaysLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     await InteractionHelper.deferReply(interaction);
@@ -24,13 +24,13 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
                     _id: 0,
                     uid: 1,
                 },
-            },
+            }
         );
 
     if (!bindInfo) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("userNotBinded"),
+                localization.getTranslation("userNotBinded")
             ),
         });
     }
@@ -43,7 +43,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("profileNotFound"),
+                localization.getTranslation("profileNotFound")
             ),
         });
     }
@@ -60,7 +60,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
                       "id",
                       "filename",
                       "mark",
-                      "mode",
+                      "mods",
                       "score",
                       "combo",
                       "date",
@@ -68,14 +68,14 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
                       "good",
                       "bad",
                       "miss",
-                  ],
-              ),
+                  ]
+              )
     );
 
     if (recentPlays.length === 0) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerHasNoRecentPlays"),
+                localization.getTranslation("playerHasNoRecentPlays")
             ),
         });
     }
@@ -83,7 +83,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
     ScoreDisplayHelper.showRecentPlays(
         interaction,
         player.username,
-        recentPlays,
+        recentPlays
     );
 };
 

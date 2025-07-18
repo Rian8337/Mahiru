@@ -26,7 +26,7 @@ export const run: EventUtil["run"] = async (client) => {
 
         const trackedPlayers =
             await DatabaseManager.elainaDb.collections.playerTracking.get(
-                "uid",
+                "uid"
             );
 
         for (const trackedPlayer of trackedPlayers.values()) {
@@ -42,7 +42,7 @@ export const run: EventUtil["run"] = async (client) => {
                 trackedPlayer.uid,
                 player instanceof Player
                     ? player.recentPlays
-                    : await DroidHelper.getRecentScores(trackedPlayer.uid),
+                    : await DroidHelper.getRecentScores(trackedPlayer.uid)
             );
 
             for (const score of recentPlays) {
@@ -52,12 +52,12 @@ export const run: EventUtil["run"] = async (client) => {
 
                 channel.send({
                     content: MessageCreator.createAccept(
-                        `Recent play for ${player.username}:`,
+                        `Recent play for ${player.username}:`
                     ),
                     embeds: [
                         await EmbedCreator.createRecentPlayEmbed(
                             score,
-                            8311585,
+                            8311585
                         ),
                     ],
                 });

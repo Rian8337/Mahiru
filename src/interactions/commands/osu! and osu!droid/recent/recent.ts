@@ -8,7 +8,7 @@ import { CommandCategory } from "@enums/core/CommandCategory";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { RecentLocalization } from "@localization/interactions/commands/osu! and osu!droid/recent/RecentLocalization";
-import { DroidLegacyModConverter, Modes } from "@rian8337/osu-base";
+import { Modes, ModUtil } from "@rian8337/osu-base";
 import { Player, Score } from "@rian8337/osu-droid-utilities";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
@@ -58,7 +58,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     switch (true) {
         case !!uid:
-            player = await DroidHelper.getPlayer(uid!, ["id", "username"]);
+            player = await DroidHelper.getPlayer(uid, ["id", "username"]);
 
             uid ??= player?.id ?? null;
 
@@ -126,7 +126,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
               | "hash"
               | "score"
               | "filename"
-              | "mode"
+              | "mods"
               | "combo"
               | "miss"
               | "perfect"
@@ -164,7 +164,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 "hash",
                 "score",
                 "filename",
-                "mode",
+                "mods",
                 "combo",
                 "miss",
                 "perfect",
@@ -247,7 +247,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             replay.data,
             score instanceof Score || score instanceof RecentPlay
                 ? score.mods
-                : DroidLegacyModConverter.convert(score.mode)
+                : ModUtil.deserializeMods(score.mods)
         );
     } else {
         InteractionHelper.reply(interaction, options);

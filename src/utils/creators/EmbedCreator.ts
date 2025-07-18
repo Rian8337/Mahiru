@@ -524,7 +524,7 @@ export abstract class EmbedCreator {
                   | "score"
                   | "combo"
                   | "mark"
-                  | "mode"
+                  | "mods"
                   | "date"
                   | "filename"
                   | "perfect"
@@ -560,7 +560,9 @@ export abstract class EmbedCreator {
         const modString =
             score instanceof Score || score instanceof RecentPlay
                 ? score.completeModString
-                : DroidHelper.getCompleteModString(score.mode);
+                : ModUtil.modsToOrderedString(
+                      ModUtil.deserializeMods(score.mods)
+                  );
 
         const avatarURL = DroidHelper.getAvatarURL(score.uid);
 

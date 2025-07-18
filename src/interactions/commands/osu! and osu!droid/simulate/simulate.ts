@@ -11,7 +11,6 @@ import {
     BeatmapDifficulty,
     Circle,
     DroidHitWindow,
-    DroidLegacyModConverter,
     MapInfo,
     ModCustomSpeed,
     Modes,
@@ -98,7 +97,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     switch (true) {
         case !!uid:
-            player = await DroidHelper.getPlayer(uid!, [
+            player = await DroidHelper.getPlayer(uid, [
                 "id",
                 "username",
                 "playcount",
@@ -197,7 +196,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         "hash",
         "combo",
         "mark",
-        "mode",
+        "mods",
         "perfect",
         "good",
         "bad",
@@ -223,7 +222,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     const realMods =
         score instanceof Score
             ? score.mods
-            : DroidLegacyModConverter.convert(score.mode);
+            : ModUtil.deserializeMods(score.mods);
 
     const realSpeedMultiplier =
         realMods.get(ModCustomSpeed)?.trackRateMultiplier ?? 1;
@@ -586,7 +585,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         score.good = simulatedAccuracy.n100;
         score.bad = simulatedAccuracy.n50;
         score.mark = newRank;
-        score.mode = DroidHelper.modMapToLegacyString(simulatedMods);
+        score.mods = simulatedMods.serializeMods();
         score.miss = simulatedAccuracy.nmiss;
 
         calcParams = new PerformanceCalculationParameters({

@@ -5,7 +5,7 @@ import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { FetchreplayLocalization } from "@localization/interactions/commands/osu! and osu!droid/fetchreplay/FetchreplayLocalization";
 import { Accuracy, Modes } from "@rian8337/osu-base";
-import { ExportedReplayJSONV2 } from "@rian8337/osu-droid-replay-analyzer";
+import { ExportedReplayJSONV3 } from "@rian8337/osu-droid-replay-analyzer";
 import { Score } from "@rian8337/osu-droid-utilities";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
@@ -94,7 +94,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         "score",
         "combo",
         "mark",
-        "mode",
+        "mods",
         "perfect",
         "good",
         "bad",
@@ -147,14 +147,6 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     zip.addFile(`${score.id.toString()}.odr`, replay.originalODR!);
 
-    let modstring: string;
-
-    if (score instanceof Score) {
-        modstring = DroidHelper.modMapToLegacyString(score.mods);
-    } else {
-        modstring = score.mode;
-    }
-
     const rank = score instanceof Score ? score.rank : score.mark;
     const accuracy =
         score instanceof Score
@@ -166,14 +158,16 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                   nmiss: score.miss,
               });
 
-    const json: ExportedReplayJSONV2 = {
-        version: 2,
+    const json: ExportedReplayJSONV3 = {
+        version: 3,
         replaydata: {
             filename: `${data.folderName}\\/${data.fileName}`,
             playername: data.isReplayV3() ? data.playerName : username,
             replayfile: `${score.id.toString()}.odr`,
             beatmapMD5: score.hash,
-            mod: modstring,
+            mods: JSON.stringify(
+                score instanceof Score ? score.mods.serializeMods() : score.mods
+            ),
             score: score.score,
             combo: score.combo,
             mark: rank,

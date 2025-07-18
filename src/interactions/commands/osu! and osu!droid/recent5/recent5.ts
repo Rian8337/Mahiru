@@ -20,7 +20,7 @@ import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabas
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new Recent5Localization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const discordid = interaction.options.getUser("user")?.id;
@@ -34,7 +34,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("tooManyOptions"),
+                localization.getTranslation("tooManyOptions")
             ),
         });
     }
@@ -48,7 +48,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     switch (true) {
         case !!uid:
-            player = await DroidHelper.getPlayer(uid!);
+            player = await DroidHelper.getPlayer(uid);
 
             uid ??= player?.id ?? null;
 
@@ -57,7 +57,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             if (!StringHelper.isUsernameValid(username)) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
-                        localization.getTranslation("playerNotFound"),
+                        localization.getTranslation("playerNotFound")
                     ),
                 });
             }
@@ -76,19 +76,19 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                         _id: 0,
                         uid: 1,
                     },
-                },
+                }
             );
 
             if (!bindInfo) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
                         new ConstantsLocalization(
-                            localization.language,
+                            localization.language
                         ).getTranslation(
                             discordid
                                 ? Constants.userNotBindedReject
-                                : Constants.selfNotBindedReject,
-                        ),
+                                : Constants.selfNotBindedReject
+                        )
                     ),
                 });
             }
@@ -99,7 +99,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerNotFound"),
+                localization.getTranslation("playerNotFound")
             ),
         });
     }
@@ -110,7 +110,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
               | "id"
               | "filename"
               | "mark"
-              | "mode"
+              | "mods"
               | "score"
               | "combo"
               | "date"
@@ -134,7 +134,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 "id",
                 "filename",
                 "mark",
-                "mode",
+                "mods",
                 "score",
                 "combo",
                 "date",
@@ -142,7 +142,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 "good",
                 "bad",
                 "miss",
-            ],
+            ]
         );
     }
 
@@ -153,7 +153,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (recentPlays.length === 0) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerHasNoRecentPlays"),
+                localization.getTranslation("playerHasNoRecentPlays")
             ),
         });
     }
@@ -162,7 +162,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         interaction,
         player.username,
         recentPlays,
-        interaction.options.getInteger("page") ?? undefined,
+        interaction.options.getInteger("page") ?? undefined
     );
 };
 

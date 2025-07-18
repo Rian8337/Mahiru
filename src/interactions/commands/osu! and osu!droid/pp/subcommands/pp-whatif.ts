@@ -15,7 +15,7 @@ import { NumberHelper } from "@utils/helpers/NumberHelper";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new PPLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const discordid = interaction.options.getUser("user")?.id;
@@ -27,7 +27,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("tooManyOptions"),
+                localization.getTranslation("tooManyOptions")
             ),
         });
     }
@@ -41,15 +41,11 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     switch (true) {
         case !!uid:
-            player = await DroidHelper.getPlayer(uid!, [
-                "id",
-                "username",
-                "pp",
-            ]);
+            player = await DroidHelper.getPlayer(uid, ["id", "username", "pp"]);
             break;
 
         case !!username:
-            player = await DroidHelper.getPlayer(username!, [
+            player = await DroidHelper.getPlayer(username, [
                 "id",
                 "username",
                 "pp",
@@ -61,19 +57,19 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             const bindInfo =
                 await DatabaseManager.elainaDb.collections.userBind.getFromUser(
                     discordid ?? interaction.user.id,
-                    { projection: { _id: 0, uid: 1 } },
+                    { projection: { _id: 0, uid: 1 } }
                 );
 
             if (!bindInfo) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
                         new ConstantsLocalization(
-                            localization.language,
+                            localization.language
                         ).getTranslation(
                             discordid
                                 ? Constants.userNotBindedReject
-                                : Constants.selfNotBindedReject,
-                        ),
+                                : Constants.selfNotBindedReject
+                        )
                     ),
                 });
             }
@@ -89,7 +85,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("profileNotFound"),
+                localization.getTranslation("profileNotFound")
             ),
         });
     }
@@ -99,10 +95,10 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     const topScores = await DroidHelper.getTopScores(player.id);
 
-    if (topScores === null) {
+    if (topScores.length === 0) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("profileNotFound"),
+                localization.getTranslation("profileNotFound")
             ),
         });
     }
@@ -124,7 +120,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             content: MessageCreator.createAccept(
                 localization.getTranslation("whatIfScoreNotEntered"),
                 NumberHelper.round(ppValue, 2).toLocaleString(BCP47),
-                player.username,
+                player.username
             ),
         });
     }
@@ -144,13 +140,15 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             id: 0,
             mark: "X",
             miss: 0,
-            mode: "|",
+            mods: [],
             perfect: 0,
             pp: ppValue,
+            slider_tick_hit: null,
+            slider_end_hit: null,
             score: 0,
             uid: 0,
             username: "",
-        }),
+        })
     );
 
     const totalPP = PPHelper.calculateFinalPerformancePoints(topScores);
@@ -161,12 +159,12 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             NumberHelper.round(ppValue, 2).toLocaleString(BCP47),
             NumberHelper.round(
                 ppValue * Math.pow(0.95, playIndex),
-                2,
+                2
             ).toLocaleString(BCP47),
             player.username,
             (playIndex + 1).toLocaleString(BCP47),
             NumberHelper.round(totalPP, 2).toLocaleString(BCP47),
-            NumberHelper.round(totalPP - player.pp, 2).toLocaleString(BCP47),
+            NumberHelper.round(totalPP - player.pp, 2).toLocaleString(BCP47)
         ),
     });
 };

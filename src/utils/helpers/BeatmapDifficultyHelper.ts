@@ -2,7 +2,6 @@ import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabas
 import { RecentPlay } from "@database/utils/aliceDb/RecentPlay";
 import {
     Accuracy,
-    DroidLegacyModConverter,
     MapInfo,
     ModCustomSpeed,
     ModDifficultyAdjust,
@@ -260,7 +259,7 @@ export abstract class BeatmapDifficultyHelper<
         score:
             | Pick<
                   OfficialDatabaseScore,
-                  "combo" | "mode" | "perfect" | "good" | "bad" | "miss"
+                  "combo" | "mods" | "perfect" | "good" | "bad" | "miss"
               >
             | Score
             | RecentPlay
@@ -280,7 +279,7 @@ export abstract class BeatmapDifficultyHelper<
                     nmiss: score.miss,
                 }),
                 combo: score.combo,
-                mods: DroidLegacyModConverter.convert(score.mode),
+                mods: ModUtil.deserializeMods(score.mods),
             });
         }
     }
@@ -794,7 +793,7 @@ export abstract class BeatmapDifficultyHelper<
         difficultyAttributes: DA | CacheableDifficultyAttributes<DA>,
         calculationParams: PerformanceCalculationParameters
     ): PerformanceCalculationResult<PC> | null {
-        calculationParams?.applyFromAttributes(difficultyAttributes);
+        calculationParams.applyFromAttributes(difficultyAttributes);
 
         const pp = new this.performanceCalculator(
             difficultyAttributes
@@ -815,7 +814,7 @@ export abstract class BeatmapDifficultyHelper<
         difficultyAttributes: RDA | CacheableDifficultyAttributes<RDA>,
         calculationParams: PerformanceCalculationParameters
     ): RebalancePerformanceCalculationResult<RPC> | null {
-        calculationParams?.applyFromAttributes(difficultyAttributes);
+        calculationParams.applyFromAttributes(difficultyAttributes);
 
         const pp = new this.rebalancePerformanceCalculator(
             difficultyAttributes

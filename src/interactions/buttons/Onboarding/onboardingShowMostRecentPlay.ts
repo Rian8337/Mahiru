@@ -1,6 +1,8 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { OnboardingShowMostRecentPlayLocalization } from "@localization/interactions/buttons/Onboarding/onboardingShowMostRecentPlay/OnboardingShowMostRecentPlayLocalization";
+import { Modes, ModUtil } from "@rian8337/osu-base";
+import { Player, Score } from "@rian8337/osu-droid-utilities";
 import { ButtonCommand } from "@structures/core/ButtonCommand";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
@@ -11,8 +13,6 @@ import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
-import { DroidLegacyModConverter, Modes } from "@rian8337/osu-base";
-import { Player, Score } from "@rian8337/osu-droid-utilities";
 import { InteractionReplyOptions } from "discord.js";
 
 export const run: ButtonCommand["run"] = async (_, interaction) => {
@@ -68,7 +68,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
                   "score",
                   "filename",
                   "hash",
-                  "mode",
+                  "mods",
                   "combo",
                   "mark",
                   "perfect",
@@ -131,7 +131,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
                 replay.data,
                 score instanceof Score
                     ? score.mods
-                    : DroidLegacyModConverter.convert(score.mode)
+                    : ModUtil.deserializeMods(score.mods)
             );
         } else {
             InteractionHelper.reply(interaction, options);

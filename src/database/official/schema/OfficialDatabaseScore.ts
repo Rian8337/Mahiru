@@ -1,4 +1,4 @@
-import { ScoreRank } from "@rian8337/osu-base";
+import { ScoreRank, SerializedMod } from "@rian8337/osu-base";
 
 /**
  * Represents an osu!droid score.
@@ -8,7 +8,7 @@ export interface OfficialDatabaseScore {
     readonly uid: number;
     readonly filename: string;
     readonly hash: string;
-    mode: string;
+    mods: SerializedMod[];
     score: number;
     combo: number;
     mark: ScoreRank;
@@ -20,5 +20,7 @@ export interface OfficialDatabaseScore {
     miss: number;
     readonly date: Date;
     accuracy: number;
+    readonly slider_tick_hit: number | null;
+    readonly slider_end_hit: number | null;
     readonly pp: number | null;
 }

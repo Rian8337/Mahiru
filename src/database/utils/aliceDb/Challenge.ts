@@ -1,17 +1,52 @@
 import { Config } from "@core/Config";
 import { Constants } from "@core/Constants";
 import { DatabaseManager } from "@database/DatabaseManager";
-import { Bonus } from "structures/challenge/Bonus";
-import { BonusDescription } from "structures/challenge/BonusDescription";
-import { PassRequirement } from "structures/challenge/PassRequirement";
-import { DatabaseChallenge } from "structures/database/aliceDb/DatabaseChallenge";
-import { BonusID } from "structures/challenge/BonusID";
-import { ChallengeStatusType } from "structures/challenge/ChallengeStatusType";
-import { ChallengeType } from "structures/challenge/ChallengeType";
+import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
+import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
+import { Language } from "@localization/base/Language";
+import {
+    ChallengeLocalization,
+    ChallengeStrings,
+} from "@localization/database/utils/aliceDb/Challenge/ChallengeLocalization";
+import {
+    Accuracy,
+    ModCustomSpeed,
+    ModDifficultyAdjust,
+    ModEasy,
+    ModHalfTime,
+    ModMap,
+    ModNoFail,
+    ModUtil,
+    Modes,
+} from "@rian8337/osu-base";
+import {
+    DroidDifficultyAttributes,
+    OsuDifficultyAttributes,
+} from "@rian8337/osu-difficulty-calculator";
+import {
+    HitErrorInformation,
+    ReplayAnalyzer,
+    ReplayData,
+} from "@rian8337/osu-droid-replay-analyzer";
+import { Score } from "@rian8337/osu-droid-utilities";
+import { CompleteCalculationAttributes } from "@structures/difficultyattributes/CompleteCalculationAttributes";
+import { DroidPerformanceAttributes } from "@structures/difficultyattributes/DroidPerformanceAttributes";
+import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
+import { Manager } from "@utils/base/Manager";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
-import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
+import { BeatmapDifficultyHelper } from "@utils/helpers/BeatmapDifficultyHelper";
+import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
+import { DroidHelper } from "@utils/helpers/DroidHelper";
+import { LocaleHelper } from "@utils/helpers/LocaleHelper";
+import { ReplayHelper } from "@utils/helpers/ReplayHelper";
+import { StringHelper } from "@utils/helpers/StringHelper";
+import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
+import { RESTManager } from "@utils/managers/RESTManager";
+import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
+import { createHash } from "crypto";
 import {
     ApplicationCommandOptionChoiceData,
     Collection,
@@ -22,52 +57,14 @@ import {
     userMention,
 } from "discord.js";
 import { ObjectId } from "mongodb";
-import { Manager } from "@utils/base/Manager";
-import { BeatmapDifficultyHelper } from "@utils/helpers/BeatmapDifficultyHelper";
-import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
-import { StringHelper } from "@utils/helpers/StringHelper";
-import { BeatmapManager } from "@utils/managers/BeatmapManager";
+import { Bonus } from "structures/challenge/Bonus";
+import { BonusDescription } from "structures/challenge/BonusDescription";
+import { BonusID } from "structures/challenge/BonusID";
+import { ChallengeStatusType } from "structures/challenge/ChallengeStatusType";
+import { ChallengeType } from "structures/challenge/ChallengeType";
+import { PassRequirement } from "structures/challenge/PassRequirement";
 import { OperationResult } from "structures/core/OperationResult";
-import {
-    Mod,
-    ModEasy,
-    ModNoFail,
-    ModHalfTime,
-    ModUtil,
-    Modes,
-    Accuracy,
-    DroidLegacyModConverter,
-    ModMap,
-    ModCustomSpeed,
-    ModDifficultyAdjust,
-} from "@rian8337/osu-base";
-import {
-    DroidDifficultyAttributes,
-    OsuDifficultyAttributes,
-} from "@rian8337/osu-difficulty-calculator";
-import {
-    ReplayAnalyzer,
-    ReplayData,
-    HitErrorInformation,
-    ReplayV3Data,
-} from "@rian8337/osu-droid-replay-analyzer";
-import { Score } from "@rian8337/osu-droid-utilities";
-import { Language } from "@localization/base/Language";
-import {
-    ChallengeLocalization,
-    ChallengeStrings,
-} from "@localization/database/utils/aliceDb/Challenge/ChallengeLocalization";
-import { LocaleHelper } from "@utils/helpers/LocaleHelper";
-import { RESTManager } from "@utils/managers/RESTManager";
-import { createHash } from "crypto";
-import { ReplayHelper } from "@utils/helpers/ReplayHelper";
-import { CompleteCalculationAttributes } from "@structures/difficultyattributes/CompleteCalculationAttributes";
-import { DroidPerformanceAttributes } from "@structures/difficultyattributes/DroidPerformanceAttributes";
-import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
-import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
-import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
-import { DroidHelper } from "@utils/helpers/DroidHelper";
+import { DatabaseChallenge } from "structures/database/aliceDb/DatabaseChallenge";
 
 /**
  * Represents a daily or weekly challenge.
@@ -355,9 +352,9 @@ export class Challenge extends Manager {
 
         this.status = "finished";
 
-        const notificationChannel = <TextChannel>(
-            await this.client.channels.fetch(this.challengeChannelID)
-        );
+        const notificationChannel = (await this.client.channels.fetch(
+            this.challengeChannelID
+        )) as TextChannel;
 
         const challengeEmbedOptions = await EmbedCreator.createChallengeEmbed(
             this,
@@ -452,9 +449,8 @@ export class Challenge extends Manager {
                   OfficialDatabaseScore,
                   | "id"
                   | "score"
-                  | "mode"
+                  | "mods"
                   | "combo"
-                  | "mode"
                   | "perfect"
                   | "good"
                   | "bad"
@@ -469,7 +465,7 @@ export class Challenge extends Manager {
         const mods =
             score instanceof Score
                 ? score.mods
-                : DroidLegacyModConverter.convert(score.mode);
+                : ModUtil.deserializeMods(score.mods);
 
         if (!this.isConstrainFulfilled(mods)) {
             return this.createOperationResult(
@@ -656,7 +652,7 @@ export class Challenge extends Manager {
                   | "good"
                   | "bad"
                   | "miss"
-                  | "mode"
+                  | "mods"
                   | "mark"
               >
             | Score
@@ -673,7 +669,7 @@ export class Challenge extends Manager {
                   | "good"
                   | "bad"
                   | "miss"
-                  | "mode"
+                  | "mods"
                   | "mark"
               >
             | Score
@@ -845,7 +841,7 @@ export class Challenge extends Manager {
                                 )
                             ) ===
                             StringHelper.sortAlphabet(
-                                (<string>tier.value).toUpperCase()
+                                (tier.value as string).toUpperCase()
                             );
                         break;
 
@@ -1099,7 +1095,7 @@ export class Challenge extends Manager {
                   | "good"
                   | "bad"
                   | "miss"
-                  | "mode"
+                  | "mods"
                   | "mark"
               >
             | Score,
@@ -1144,7 +1140,7 @@ export class Challenge extends Manager {
                   | "good"
                   | "bad"
                   | "miss"
-                  | "mode"
+                  | "mods"
                   | "mark"
               >
             | Score
@@ -1231,7 +1227,7 @@ export class Challenge extends Manager {
 
                 return (
                     this.getRankTier(rank) >=
-                    this.getRankTier(<string>this.pass.value)
+                    this.getRankTier(this.pass.value as string)
                 );
             }
             case "dpp":
@@ -1514,7 +1510,7 @@ export class Challenge extends Manager {
         score:
             | Pick<
                   OfficialDatabaseScore,
-                  "score" | "perfect" | "good" | "bad" | "miss" | "mode"
+                  "score" | "perfect" | "good" | "bad" | "miss" | "mods"
               >
             | Score
     ): Promise<number>;
@@ -1523,7 +1519,7 @@ export class Challenge extends Manager {
         scoreOrReplay:
             | Pick<
                   OfficialDatabaseScore,
-                  "score" | "perfect" | "good" | "bad" | "miss" | "mode"
+                  "score" | "perfect" | "good" | "bad" | "miss" | "mods"
               >
             | Score
             | ReplayData
