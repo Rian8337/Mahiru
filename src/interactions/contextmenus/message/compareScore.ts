@@ -3,7 +3,7 @@ import { DatabaseManager } from "@database/DatabaseManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { CompareScoreLocalization } from "@localization/interactions/contextmenus/message/compareScore/CompareScoreLocalization";
-import { Modes, ModUtil } from "@rian8337/osu-base";
+import { Modes, ModUtil, SerializedMod } from "@rian8337/osu-base";
 import { Score } from "@rian8337/osu-droid-utilities";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
@@ -150,7 +150,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         replay.data,
         score instanceof Score
             ? score.mods
-            : ModUtil.deserializeMods(score.mods)
+            : ModUtil.deserializeMods(JSON.parse(score.mods) as SerializedMod[])
     );
 };
 

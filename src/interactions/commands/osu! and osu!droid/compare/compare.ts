@@ -194,7 +194,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             replay.data,
             score instanceof Score
                 ? score.mods
-                : ModUtil.deserializeMods(score.mods)
+                : ModUtil.deserializeMods(
+                      JSON.parse(score.mods) as SerializedMod[]
+                  )
         );
     } else {
         InteractionHelper.reply(interaction, options);

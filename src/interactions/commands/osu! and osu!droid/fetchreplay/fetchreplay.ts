@@ -165,9 +165,10 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             playername: data.isReplayV3() ? data.playerName : username,
             replayfile: `${score.id.toString()}.odr`,
             beatmapMD5: score.hash,
-            mods: JSON.stringify(
-                score instanceof Score ? score.mods.serializeMods() : score.mods
-            ),
+            mods:
+                score instanceof Score
+                    ? JSON.stringify(score.mods.serializeMods())
+                    : score.mods,
             score: score.score,
             combo: score.combo,
             mark: rank,

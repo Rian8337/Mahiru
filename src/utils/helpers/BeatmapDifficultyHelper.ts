@@ -8,6 +8,7 @@ import {
     ModMap,
     ModUtil,
     PlayableBeatmap,
+    SerializedMod,
 } from "@rian8337/osu-base";
 import {
     CacheableDifficultyAttributes,
@@ -279,7 +280,9 @@ export abstract class BeatmapDifficultyHelper<
                     nmiss: score.miss,
                 }),
                 combo: score.combo,
-                mods: ModUtil.deserializeMods(score.mods),
+                mods: ModUtil.deserializeMods(
+                    JSON.parse(score.mods) as SerializedMod[]
+                ),
             });
         }
     }

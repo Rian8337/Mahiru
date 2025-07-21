@@ -21,6 +21,7 @@ import {
     ModUtil,
     Modes,
     Precision,
+    SerializedMod,
     Slider,
     SliderTail,
     SliderTick,
@@ -561,7 +562,9 @@ export abstract class EmbedCreator {
             score instanceof Score || score instanceof RecentPlay
                 ? score.completeModString
                 : ModUtil.modsToOrderedString(
-                      ModUtil.deserializeMods(score.mods)
+                      ModUtil.deserializeMods(
+                          JSON.parse(score.mods) as SerializedMod[]
+                      )
                   );
 
         const avatarURL = DroidHelper.getAvatarURL(score.uid);
