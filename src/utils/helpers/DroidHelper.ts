@@ -15,6 +15,7 @@ import {
     ModDifficultyAdjust,
     ModMap,
     ModUtil,
+    SerializedMod,
 } from "@rian8337/osu-base";
 import { APIScore, Player, Score } from "@rian8337/osu-droid-utilities";
 import { OnlinePlayerRank } from "@structures/utils/OnlinePlayerRank";
@@ -107,6 +108,7 @@ export abstract class DroidHelper {
             return new Score({
                 ...v,
                 date: Math.floor(v.date.getTime() / 1000),
+                mods: JSON.parse(v.mods) as SerializedMod[],
             });
         });
     }
