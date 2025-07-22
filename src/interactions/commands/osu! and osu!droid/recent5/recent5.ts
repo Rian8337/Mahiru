@@ -118,6 +118,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
               | "good"
               | "bad"
               | "miss"
+              | "pp"
           >
         | Score
         | RecentPlay
@@ -142,6 +143,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 "good",
                 "bad",
                 "miss",
+                "pp",
             ]
         );
     }
@@ -158,7 +160,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         });
     }
 
-    ScoreDisplayHelper.showRecentPlays(
+    await ScoreDisplayHelper.showRecentPlays(
         interaction,
         player.username,
         recentPlays,

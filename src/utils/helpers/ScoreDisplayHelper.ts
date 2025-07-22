@@ -81,11 +81,12 @@ export abstract class ScoreDisplayHelper {
                   | "good"
                   | "bad"
                   | "miss"
+                  | "pp"
               >
             | Score
             | RecentPlay
         )[],
-        page: number = 1
+        page = 1
     ): Promise<Message> {
         const localization = this.getLocalization(
             CommandHelper.getLocale(interaction)
@@ -93,7 +94,7 @@ export abstract class ScoreDisplayHelper {
 
         const embed = EmbedCreator.createNormalEmbed({
             author: interaction.user,
-            color: (<GuildMember | null>interaction.member)?.displayColor,
+            color: (interaction.member as GuildMember | null)?.displayColor,
         });
 
         page = NumberHelper.clamp(page, 1, Math.ceil(scores.length / 5));
@@ -147,10 +148,7 @@ export abstract class ScoreDisplayHelper {
                         localization.language
                     )}\``;
 
-                if (
-                    score instanceof RecentPlay &&
-                    (score.droidAttribs || score.osuAttribs)
-                ) {
+                if (score instanceof RecentPlay) {
                     fieldValue += "\n";
 
                     if (score.droidAttribs) {
@@ -164,6 +162,8 @@ export abstract class ScoreDisplayHelper {
 
                         fieldValue += `${bold(score.osuAttribs.performance.total.toFixed(2))}pp`;
                     }
+                } else if (score.pp !== null) {
+                    fieldValue += `\n${bold(score.pp.toFixed(2))}dpp`;
                 }
 
                 embed.addFields({

@@ -68,6 +68,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
                       "good",
                       "bad",
                       "miss",
+                      "pp",
                   ]
               )
     );
@@ -80,7 +81,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
         });
     }
 
-    ScoreDisplayHelper.showRecentPlays(
+    await ScoreDisplayHelper.showRecentPlays(
         interaction,
         player.username,
         recentPlays
