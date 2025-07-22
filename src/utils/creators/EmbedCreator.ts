@@ -561,11 +561,13 @@ export abstract class EmbedCreator {
         const modString =
             score instanceof Score || score instanceof RecentPlay
                 ? score.completeModString
-                : ModUtil.modsToOrderedString(
-                      ModUtil.deserializeMods(
-                          JSON.parse(score.mods) as SerializedMod[]
-                      )
-                  );
+                : `+${
+                      ModUtil.modsToOrderedString(
+                          ModUtil.deserializeMods(
+                              JSON.parse(score.mods) as SerializedMod[]
+                          )
+                      ) || "No Mod"
+                  }`;
 
         const avatarURL = DroidHelper.getAvatarURL(score.uid);
 

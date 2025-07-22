@@ -132,7 +132,13 @@ export abstract class ScoreDisplayHelper {
                 if (score instanceof Score || score instanceof RecentPlay) {
                     fieldName += `${score.title} ${score.completeModString}`;
                 } else {
-                    fieldName += `${DroidHelper.cleanupFilename(score.filename)} ${ModUtil.modsToOrderedString(ModUtil.deserializeMods(JSON.parse(score.mods) as SerializedMod[]))}`;
+                    const mods = ModUtil.modsToOrderedString(
+                        ModUtil.deserializeMods(
+                            JSON.parse(score.mods) as SerializedMod[]
+                        )
+                    );
+
+                    fieldName += `${DroidHelper.cleanupFilename(score.filename)} ${mods ? `+${mods}` : ""}`;
                 }
 
                 let fieldValue =
