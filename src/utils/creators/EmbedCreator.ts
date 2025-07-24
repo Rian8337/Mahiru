@@ -21,7 +21,6 @@ import {
     ModUtil,
     Modes,
     Precision,
-    SerializedMod,
     Slider,
     SliderTail,
     SliderTick,
@@ -563,9 +562,7 @@ export abstract class EmbedCreator {
                 ? score.completeModString
                 : `+${
                       ModUtil.modsToOrderedString(
-                          ModUtil.deserializeMods(
-                              JSON.parse(score.mods) as SerializedMod[]
-                          )
+                          ModUtil.deserializeMods(score.mods)
                       ) || "No Mod"
                   }`;
 

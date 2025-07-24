@@ -5,13 +5,7 @@ import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { Symbols } from "@enums/utils/Symbols";
 import { Language } from "@localization/base/Language";
 import { ScoreDisplayHelperLocalization } from "@localization/utils/helpers/ScoreDisplayHelper/ScoreDisplayHelperLocalization";
-import {
-    Accuracy,
-    Modes,
-    ModUtil,
-    ScoreRank,
-    SerializedMod,
-} from "@rian8337/osu-base";
+import { Accuracy, Modes, ModUtil, ScoreRank } from "@rian8337/osu-base";
 import {
     DroidDifficultyAttributes,
     OsuDifficultyAttributes,
@@ -133,9 +127,7 @@ export abstract class ScoreDisplayHelper {
                     fieldName += `${score.title} ${score.completeModString}`;
                 } else {
                     const mods = ModUtil.modsToOrderedString(
-                        ModUtil.deserializeMods(
-                            JSON.parse(score.mods) as SerializedMod[]
-                        )
+                        ModUtil.deserializeMods(score.mods)
                     );
 
                     fieldName += `${DroidHelper.cleanupFilename(score.filename)} ${mods ? `+${mods}` : ""}`;

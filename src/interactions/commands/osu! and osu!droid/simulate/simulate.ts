@@ -20,7 +20,6 @@ import {
     ModUtil,
     PreciseDroidHitWindow,
     ScoreRank,
-    SerializedMod,
     Slider,
     SliderNestedHitObject,
     SliderTick,
@@ -223,9 +222,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     const realMods =
         score instanceof Score
             ? score.mods
-            : ModUtil.deserializeMods(
-                  JSON.parse(score.mods) as SerializedMod[]
-              );
+            : ModUtil.deserializeMods(score.mods);
 
     const realSpeedMultiplier =
         realMods.get(ModCustomSpeed)?.trackRateMultiplier ?? 1;
@@ -283,9 +280,11 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     let simulatedScoreMultiplier = 1;
     for (const mod of simulatedMods.values()) {
         if (mod.isApplicableToDroid()) {
-            simulatedScoreMultiplier *= mod.calculateDroidScoreMultiplier(
-                beatmap.beatmap!.difficulty
-            );
+            if (mod.requiresOriginalBeatmap()) {
+                mod.applyFromBeatmap(beatmap.beatmap!);
+            }
+
+            simulatedScoreMultiplier *= mod.droidScoreMultiplier;
         }
     }
 

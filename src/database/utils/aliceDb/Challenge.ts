@@ -18,7 +18,6 @@ import {
     ModNoFail,
     ModUtil,
     Modes,
-    SerializedMod,
 } from "@rian8337/osu-base";
 import {
     DroidDifficultyAttributes,
@@ -466,9 +465,7 @@ export class Challenge extends Manager {
         const mods =
             score instanceof Score
                 ? score.mods
-                : ModUtil.deserializeMods(
-                      JSON.parse(score.mods) as SerializedMod[]
-                  );
+                : ModUtil.deserializeMods(score.mods);
 
         if (!this.isConstrainFulfilled(mods)) {
             return this.createOperationResult(

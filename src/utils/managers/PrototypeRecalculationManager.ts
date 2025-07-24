@@ -14,7 +14,7 @@ import { Collection, CommandInteraction, hyperlink } from "discord.js";
 import { BeatmapManager } from "./BeatmapManager";
 import { PPProcessorRESTManager } from "./PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { Modes, Accuracy, ModUtil } from "@rian8337/osu-base";
+import { Modes, Accuracy } from "@rian8337/osu-base";
 import { NumberHelper } from "@utils/helpers/NumberHelper";
 import { PPHelper } from "@utils/helpers/PPHelper";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
@@ -65,7 +65,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
             reworkType: reworkType,
         });
 
-        this.beginPrototypeRecalculation();
+        void this.beginPrototypeRecalculation();
     }
 
     /**
@@ -90,7 +90,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
 
         const topScores = await DroidHelper.getTopScores(uid);
 
-        if (!topScores) {
+        if (topScores.length === 0) {
             return this.createOperationResult(
                 false,
                 "Failed to fetch top scores"
@@ -194,7 +194,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
 
             if (Config.isDebug) {
                 consola.info(
-                    `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP} ⮕  ${prototypeEntry.pp}`
+                    `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP.toString()} ⮕  ${prototypeEntry.pp.toString()}`
                 );
             }
 
@@ -264,7 +264,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                                     this.calculationSuccessResponse
                                 ),
                                 interaction.user.toString(),
-                                `uid ${hyperlink(uid.toString(), `https://droidpp.osudroid.moe/prototype/profile/${uid}/${reworkType}`)}`
+                                `uid ${hyperlink(uid.toString(), `https://droidpp.osudroid.moe/prototype/profile/${uid.toString()}/${reworkType}`)}`
                             ),
                         });
                     } else if (result.failed()) {
@@ -274,7 +274,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                                     this.calculationFailedResponse
                                 ),
                                 interaction.user.toString(),
-                                `uid ${uid}`,
+                                `uid ${uid.toString()}`,
                                 result.reason
                             ),
                         });
@@ -288,8 +288,8 @@ export abstract class PrototypeRecalculationManager extends Manager {
                                 this.calculationFailedResponse
                             ),
                             interaction.user.toString(),
-                            `uid ${uid}`,
-                            <string>e
+                            `uid ${uid.toString()}`,
+                            e as string
                         ),
                     });
                 }

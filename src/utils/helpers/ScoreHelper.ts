@@ -2,7 +2,6 @@ import { DatabaseManager } from "@database/DatabaseManager";
 import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
 import { RecentPlay } from "@database/utils/aliceDb/RecentPlay";
 import {
-    BeatmapDifficulty,
     Mod,
     ModDoubleTime,
     ModHardRock,
@@ -170,9 +169,6 @@ export abstract class ScoreHelper {
      * @param mods The mods to apply.
      */
     static applyScoreMultiplier(score: number, mods: ModMap): number {
-        // Fine to do since this is ancient code.
-        const difficulty = new BeatmapDifficulty();
-
         for (const mod of mods.values()) {
             if (mod instanceof ModHardRock) {
                 score *= 1.1;
@@ -180,12 +176,12 @@ export abstract class ScoreHelper {
             }
 
             if (mod.isApplicableToDroid()) {
-                score *= mod.calculateDroidScoreMultiplier(difficulty);
+                score *= mod.droidScoreMultiplier;
             }
         }
 
         if (mods.has(ModHidden) && mods.has(ModDoubleTime)) {
-            score /= mods.get(ModHidden)!.calculateDroidScoreMultiplier();
+            score /= mods.get(ModHidden)!.droidScoreMultiplier;
         }
 
         return Math.round(score);
@@ -198,15 +194,12 @@ export abstract class ScoreHelper {
      * @param mods The mods to remove.
      */
     static removeScoreMultiplier(score: number, mods: Iterable<Mod>): number {
-        // Fine to do since this is ancient code.
-        const difficulty = new BeatmapDifficulty();
-
         for (const mod of mods) {
             if (!mod.isApplicableToDroid()) {
                 continue;
             }
 
-            score /= mod.calculateDroidScoreMultiplier(difficulty);
+            score /= mod.droidScoreMultiplier;
         }
 
         return Math.round(score);
@@ -258,7 +251,7 @@ export abstract class ScoreHelper {
             }
         }
 
-        return (<(Score | RecentPlay)[]>existingScores)
+        return (existingScores as (Score | RecentPlay)[])
             .concat(recentPlays)
             .sort((a, b) => b.date.getTime() - a.date.getTime());
     }
