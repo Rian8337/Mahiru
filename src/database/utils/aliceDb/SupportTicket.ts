@@ -91,7 +91,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         return messageLink(
             Constants.supportTicketStaffChannel,
             this.trackingMessageId,
-            Constants.mainServer,
+            Constants.mainServer
         );
     }
 
@@ -115,14 +115,14 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         description: string,
         assignees: Snowflake[] = [],
         presetId?: number,
-        language: Language = "en",
+        language: Language = "en"
     ): Promise<OperationResult> {
         const guild = await this.client.guilds.fetch(Constants.mainServer);
         const userChannel = await guild.channels.fetch(
-            Constants.supportTicketUserChannel,
+            Constants.supportTicketUserChannel
         );
         const staffChannel = await guild.channels.fetch(
-            Constants.supportTicketStaffChannel,
+            Constants.supportTicketStaffChannel
         );
 
         if (
@@ -135,7 +135,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         const dbManager = DatabaseManager.aliceDb.collections.supportTicket;
         const ticketId = await dbManager.getNewId(authorId);
         const threadChannel = await userChannel.threads.create({
-            name: `Ticket #${ticketId} (${authorId})`,
+            name: `Ticket #${ticketId.toString()} (${authorId})`,
             invitable: false,
             type: ChannelType.PrivateThread,
             reason: "New ticket opened",
@@ -178,7 +178,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
 
         await controlPanelMessage.edit({
             content: MessageCreator.createWarn(
-                "You may control your ticket from this message or slash commands.",
+                "You may control your ticket from this message or slash commands."
             ),
             embeds: [ticket.toUserEmbed(language)],
             components: ticket.createUserControlPanelButtons(language),
@@ -203,7 +203,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
 
     constructor(
         data: DatabaseSupportTicket = DatabaseManager.aliceDb?.collections
-            .supportTicket.defaultDocument ?? {},
+            .supportTicket.defaultDocument ?? {}
     ) {
         super();
 
@@ -245,7 +245,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         if (!this.isOpen) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("ticketIsNotOpen"),
+                localization.getTranslation("ticketIsNotOpen")
             );
         }
 
@@ -253,7 +253,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         if (!userThreadChannel) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("cannotGetTicketMessage"),
+                localization.getTranslation("cannotGetTicketMessage")
             );
         }
 
@@ -261,7 +261,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         if (!staffThreadChannel) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("cannotGetTicketMessage"),
+                localization.getTranslation("cannotGetTicketMessage")
             );
         }
 
@@ -273,7 +273,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                 id: this.id,
                 authorId: this.authorId,
             },
-            { $set: { status: this.status, closedAt: this.closedAt } },
+            { $set: { status: this.status, closedAt: this.closedAt } }
         );
 
         if (result.failed()) {
@@ -298,9 +298,6 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
             await staffThreadChannel.setArchived(true, "Ticket closed");
         }
 
-        await staffThreadChannel.setLocked(true, "Ticket closed");
-        await staffThreadChannel.setArchived(true, "Ticket closed");
-
         return this.createOperationResult(true);
     }
 
@@ -316,14 +313,14 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         if (this.isOpen) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("ticketIsOpen"),
+                localization.getTranslation("ticketIsOpen")
             );
         }
 
         if (!this.reopenable) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("ticketIsTooOldToOpen"),
+                localization.getTranslation("ticketIsTooOldToOpen")
             );
         }
 
@@ -331,7 +328,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         if (!userThreadChannel) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("cannotGetTicketMessage"),
+                localization.getTranslation("cannotGetTicketMessage")
             );
         }
 
@@ -339,7 +336,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         if (!staffThreadChannel) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("cannotGetTicketMessage"),
+                localization.getTranslation("cannotGetTicketMessage")
             );
         }
 
@@ -351,7 +348,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                 id: this.id,
                 authorId: this.authorId,
             },
-            { $set: { status: this.status }, $unset: { closedAt: 1 } },
+            { $set: { status: this.status }, $unset: { closedAt: 1 } }
         );
 
         if (result.failed()) {
@@ -380,14 +377,14 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
     async edit(
         title: string,
         description: string,
-        language: Language = "en",
+        language: Language = "en"
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
 
         if (!this.isOpen) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("ticketIsNotOpen"),
+                localization.getTranslation("ticketIsNotOpen")
             );
         }
 
@@ -399,7 +396,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                 id: this.id,
                 authorId: this.authorId,
             },
-            { $set: { title: title, description: description } },
+            { $set: { title: title, description: description } }
         );
 
         if (result.failed()) {
@@ -420,14 +417,14 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
      */
     async move(
         channel: TextChannel | ForumChannel,
-        language: Language = "en",
+        language: Language = "en"
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
 
         if (!this.isOpen) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("ticketIsNotOpen"),
+                localization.getTranslation("ticketIsNotOpen")
             );
         }
 
@@ -435,13 +432,13 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         if (!currentUserThreadChannel) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("cannotGetTicketMessage"),
+                localization.getTranslation("cannotGetTicketMessage")
             );
         }
 
         const newUserThreadChannel = await channel.threads
             .create({
-                name: `Ticket #${this.id} (${this.authorId})`,
+                name: `Ticket #${this.id.toString()} (${this.authorId})`,
                 message: {
                     embeds: [this.toUserEmbed(language)],
                     components: this.createUserControlPanelButtons(language),
@@ -456,7 +453,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         if (!newUserThreadChannel) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("cannotCreateThread"),
+                localization.getTranslation("cannotCreateThread")
             );
         }
 
@@ -470,7 +467,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                     threadChannelId: newUserThreadChannel.id,
                     controlPanelMessageId: newUserThreadChannel.id,
                 },
-            },
+            }
         );
 
         if (result.failed()) {
@@ -482,7 +479,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         await currentUserThreadChannel.send({
             content: MessageCreator.createWarn(
                 localization.getTranslation("ticketMovedNotice"),
-                currentUserThreadChannel.toString(),
+                currentUserThreadChannel.toString()
             ),
         });
 
@@ -496,7 +493,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
 
         return this.createOperationResult(
             await this.updateMessages(language),
-            localization.getTranslation("cannotGetTicketMessage"),
+            localization.getTranslation("cannotGetTicketMessage")
         );
     }
 
@@ -509,21 +506,21 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
      */
     async assign(
         userId: Snowflake,
-        language: Language = "en",
+        language: Language = "en"
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
 
         if (!this.isOpen) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("ticketIsNotOpen"),
+                localization.getTranslation("ticketIsNotOpen")
             );
         }
 
         if (this.assigneeIds.includes(userId)) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("userIsAlreadyAssigned"),
+                localization.getTranslation("userIsAlreadyAssigned")
             );
         }
 
@@ -536,7 +533,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                 $addToSet: {
                     assigneeIds: userId,
                 },
-            },
+            }
         );
 
         if (result.failed()) {
@@ -548,7 +545,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         if (!(await this.updateMessages(language))) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("cannotGetTicketMessage"),
+                localization.getTranslation("cannotGetTicketMessage")
             );
         }
 
@@ -564,21 +561,21 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
      */
     async unassign(
         userId: Snowflake,
-        language: Language = "en",
+        language: Language = "en"
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
 
         if (!this.isOpen) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("ticketIsNotOpen"),
+                localization.getTranslation("ticketIsNotOpen")
             );
         }
 
         if (!this.assigneeIds.includes(userId)) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("userIsNotAssigned"),
+                localization.getTranslation("userIsNotAssigned")
             );
         }
 
@@ -591,7 +588,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                 $pull: {
                     assigneeIds: userId,
                 },
-            },
+            }
         );
 
         if (result.failed()) {
@@ -603,7 +600,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
         if (!(await this.updateMessages(language))) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("cannotGetTicketMessage"),
+                localization.getTranslation("cannotGetTicketMessage")
             );
         }
 
@@ -653,7 +650,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
             {
                 name: localization.getTranslation("embedTicketDescription"),
                 value: this.description,
-            },
+            }
         );
 
         return embed;
@@ -704,7 +701,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                     this.description.length > 250
                         ? this.description.substring(0, 248) + "..."
                         : this.description,
-            },
+            }
         );
 
         return embed;
@@ -717,7 +714,7 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
      * @returns An array of {@link ActionRowBuilder} containing the buttons.
      */
     private createUserControlPanelButtons(
-        language: Language = "en",
+        language: Language = "en"
     ): ActionRowBuilder<ButtonBuilder>[] {
         const localization = this.getLocalization(language);
         const rowBuilder = new ActionRowBuilder<ButtonBuilder>();
@@ -731,8 +728,8 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                     .setDisabled(!this.isOpen)
                     .setLabel(
                         localization.getTranslation(
-                            "userControlPanelEditButtonLabel",
-                        ),
+                            "userControlPanelEditButtonLabel"
+                        )
                     ),
                 new ButtonBuilder()
                     .setCustomId(`closeSupportTicket#${this.threadChannelId}`)
@@ -740,8 +737,8 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                     .setStyle(ButtonStyle.Danger)
                     .setLabel(
                         localization.getTranslation(
-                            "userControlPanelCloseButtonLabel",
-                        ),
+                            "userControlPanelCloseButtonLabel"
+                        )
                     ),
                 new ButtonBuilder()
                     .setCustomId(`moveSupportTicket#${this.threadChannelId}`)
@@ -749,9 +746,9 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                     .setStyle(ButtonStyle.Danger)
                     .setLabel(
                         localization.getTranslation(
-                            "userControlPanelMoveButtonLabel",
-                        ),
-                    ),
+                            "userControlPanelMoveButtonLabel"
+                        )
+                    )
             );
         } else if (this.reopenable) {
             rowBuilder.addComponents(
@@ -761,9 +758,9 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                     .setStyle(ButtonStyle.Primary)
                     .setLabel(
                         localization.getTranslation(
-                            "userControlPanelOpenButtonLabel",
-                        ),
-                    ),
+                            "userControlPanelOpenButtonLabel"
+                        )
+                    )
             );
         }
 
@@ -773,10 +770,10 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                 .setStyle(ButtonStyle.Link)
                 .setLabel(
                     localization.getTranslation(
-                        "userControlPanelTrackingMessageButtonLabel",
-                    ),
+                        "userControlPanelTrackingMessageButtonLabel"
+                    )
                 )
-                .setURL(this.trackingMessageURL),
+                .setURL(this.trackingMessageURL)
         );
 
         return [rowBuilder];
@@ -795,8 +792,8 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
             .setStyle(ButtonStyle.Link)
             .setLabel(
                 localization.getTranslation(
-                    "trackingMessageTicketChannelButtonLabel",
-                ),
+                    "trackingMessageTicketChannelButtonLabel"
+                )
             )
             .setURL(this.threadChannelURL);
 
@@ -812,20 +809,20 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                     .setDisabled(!this.isOpen)
                     .setLabel(
                         localization.getTranslation(
-                            "trackingMessageAssignButtonLabel",
-                        ),
+                            "trackingMessageAssignButtonLabel"
+                        )
                     ),
                 new ButtonBuilder()
                     .setCustomId(
-                        `unassignSupportTicket#${this.threadChannelId}`,
+                        `unassignSupportTicket#${this.threadChannelId}`
                     )
                     .setEmoji(Symbols.label)
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(!this.isOpen)
                     .setLabel(
                         localization.getTranslation(
-                            "trackingMessageUnassignButtonLabel",
-                        ),
+                            "trackingMessageUnassignButtonLabel"
+                        )
                     ),
                 new ButtonBuilder()
                     .setCustomId(`editSupportTicket#${this.threadChannelId}`)
@@ -834,8 +831,8 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                     .setDisabled(!this.isOpen)
                     .setLabel(
                         localization.getTranslation(
-                            "userControlPanelEditButtonLabel",
-                        ),
+                            "userControlPanelEditButtonLabel"
+                        )
                     ),
                 new ButtonBuilder()
                     .setCustomId(`moveSupportTicket#${this.threadChannelId}`)
@@ -843,8 +840,8 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                     .setStyle(ButtonStyle.Danger)
                     .setLabel(
                         localization.getTranslation(
-                            "trackingMessageMoveButtonLabel",
-                        ),
+                            "trackingMessageMoveButtonLabel"
+                        )
                     ),
                 new ButtonBuilder()
                     .setCustomId(`closeSupportTicket#${this.threadChannelId}`)
@@ -852,9 +849,9 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                     .setStyle(ButtonStyle.Danger)
                     .setLabel(
                         localization.getTranslation(
-                            "userControlPanelCloseButtonLabel",
-                        ),
-                    ),
+                            "userControlPanelCloseButtonLabel"
+                        )
+                    )
             );
 
             secondRowBuilder.addComponents(ticketChannelButton);
@@ -867,15 +864,15 @@ export class SupportTicket extends Manager implements DatabaseSupportTicket {
                 rowBuilder.addComponents(
                     new ButtonBuilder()
                         .setCustomId(
-                            `reopenSupportTicket#${this.threadChannelId}`,
+                            `reopenSupportTicket#${this.threadChannelId}`
                         )
                         .setEmoji(Symbols.outboxTray)
                         .setStyle(ButtonStyle.Primary)
                         .setLabel(
                             localization.getTranslation(
-                                "userControlPanelOpenButtonLabel",
-                            ),
-                        ),
+                                "userControlPanelOpenButtonLabel"
+                            )
+                        )
                 );
             }
 
