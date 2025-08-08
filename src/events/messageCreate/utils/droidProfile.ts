@@ -20,9 +20,9 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             continue;
         }
 
-        const uid = parseInt(<string>arg.split("=").pop());
+        const uid = parseInt(arg.split("=").pop()!);
 
-        if (!NumberHelper.isNumeric(arg)) {
+        if (!NumberHelper.isNumeric(uid)) {
             continue;
         }
 
@@ -32,16 +32,17 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             continue;
         }
 
-        const profileImage = <Buffer>(
-            await ProfileManager.getProfileStatistics(uid, player)
-        );
+        const profileImage = (await ProfileManager.getProfileStatistics(
+            uid,
+            player
+        ))!;
 
-        message.channel.send({
+        await message.channel.send({
             content: MessageCreator.createAccept(
                 new DroidProfileLocalization(
-                    CommandHelper.getLocale(message.author),
+                    CommandHelper.getLocale(message.author)
                 ).getTranslation("droidProfile"),
-                `${player.username}:\n<${ProfileManager.getProfileLink(uid)}>`,
+                `${player.username}:\n<${ProfileManager.getProfileLink(uid).toString()}>`
             ),
             files: [profileImage],
         });
