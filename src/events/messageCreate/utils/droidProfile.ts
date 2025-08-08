@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { hideLinkEmbed, hyperlink, Message } from "discord.js";
 import { EventUtil } from "structures/core/EventUtil";
 import { ProfileManager } from "@utils/managers/ProfileManager";
 import { MessageCreator } from "@utils/creators/MessageCreator";
@@ -42,7 +42,10 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                 new DroidProfileLocalization(
                     CommandHelper.getLocale(message.author)
                 ).getTranslation("droidProfile"),
-                `${player.username}:\n<${ProfileManager.getProfileLink(uid).toString()}>`
+                hyperlink(
+                    `${player.username} (${uid.toString()})`,
+                    hideLinkEmbed(ProfileManager.getProfileLink(uid))
+                )
             ),
             files: [profileImage],
             allowedMentions: { repliedUser: false },
