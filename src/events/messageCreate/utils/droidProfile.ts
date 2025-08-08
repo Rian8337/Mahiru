@@ -37,7 +37,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             player
         ))!;
 
-        await message.channel.send({
+        await message.reply({
             content: MessageCreator.createAccept(
                 new DroidProfileLocalization(
                     CommandHelper.getLocale(message.author)
@@ -45,6 +45,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                 `${player.username}:\n<${ProfileManager.getProfileLink(uid).toString()}>`
             ),
             files: [profileImage],
+            allowedMentions: { repliedUser: false },
         });
     }
 };
