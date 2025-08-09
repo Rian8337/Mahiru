@@ -37,6 +37,14 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         interaction.options.getString("reworktype") ??
         process.env.CURRENT_REWORK_TYPE;
 
+    if (reworkType !== process.env.CURRENT_REWORK_TYPE) {
+        return InteractionHelper.reply(interaction, {
+            content: MessageCreator.createReject(
+                localization.getTranslation("reworkTypeNotCurrent")
+            ),
+        });
+    }
+
     if (
         !reworkType ||
         !(await DatabaseManager.aliceDb.collections.prototypePPType.reworkTypeExists(
