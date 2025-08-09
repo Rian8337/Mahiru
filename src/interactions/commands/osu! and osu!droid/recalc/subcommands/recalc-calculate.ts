@@ -15,7 +15,7 @@ import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabase
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new RecalcLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const discordid = interaction.options.getUser("user")?.id;
@@ -27,7 +27,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("tooManyOptions"),
+                localization.getTranslation("tooManyOptions")
             ),
         });
     }
@@ -35,16 +35,17 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const dbManager = DatabaseManager.elainaDb.collections.userBind;
     const reworkType =
         interaction.options.getString("reworktype") ??
-        process.env.CURRENT_REWORK_TYPE!;
+        process.env.CURRENT_REWORK_TYPE;
 
     if (
+        !reworkType ||
         !(await DatabaseManager.aliceDb.collections.prototypePPType.reworkTypeExists(
-            reworkType,
+            reworkType
         ))
     ) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("reworkTypeDoesntExist"),
+                localization.getTranslation("reworkTypeDoesntExist")
             ),
         });
     }
@@ -62,8 +63,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         switch (true) {
             case !!username:
                 bindInfo = await dbManager.getFromUsername(
-                    username!,
-                    findOptions,
+                    username,
+                    findOptions
                 );
                 break;
 
@@ -71,7 +72,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 // If no arguments are specified, default to self
                 bindInfo = await dbManager.getFromUser(
                     discordid ?? interaction.user.id,
-                    findOptions,
+                    findOptions
                 );
         }
 
@@ -79,12 +80,12 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             return InteractionHelper.reply(interaction, {
                 content: MessageCreator.createReject(
                     new ConstantsLocalization(
-                        localization.language,
+                        localization.language
                     ).getTranslation(
                         username || discordid
                             ? Constants.userNotBindedReject
-                            : Constants.selfNotBindedReject,
-                    ),
+                            : Constants.selfNotBindedReject
+                    )
                 ),
             });
         }
@@ -97,7 +98,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerNotFound"),
+                localization.getTranslation("playerNotFound")
             ),
         });
     }
@@ -105,17 +106,17 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if ((player as Pick<OfficialDatabaseUser, "archived"> | null)?.archived) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerIsArchived"),
+                localization.getTranslation("playerIsArchived")
             ),
         });
     }
 
     PrototypeRecalculationManager.queue(interaction, uid, reworkType);
 
-    InteractionHelper.reply(interaction, {
+    await InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
             localization.getTranslation("userQueued"),
-            `uid ${uid}`,
+            `uid ${uid.toString()}`
         ),
     });
 };
