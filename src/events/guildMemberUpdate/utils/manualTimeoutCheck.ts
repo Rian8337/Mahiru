@@ -33,20 +33,13 @@ export const run: EventUtil["run"] = async (
     }
 
     if (
-        (!oldMember.communicationDisabledUntil &&
-            newMember.communicationDisabledUntil) ||
-        (guildConfig.permanentTimeoutRole &&
-            !oldMember.roles.cache.has(guildConfig.permanentTimeoutRole) &&
-            newMember.roles.cache.has(guildConfig.permanentTimeoutRole))
+        !oldMember.communicationDisabledUntil &&
+        newMember.communicationDisabledUntil
     ) {
         // Member was timeouted
         const auditLogEntries = await newMember.guild.fetchAuditLogs({
             limit: 1,
-            type:
-                !oldMember.communicationDisabledUntil &&
-                newMember.communicationDisabledUntil
-                    ? AuditLogEvent.MemberUpdate
-                    : AuditLogEvent.MemberRoleUpdate,
+            type: AuditLogEvent.MemberUpdate,
         });
 
         const auditLog = auditLogEntries.entries.first();
@@ -55,26 +48,19 @@ export const run: EventUtil["run"] = async (
             return;
         }
 
-        let timeDifference = Number.POSITIVE_INFINITY;
+        const firstAuditLog = auditLog.changes.find(
+            (v) => v.key === "communication_disabled_until"
+        );
 
-        if (
-            !oldMember.communicationDisabledUntil &&
-            newMember.communicationDisabledUntil
-        ) {
-            const firstAuditLog = auditLog.changes.find(
-                (v) => v.key === "communication_disabled_until"
-            );
-
-            if (!firstAuditLog) {
-                return;
-            }
-
-            const timeoutDate = new Date(firstAuditLog.new!);
-
-            timeDifference = Math.ceil(
-                DateTimeFormatHelper.getTimeDifference(timeoutDate) / 1000
-            );
+        if (!firstAuditLog) {
+            return;
         }
+
+        const timeoutDate = new Date(firstAuditLog.new!);
+
+        const timeDifference = Math.ceil(
+            DateTimeFormatHelper.getTimeDifference(timeoutDate) / 1000
+        );
 
         const timeoutEmbed = new EmbedBuilder()
             .setAuthor({
@@ -90,14 +76,10 @@ export const run: EventUtil["run"] = async (
             .setTimestamp(new Date())
             .setDescription(
                 `${bold(
-                    `${newMember}: ${
-                        Number.isFinite(timeDifference)
-                            ? DateTimeFormatHelper.secondsToDHMS(
-                                  timeDifference,
-                                  localization.language
-                              )
-                            : "Indefinite"
-                    }`
+                    `${newMember.toString()}: ${DateTimeFormatHelper.secondsToDHMS(
+                        timeDifference,
+                        localization.language
+                    )}`
                 )}\n\n` +
                     `=========================\n\n` +
                     `${bold(localization.getTranslation("reason"))}:\n` +
@@ -119,14 +101,10 @@ export const run: EventUtil["run"] = async (
             .setTimestamp(new Date())
             .setDescription(
                 `${bold(
-                    `${newMember}: ${
-                        Number.isFinite(timeDifference)
-                            ? DateTimeFormatHelper.secondsToDHMS(
-                                  timeDifference,
-                                  userLocalization.language
-                              )
-                            : "Indefinite"
-                    }`
+                    `${newMember.toString()}: ${DateTimeFormatHelper.secondsToDHMS(
+                        timeDifference,
+                        userLocalization.language
+                    )}`
                 )}\n\n` +
                     `=========================\n\n` +
                     `${bold(userLocalization.getTranslation("reason"))}:\n` +
@@ -134,8 +112,8 @@ export const run: EventUtil["run"] = async (
                         userLocalization.getTranslation("notSpecified"))
             );
 
-        try {
-            newMember.send({
+        await newMember
+            .send({
                 content: MessageCreator.createWarn(
                     userLocalization.getTranslation("timeoutUserNotification"),
                     DateTimeFormatHelper.secondsToDHMS(
@@ -146,9 +124,8 @@ export const run: EventUtil["run"] = async (
                         userLocalization.getTranslation("notSpecified")
                 ),
                 embeds: [userTimeoutEmbed],
-            });
-            // eslint-disable-next-line no-empty
-        } catch {}
+            })
+            .catch(() => null);
 
         if (
             timeDifference >= 6 * 3600 &&
@@ -163,20 +140,13 @@ export const run: EventUtil["run"] = async (
 
         await logChannel.send({ embeds: [timeoutEmbed] });
     } else if (
-        (oldMember.communicationDisabledUntil &&
-            !newMember.communicationDisabledUntil) ||
-        (guildConfig.permanentTimeoutRole &&
-            oldMember.roles.cache.has(guildConfig.permanentTimeoutRole) &&
-            !newMember.roles.cache.has(guildConfig.permanentTimeoutRole))
+        oldMember.communicationDisabledUntil &&
+        !newMember.communicationDisabledUntil
     ) {
         // Member was untimeouted
         const auditLogEntries = await newMember.guild.fetchAuditLogs({
             limit: 1,
-            type:
-                oldMember.communicationDisabledUntil &&
-                !newMember.communicationDisabledUntil
-                    ? AuditLogEvent.MemberUpdate
-                    : AuditLogEvent.MemberRoleUpdate,
+            type: AuditLogEvent.MemberUpdate,
         });
 
         const auditLog = auditLogEntries.entries.first();
@@ -221,8 +191,8 @@ export const run: EventUtil["run"] = async (
                         userLocalization.getTranslation("notSpecified"))
             );
 
-        try {
-            newMember.send({
+        await newMember
+            .send({
                 content: MessageCreator.createWarn(
                     userLocalization.getTranslation(
                         "untimeoutUserNotification"
@@ -231,9 +201,8 @@ export const run: EventUtil["run"] = async (
                         localization.getTranslation("notSpecified")
                 ),
                 embeds: [userUntimeoutEmbed],
-            });
-            // eslint-disable-next-line no-empty
-        } catch {}
+            })
+            .catch(() => null);
 
         await logChannel.send({ embeds: [untimeoutEmbed] });
     }
