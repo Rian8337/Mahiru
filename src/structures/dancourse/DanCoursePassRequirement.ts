@@ -1,3 +1,4 @@
+import { SerializedMod } from "@rian8337/osu-base";
 import { DanCoursePassRequirementType } from "./DanCoursePassRequirementType";
 
 /**
@@ -17,35 +18,10 @@ export interface DanCoursePassRequirement {
     /**
      * The combination of mods that must be used to pass the course.
      */
-    readonly requiredMods?: string;
-
-    /**
-     * The custom speed multiplier required to pass the course.
-     */
-    readonly speedMultiplier?: number;
+    readonly requiredMods?: SerializedMod[];
 
     /**
      * Whether to allow slider lock to be used.
      */
     readonly allowSliderLock?: boolean;
-
-    /**
-     * Whether to force slider accuracy to be used.
-     */
-    readonly forceSliderAccuracy?: boolean;
-
-    /**
-     * Settings for forced AR.
-     */
-    readonly forcedAR?: {
-        /**
-         * The allowable minimum value of forced AR.
-         */
-        readonly minValue?: number;
-
-        /**
-         * The allowable maximum value of forced AR.
-         */
-        readonly maxValue?: number;
-    };
 }

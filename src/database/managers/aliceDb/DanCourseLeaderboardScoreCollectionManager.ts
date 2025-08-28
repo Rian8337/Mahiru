@@ -13,7 +13,7 @@ export class DanCourseLeaderboardScoreCollectionManager extends DatabaseCollecti
     DanCourseLeaderboardScore
 > {
     protected override utilityInstance: new (
-        data: DatabaseDanCourseScore,
+        data: DatabaseDanCourseScore
     ) => DanCourseLeaderboardScore = DanCourseLeaderboardScore;
 
     override get defaultDocument(): DatabaseDanCourseScore {
@@ -27,7 +27,7 @@ export class DanCourseLeaderboardScoreCollectionManager extends DatabaseCollecti
             katu: 0,
             maxCombo: 0,
             miss: 0,
-            modstring: "",
+            mods: [],
             perfect: 0,
             rank: "X",
             score: 0,
@@ -35,7 +35,6 @@ export class DanCourseLeaderboardScoreCollectionManager extends DatabaseCollecti
             uid: 0,
             unstableRate: 0,
             username: "",
-            useSliderAccuracy: false,
             replayFileName: "",
             grade: 0,
         };
@@ -50,17 +49,16 @@ export class DanCourseLeaderboardScoreCollectionManager extends DatabaseCollecti
      */
     async getLeaderboard(
         hash: string,
-        page: number,
+        page: number
     ): Promise<DanCourseLeaderboardScore[]> {
-        const amountPerPage: number = 50;
+        const amountPerPage = 50;
 
-        const scores: DatabaseDanCourseLeaderboardScore[] =
-            await this.collection
-                .find({ hash: hash })
-                .sort({ score: -1, date: -1, grade: -1 })
-                .skip(amountPerPage * Math.max(0, page - 1))
-                .limit(amountPerPage)
-                .toArray();
+        const scores = await this.collection
+            .find({ hash: hash })
+            .sort({ score: -1, date: -1, grade: -1 })
+            .skip(amountPerPage * Math.max(0, page - 1))
+            .limit(amountPerPage)
+            .toArray();
 
         return scores.map((v) => new DanCourseLeaderboardScore(v));
     }
@@ -74,7 +72,7 @@ export class DanCourseLeaderboardScoreCollectionManager extends DatabaseCollecti
      */
     getScore(
         uid: number,
-        hash: string,
+        hash: string
     ): Promise<DanCourseLeaderboardScore | null> {
         return this.getOne({ uid: uid, hash: hash });
     }

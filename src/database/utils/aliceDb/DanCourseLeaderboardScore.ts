@@ -1,5 +1,5 @@
 import { DatabaseManager } from "@database/DatabaseManager";
-import { ScoreRank } from "@rian8337/osu-base";
+import { ScoreRank, SerializedMod } from "@rian8337/osu-base";
 import { DatabaseDanCourseLeaderboardScore } from "@structures/database/aliceDb/DatabaseDanCourseLeaderboardScore";
 import { Manager } from "@utils/base/Manager";
 import { ObjectId } from "mongodb";
@@ -10,29 +10,28 @@ export class DanCourseLeaderboardScore
 {
     grade: number;
     readonly replayFileName: string;
-    uid: number;
-    username: string;
-    hash: string;
-    modstring: string;
-    score: number;
-    maxCombo: number;
-    rank: ScoreRank;
-    geki: number;
-    perfect: number;
-    katu: number;
-    good: number;
-    bad: number;
-    miss: number;
-    date: number;
-    unstableRate: number;
-    isSliderLock: boolean;
-    useSliderAccuracy: boolean;
-    skippedTime: number;
+    readonly uid: number;
+    readonly username: string;
+    readonly hash: string;
+    readonly mods: SerializedMod[];
+    readonly score: number;
+    readonly maxCombo: number;
+    readonly rank: ScoreRank;
+    readonly geki: number;
+    readonly perfect: number;
+    readonly katu: number;
+    readonly good: number;
+    readonly bad: number;
+    readonly miss: number;
+    readonly date: number;
+    readonly unstableRate: number;
+    readonly isSliderLock: boolean;
+    readonly skippedTime: number;
     readonly _id?: ObjectId;
 
     constructor(
         data: DatabaseDanCourseLeaderboardScore = DatabaseManager.aliceDb
-            ?.collections.danCourseLeaderboardScores.defaultDocument ?? {},
+            ?.collections.danCourseLeaderboardScores.defaultDocument ?? {}
     ) {
         super();
 
@@ -42,7 +41,7 @@ export class DanCourseLeaderboardScore
         this.uid = data.uid;
         this.username = data.username;
         this.hash = data.hash;
-        this.modstring = data.modstring;
+        this.mods = data.mods;
         this.score = data.score;
         this.maxCombo = data.maxCombo;
         this.rank = data.rank;
@@ -55,7 +54,6 @@ export class DanCourseLeaderboardScore
         this.date = data.date;
         this.unstableRate = data.unstableRate;
         this.isSliderLock = data.isSliderLock;
-        this.useSliderAccuracy = data.useSliderAccuracy;
         this.skippedTime = data.skippedTime;
     }
 }

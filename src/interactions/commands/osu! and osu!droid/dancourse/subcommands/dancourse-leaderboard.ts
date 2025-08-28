@@ -2,7 +2,7 @@ import { DatabaseManager } from "@database/DatabaseManager";
 import { DanCourseLeaderboardScore } from "@database/utils/aliceDb/DanCourseLeaderboardScore";
 import { Symbols } from "@enums/utils/Symbols";
 import { DanCourseLocalization } from "@localization/interactions/commands/osu! and osu!droid/dancourse/DanCourseLocalization";
-import { Accuracy } from "@rian8337/osu-base";
+import { Accuracy, ModUtil } from "@rian8337/osu-base";
 import { SlashSubcommand } from "@structures/core/SlashSubcommand";
 import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
@@ -10,7 +10,6 @@ import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
-import { DroidHelper } from "@utils/helpers/DroidHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { LocaleHelper } from "@utils/helpers/LocaleHelper";
 import { NumberHelper } from "@utils/helpers/NumberHelper";
@@ -67,14 +66,12 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     nmiss: score.miss,
                 }).value() * 100,
                 2
-            )}%\n` +
+            ).toString()}%\n` +
             `${arrow} ${bold(
                 NumberHelper.round(score.grade, 2).toString()
             )} ${arrow} ${score.score.toLocaleString(
                 LocaleHelper.convertToBCP47(localization.language)
-            )} ${arrow} ${score.maxCombo}x ${arrow} [${score.perfect}/${
-                score.good
-            }/${score.bad}/${score.miss}]\n` +
+            )} ${arrow} ${score.maxCombo.toString()}x ${arrow} [${score.perfect.toString()}/${score.good.toString()}/${score.bad.toString()}/${score.miss.toString()}]\n` +
             `\`${DateTimeFormatHelper.dateToLocaleString(
                 new Date(score.date),
                 localization.language
@@ -100,14 +97,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         const embedOptions: BaseMessageOptions = {
             embeds: [EmbedCreator.createNormalEmbed()],
         };
-        const embed = <EmbedBuilder>embedOptions.embeds![0];
+        const embed = embedOptions.embeds![0] as EmbedBuilder;
         const topScore = scoreCache.get(1)![0];
-        const modString = DroidHelper.getCompleteModString(topScore.modstring);
 
         embed.setTitle(course.courseName).addFields({
-            name: `${bold(localization.getTranslation("topScore"))}`,
+            name: bold(localization.getTranslation("topScore")),
             value: `${bold(
-                `${topScore.username} ${modString}`
+                `${topScore.username} +${ModUtil.modsToOrderedString(ModUtil.deserializeMods(topScore.mods))}`
             )}\n${getScoreDescription(topScore)}`,
         });
 
@@ -119,7 +115,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
         for (const score of displayedScores) {
             embed.addFields({
-                name: `${++i} ${score.username} ${modString}`,
+                name: `${(++i).toString()} ${score.username} +${ModUtil.modsToOrderedString(ModUtil.deserializeMods(score.mods))}`,
                 value: getScoreDescription(score),
             });
         }
@@ -127,7 +123,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         Object.assign(options, embedOptions);
     };
 
-    MessageButtonCreator.createLimitlessButtonBasedPaging(
+    await MessageButtonCreator.createLimitlessButtonBasedPaging(
         interaction,
         {},
         [interaction.user.id],

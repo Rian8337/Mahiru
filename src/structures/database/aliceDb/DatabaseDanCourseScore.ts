@@ -1,4 +1,4 @@
-import { ScoreRank } from "@rian8337/osu-base";
+import { ScoreRank, SerializedMod } from "@rian8337/osu-base";
 import { BaseDocument } from "../BaseDocument";
 
 /**
@@ -21,9 +21,9 @@ export interface DatabaseDanCourseScore extends BaseDocument {
     readonly hash: string;
 
     /**
-     * The string of mod combinations received from the client.
+     * The mod combinations received from the client.
      */
-    readonly modstring: string;
+    readonly mods: SerializedMod[];
 
     /**
      * The score achieved by the player.
@@ -84,11 +84,6 @@ export interface DatabaseDanCourseScore extends BaseDocument {
      * Whether this player enables the slider lock option.
      */
     readonly isSliderLock: boolean;
-
-    /**
-     * Whether this player uses slider accuracy.
-     */
-    readonly useSliderAccuracy: boolean;
 
     /**
      * The skipped time when using the skip button, in seconds. This is 0 if the player didn't use the skip button.
