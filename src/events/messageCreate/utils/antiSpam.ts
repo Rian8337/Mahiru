@@ -16,11 +16,18 @@ interface MessageInformation {
 // Map from user ID to a map of message content and messages with the same content
 const messageCache = new Map<Snowflake, Map<string, MessageInformation>>();
 
+const ignoredChannelIds = new Set<Snowflake>([
+    "325827427446161413",
+    "1231008823695769722",
+    "686948895212961807"
+]);
+
 export const run: EventUtil["run"] = async (_, message: Message) => {
     if (
         message.author.bot ||
         !message.inGuild() ||
-        message.guildId !== Constants.mainServer
+        message.guildId !== Constants.mainServer ||
+        ignoredChannelIds.has(message.channelId)
     ) {
         return;
     }
