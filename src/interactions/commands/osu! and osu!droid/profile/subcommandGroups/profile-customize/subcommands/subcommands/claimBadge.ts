@@ -223,14 +223,7 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
                 });
             }
 
-            if (attribs.attributes.difficulty.starRating < badge.requirement) {
-                return InteractionHelper.update(interaction, {
-                    content: MessageCreator.createReject(
-                        localization.getTranslation("userCannotClaimBadge"),
-                    ),
-                });
-            }
-
+            canUserClaimBadge = attribs.attributes.difficulty.starRating < badge.requirement;
             break;
         }
         case "unclaimable":
