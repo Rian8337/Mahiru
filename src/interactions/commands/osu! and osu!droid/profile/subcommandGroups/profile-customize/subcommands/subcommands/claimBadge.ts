@@ -223,7 +223,7 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
                 });
             }
 
-            canUserClaimBadge = attribs.attributes.difficulty.starRating < badge.requirement;
+            canUserClaimBadge = attribs.attributes.difficulty.starRating >= badge.requirement;
             break;
         }
         case "unclaimable":
