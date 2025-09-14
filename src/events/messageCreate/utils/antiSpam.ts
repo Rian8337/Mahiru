@@ -19,7 +19,7 @@ const messageCache = new Map<Snowflake, Map<string, MessageInformation>>();
 const ignoredChannelIds = new Set<Snowflake>([
     "325827427446161413",
     "1231008823695769722",
-    "686948895212961807"
+    "686948895212961807",
 ]);
 
 export const run: EventUtil["run"] = async (_, message: Message) => {
@@ -86,7 +86,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
     }
 
     const botOwner = await message.guild.members.fetch(Config.botOwners[1]);
-    const duration = 3 * 60 * 1000;
+    const duration = 30 * 1000;
     const reason = `${bold("[Automated Timeout]")} You were sending multiple similar messages too fast! Please calm down.`;
 
     await member.timeout(duration, reason);
