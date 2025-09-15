@@ -14,8 +14,12 @@ import { Collection, CommandInteraction, hyperlink } from "discord.js";
 import { BeatmapManager } from "./BeatmapManager";
 import { PPProcessorRESTManager } from "./PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { Modes, Accuracy } from "@rian8337/osu-base";
-import { NumberHelper } from "@utils/helpers/NumberHelper";
+import {
+    Modes,
+    Accuracy,
+    BeatmapDifficulty,
+    ModUtil,
+} from "@rian8337/osu-base";
 import { PPHelper } from "@utils/helpers/PPHelper";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { MessageCreator } from "@utils/creators/MessageCreator";
@@ -132,9 +136,29 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 continue;
             }
 
-            const { performance: perfResult, params } = liveAttribs.attributes;
-            const { performance: rebalPerfResult, params: rebalParams } =
-                rebalAttribs.attributes;
+            const {
+                difficulty: diffResult,
+                performance: perfResult,
+                params,
+            } = liveAttribs.attributes;
+            const {
+                difficulty: rebalDiffResult,
+                performance: rebalPerfResult,
+                params: rebalParams,
+            } = rebalAttribs.attributes;
+
+            const beatmapDifficulty = new BeatmapDifficulty();
+            beatmapDifficulty.cs = beatmapInfo.cs;
+            beatmapDifficulty.ar = beatmapInfo.ar;
+            beatmapDifficulty.od = beatmapInfo.od;
+            beatmapDifficulty.hp = beatmapInfo.hp;
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                beatmapDifficulty,
+                Modes.droid,
+                score.mods,
+                true
+            );
 
             const accuracy = new Accuracy(params.accuracy);
 
@@ -142,9 +166,9 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 uid: score.uid,
                 hash: beatmapInfo.hash,
                 title: beatmapInfo.fullTitle,
-                pp: NumberHelper.round(perfResult.total, 2),
+                pp: perfResult.total,
                 mods: liveAttribs.attributes.difficulty.mods,
-                accuracy: NumberHelper.round(accuracy.value() * 100, 2),
+                accuracy: accuracy.value() * 100,
                 combo: params.combo,
                 miss: accuracy.nmiss,
             };
@@ -153,31 +177,41 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 uid: score.uid,
                 hash: beatmapInfo.hash,
                 title: beatmapInfo.fullTitle,
-                pp: NumberHelper.round(rebalPerfResult.total, 2),
-                newAim: NumberHelper.round(rebalPerfResult.aim, 2),
-                newTap: NumberHelper.round(rebalPerfResult.tap, 2),
-                newAccuracy: NumberHelper.round(rebalPerfResult.accuracy, 2),
-                newVisual: NumberHelper.round(rebalPerfResult.visual, 2),
-                prevPP: NumberHelper.round(perfResult.total, 2),
-                prevAim: NumberHelper.round(perfResult.aim, 2),
-                prevTap: NumberHelper.round(perfResult.tap, 2),
-                prevAccuracy: NumberHelper.round(perfResult.accuracy, 2),
-                prevVisual: NumberHelper.round(perfResult.visual, 2),
+                circleSize: beatmapDifficulty.cs,
+                approachRate: beatmapDifficulty.ar,
+                overallDifficulty: beatmapDifficulty.od,
+                newStarRating: rebalDiffResult.starRating,
+                newAimDifficulty: rebalDiffResult.aimDifficulty,
+                newTapDifficulty: rebalDiffResult.tapDifficulty,
+                newRhythmDifficulty: rebalDiffResult.rhythmDifficulty,
+                newFlashlightDifficulty: rebalDiffResult.flashlightDifficulty,
+                newVisualDifficulty: rebalDiffResult.visualDifficulty,
+                pp: rebalPerfResult.total,
+                newAim: rebalPerfResult.aim,
+                newTap: rebalPerfResult.tap,
+                newAccuracy: rebalPerfResult.accuracy,
+                newFlashlight: rebalPerfResult.flashlight,
+                newVisual: rebalPerfResult.visual,
+                prevStarRating: diffResult.starRating,
+                prevAimDifficulty: diffResult.aimDifficulty,
+                prevTapDifficulty: diffResult.tapDifficulty,
+                prevRhythmDifficulty: diffResult.rhythmDifficulty,
+                prevFlashlightDifficulty: diffResult.flashlightDifficulty,
+                prevVisualDifficulty: diffResult.visualDifficulty,
+                prevPP: perfResult.total,
+                prevAim: perfResult.aim,
+                prevTap: perfResult.tap,
+                prevAccuracy: perfResult.accuracy,
+                prevFlashlight: perfResult.flashlight,
+                prevVisual: perfResult.visual,
                 mods: rebalAttribs.attributes.difficulty.mods,
-                accuracy: NumberHelper.round(accuracy.value() * 100, 2),
+                accuracy: accuracy.value() * 100,
                 combo: params.combo,
+                maxCombo: diffResult.maxCombo,
                 miss: accuracy.nmiss,
                 calculatedUnstableRate: rebalPerfResult.calculatedUnstableRate,
-                estimatedUnstableRate: NumberHelper.round(
-                    rebalPerfResult.deviation * 10,
-                    2
-                ),
-                estimatedSpeedUnstableRate: NumberHelper.round(
-                    rebalPerfResult.tapDeviation * 10,
-                    2
-                ),
-                overallDifficulty:
-                    rebalAttribs.attributes.difficulty.overallDifficulty,
+                estimatedUnstableRate: rebalPerfResult.deviation * 10,
+                estimatedSpeedUnstableRate: rebalPerfResult.tapDeviation * 10,
                 hit300: accuracy.n300,
                 hit100: accuracy.n100,
                 hit50: accuracy.n50,

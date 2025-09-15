@@ -5,6 +5,71 @@ import { PPEntry } from "./PPEntry";
  */
 export interface PrototypePPEntry extends PPEntry {
     /**
+     * The maximum combo of the score.
+     */
+    maxCombo: number;
+
+    /**
+     * The previous star rating.
+     */
+    prevStarRating: number;
+
+    /**
+     * The previous aim difficulty.
+     */
+    prevAimDifficulty: number;
+
+    /**
+     * The previous tap difficulty.
+     */
+    prevTapDifficulty: number;
+
+    /**
+     * The previous rhythm difficulty.
+     */
+    prevRhythmDifficulty: number;
+
+    /**
+     * The previous flashlight difficulty.
+     */
+    prevFlashlightDifficulty: number;
+
+    /**
+     * The previous visual difficulty.
+     */
+    prevVisualDifficulty: number;
+
+    /**
+     * The new star rating.
+     */
+    newStarRating: number;
+
+    /**
+     * The new aim difficulty.
+     */
+    newAimDifficulty: number;
+
+    /**
+     * The new tap difficulty.
+     */
+    newTapDifficulty: number;
+
+    /**
+     * The new rhythm difficulty.
+     */
+    newRhythmDifficulty: number;
+
+    /**
+     * The new flashlight difficulty.
+     */
+    newFlashlightDifficulty: number;
+
+    /**
+     * The new visual difficulty.
+     */
+    newVisualDifficulty: number;
+
+    /**
      * The pp before the score was recalculated.
      */
     prevPP: number;
@@ -23,6 +88,11 @@ export interface PrototypePPEntry extends PPEntry {
      * The previous accuracy pp value.
      */
     prevAccuracy: number;
+
+    /**
+     * The previous flashlight pp value.
+     */
+    prevFlashlight: number;
 
     /**
      * The previous visual pp value.
@@ -45,6 +115,11 @@ export interface PrototypePPEntry extends PPEntry {
     newAccuracy: number;
 
     /**
+     * The new flashlight pp value.
+     */
+    newFlashlight: number;
+
+    /**
      * The new visual pp value.
      */
     newVisual: number;
@@ -65,7 +140,17 @@ export interface PrototypePPEntry extends PPEntry {
     estimatedSpeedUnstableRate: number;
 
     /**
-     * The evaluated overall difficulty of the score.
+     * The circle size of the played beatmap.
+     */
+    circleSize: number;
+
+    /**
+     * The approach rate of the played beatmap.
+     */
+    approachRate: number;
+
+    /**
+     * The evaluated osu!droid overall difficulty of the score.
      */
     overallDifficulty: number;
 
