@@ -65,9 +65,9 @@ export interface PrototypePPEntry extends PPEntry {
     newFlashlightDifficulty: number;
 
     /**
-     * The new visual difficulty.
+     * The new reading difficulty.
      */
-    newVisualDifficulty: number;
+    newReadingDifficulty: number;
 
     /**
      * The pp before the score was recalculated.
@@ -120,14 +120,9 @@ export interface PrototypePPEntry extends PPEntry {
     newFlashlight: number;
 
     /**
-     * The new visual pp value.
+     * The new reading pp value.
      */
-    newVisual: number;
-
-    /**
-     * The calculated unstable rate of the score.
-     */
-    calculatedUnstableRate: number | null;
+    newReading: number;
 
     /**
      * The estimated unstable rate of the score.
@@ -188,11 +183,6 @@ export interface PrototypePPEntry extends PPEntry {
      * The flashlight slider cheese penalty of the score.
      */
     flashlightSliderCheesePenalty: number;
-
-    /**
-     * The visual slider cheese penalty of the score.
-     */
-    visualSliderCheesePenalty: number;
 
     /**
      * The number of clickable objects weighted by difficulty.

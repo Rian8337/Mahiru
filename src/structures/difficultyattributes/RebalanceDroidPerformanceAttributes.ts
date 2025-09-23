@@ -1,14 +1,44 @@
-import { DroidPerformanceAttributes } from "./DroidPerformanceAttributes";
+import { PerformanceAttributes } from "./PerformanceAttributes";
 
 /**
  * A structure containing information about a performance calculation result.
  */
 export interface RebalanceDroidPerformanceAttributes
-    extends DroidPerformanceAttributes {
+    extends PerformanceAttributes {
     /**
-     * The calculated unstable rate of the score.
+     * The tap performance points.
      */
-    calculatedUnstableRate: number;
+    tap: number;
+
+    /**
+     * The visual performance points.
+     */
+    reading: number;
+
+    /**
+     * The estimated deviation of the score.
+     */
+    deviation: number;
+
+    /**
+     * The estimated tap deviation of the score.
+     */
+    tapDeviation: number;
+
+    /**
+     * The penalty used to penalize the tap performance value.
+     */
+    tapPenalty: number;
+
+    /**
+     * The penalty used to penalize the aim performance value.
+     */
+    aimSliderCheesePenalty: number;
+
+    /**
+     * The penalty used to penalize the flashlight performance value.
+     */
+    flashlightSliderCheesePenalty: number;
 
     /**
      * The estimated unstable rate of the score.

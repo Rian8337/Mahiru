@@ -185,13 +185,13 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 newTapDifficulty: rebalDiffResult.tapDifficulty,
                 newRhythmDifficulty: rebalDiffResult.rhythmDifficulty,
                 newFlashlightDifficulty: rebalDiffResult.flashlightDifficulty,
-                newVisualDifficulty: rebalDiffResult.visualDifficulty,
+                newReadingDifficulty: rebalDiffResult.readingDifficulty,
                 pp: rebalPerfResult.total,
                 newAim: rebalPerfResult.aim,
                 newTap: rebalPerfResult.tap,
                 newAccuracy: rebalPerfResult.accuracy,
                 newFlashlight: rebalPerfResult.flashlight,
-                newVisual: rebalPerfResult.visual,
+                newReading: rebalPerfResult.reading,
                 prevStarRating: diffResult.starRating,
                 prevAimDifficulty: diffResult.aimDifficulty,
                 prevTapDifficulty: diffResult.tapDifficulty,
@@ -209,7 +209,6 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 combo: params.combo,
                 maxCombo: diffResult.maxCombo,
                 miss: accuracy.nmiss,
-                calculatedUnstableRate: rebalPerfResult.calculatedUnstableRate,
                 estimatedUnstableRate: rebalPerfResult.deviation * 10,
                 estimatedSpeedUnstableRate: rebalPerfResult.tapDeviation * 10,
                 hit300: accuracy.n300,
@@ -218,8 +217,6 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 aimSliderCheesePenalty: rebalPerfResult.aimSliderCheesePenalty,
                 flashlightSliderCheesePenalty:
                     rebalPerfResult.flashlightSliderCheesePenalty,
-                visualSliderCheesePenalty:
-                    rebalPerfResult.visualSliderCheesePenalty,
                 speedNoteCount:
                     rebalAttribs.attributes.difficulty.speedNoteCount,
                 liveTapPenalty: params.tapPenalty,
@@ -228,7 +225,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
 
             if (Config.isDebug) {
                 consola.info(
-                    `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP.toString()} ⮕  ${prototypeEntry.pp.toString()}`
+                    `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP.toFixed(2)} ⮕  ${prototypeEntry.pp.toFixed(2)}`
                 );
             }
 
