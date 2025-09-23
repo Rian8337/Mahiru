@@ -23,4 +23,5 @@ export interface OfficialDatabaseScore {
     readonly slider_tick_hit: number | null;
     readonly slider_end_hit: number | null;
     readonly pp: number | null;
+    readonly pp_multiplier: number | null;
 }

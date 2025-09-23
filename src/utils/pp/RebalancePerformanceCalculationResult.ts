@@ -26,9 +26,8 @@ export class RebalancePerformanceCalculationResult<
             starRatingDetails.push(`${num.toFixed(2)} ${suffix}`);
 
         if ("tapDifficulty" in difficultyAttributes) {
-            const droidDifficultyAttributes = <DroidDifficultyAttributes>(
-                difficultyAttributes
-            );
+            const droidDifficultyAttributes =
+                difficultyAttributes as DroidDifficultyAttributes;
 
             addDetail(droidDifficultyAttributes.aimDifficulty, "aim");
             addDetail(droidDifficultyAttributes.tapDifficulty, "tap");
@@ -37,11 +36,10 @@ export class RebalancePerformanceCalculationResult<
                 droidDifficultyAttributes.flashlightDifficulty,
                 "flashlight"
             );
-            addDetail(droidDifficultyAttributes.visualDifficulty, "visual");
+            addDetail(droidDifficultyAttributes.readingDifficulty, "reading");
         } else {
-            const osuDifficultyAttributes = <OsuDifficultyAttributes>(
-                difficultyAttributes
-            );
+            const osuDifficultyAttributes =
+                difficultyAttributes as OsuDifficultyAttributes;
 
             addDetail(osuDifficultyAttributes.aimDifficulty, "aim");
             addDetail(osuDifficultyAttributes.speedDifficulty, "speed");

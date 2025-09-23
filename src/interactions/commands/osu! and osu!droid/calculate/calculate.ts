@@ -11,6 +11,7 @@ import {
     ModUtil,
 } from "@rian8337/osu-base";
 import {
+    CacheableDifficultyAttributes,
     IDroidDifficultyAttributes,
     IOsuDifficultyAttributes,
 } from "@rian8337/osu-difficulty-calculator";
@@ -125,13 +126,22 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     calcParams.recalculateAccuracy(beatmap.objects);
 
-    let droidCalcResult: PPProcessorCalculationResponse<
-        CompleteCalculationAttributes<
-            IDroidDifficultyAttributes | IRebalanceDroidDifficultyAttributes,
-            DroidPerformanceAttributes | RebalanceDroidPerformanceAttributes
-        >,
-        true
-    > | null;
+    let droidCalcResult:
+        | PPProcessorCalculationResponse<
+              CompleteCalculationAttributes<
+                  IDroidDifficultyAttributes,
+                  DroidPerformanceAttributes
+              >,
+              true
+          >
+        | PPProcessorCalculationResponse<
+              CompleteCalculationAttributes<
+                  IRebalanceDroidDifficultyAttributes,
+                  RebalanceDroidPerformanceAttributes
+              >,
+              true
+          >
+        | null;
 
     let osuCalcResult: PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
@@ -209,17 +219,26 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             interaction.options.getInteger("calculationmethod") ===
             PPCalculationMethod.rebalance
                 ? PPHelper.getRebalanceDroidDifficultyAttributesInfo(
-                      droidCalcResult.attributes.difficulty
+                      droidCalcResult.attributes
+                          .difficulty as CacheableDifficultyAttributes<IRebalanceDroidDifficultyAttributes>
                   )
                 : PPHelper.getDroidDifficultyAttributesInfo(
-                      droidCalcResult.attributes.difficulty
+                      droidCalcResult.attributes
+                          .difficulty as CacheableDifficultyAttributes<IDroidDifficultyAttributes>
                   )
         }`;
-        string += `\n${localization.getTranslation(
-            "rawDroidPp"
-        )}: ${PPHelper.getDroidPerformanceAttributesInfo(
-            droidCalcResult.attributes.performance
-        )}\n`;
+        string += `\n${localization.getTranslation("rawDroidPp")}: ${
+            interaction.options.getInteger("calculationmethod") ===
+            PPCalculationMethod.rebalance
+                ? PPHelper.getRebalanceDroidPerformanceAttributesInfo(
+                      droidCalcResult.attributes
+                          .performance as RebalanceDroidPerformanceAttributes
+                  )
+                : PPHelper.getDroidPerformanceAttributesInfo(
+                      droidCalcResult.attributes
+                          .performance as DroidPerformanceAttributes
+                  )
+        }\n`;
     }
 
     if (interaction.options.getBoolean("showosudetail")) {

@@ -1,7 +1,7 @@
 import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
 import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
 import { Symbols } from "@enums/utils/Symbols";
-import { Accuracy, ModUtil } from "@rian8337/osu-base";
+import { Accuracy } from "@rian8337/osu-base";
 import {
     CacheableDifficultyAttributes,
     IDroidDifficultyAttributes,
@@ -23,6 +23,7 @@ import { Collection, RepliableInteraction, underscore } from "discord.js";
 import { CommandHelper } from "./CommandHelper";
 import { DroidHelper } from "./DroidHelper";
 import { NumberHelper } from "./NumberHelper";
+import { RebalanceDroidPerformanceAttributes } from "@structures/difficultyattributes/RebalanceDroidPerformanceAttributes";
 
 /**
  * A helper for performance points related things.
@@ -243,7 +244,7 @@ export abstract class PPHelper {
         addDetail(attributes.tapDifficulty, "tap");
         addDetail(attributes.rhythmDifficulty, "rhythm");
         addDetail(attributes.flashlightDifficulty, "flashlight");
-        addDetail(attributes.visualDifficulty, "visual");
+        addDetail(attributes.readingDifficulty, "reading");
 
         string += starRatingDetails.join(", ") + ")";
 
@@ -322,6 +323,32 @@ export abstract class PPHelper {
         addDetail(attributes.accuracy, "accuracy");
         addDetail(attributes.flashlight, "flashlight");
         addDetail(attributes.visual, "visual");
+
+        string += starRatingDetails.join(", ") + ")";
+
+        return string;
+    }
+
+    /**
+     * Generates a string containing the summary of a performance attributes.
+     *
+     * @param attributes The performance attributes.
+     * @returns The string.
+     */
+    static getRebalanceDroidPerformanceAttributesInfo(
+        attributes: RebalanceDroidPerformanceAttributes
+    ): string {
+        let string = `${attributes.total.toFixed(2)} pp (`;
+        const starRatingDetails: string[] = [];
+
+        const addDetail = (num: number, suffix: string) =>
+            starRatingDetails.push(`${num.toFixed(2)} ${suffix}`);
+
+        addDetail(attributes.aim, "aim");
+        addDetail(attributes.tap, "tap");
+        addDetail(attributes.accuracy, "accuracy");
+        addDetail(attributes.flashlight, "flashlight");
+        addDetail(attributes.reading, "reading");
 
         string += starRatingDetails.join(", ") + ")";
 

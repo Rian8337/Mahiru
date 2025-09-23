@@ -93,7 +93,10 @@ export abstract class DroidHelper {
                 score.miss as miss,
                 score.date as date,
                 score.hash as hash,
-                score.pp as pp
+                score.slider_tick_hit as slider_tick_hit,
+                score.slider_end_hit as slider_end_hit,
+                score.pp as pp,
+                score.pp_multiplier as pp_multiplier
                 FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.score)} score, ${constructOfficialDatabaseTable(OfficialDatabaseTables.user)} user
                 WHERE score.hash = ? AND score.score > 0 AND user.id = score.uid ORDER BY score.score DESC${order === BeatmapLeaderboardSortMode.pp ? ", score.pp DESC" : ""} LIMIT ? OFFSET ?;`,
             [hash, scoresPerPage, (page - 1) * scoresPerPage]
@@ -109,6 +112,9 @@ export abstract class DroidHelper {
                 ...v,
                 date: Math.floor(v.date.getTime() / 1000),
                 mods: JSON.parse(v.mods) as SerializedMod[],
+                sliderTickHit: v.slider_tick_hit,
+                sliderEndHit: v.slider_end_hit,
+                ppMultiplier: v.pp_multiplier,
             });
         });
     }

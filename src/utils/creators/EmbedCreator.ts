@@ -42,6 +42,7 @@ import {
 import { CompleteCalculationAttributes } from "@structures/difficultyattributes/CompleteCalculationAttributes";
 import { DroidPerformanceAttributes } from "@structures/difficultyattributes/DroidPerformanceAttributes";
 import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
+import { RebalanceDroidPerformanceAttributes } from "@structures/difficultyattributes/RebalanceDroidPerformanceAttributes";
 import { NormalEmbedOptions } from "@structures/utils/NormalEmbedOptions";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
 import { BeatmapDifficultyHelper } from "@utils/helpers/BeatmapDifficultyHelper";
@@ -374,13 +375,15 @@ export abstract class EmbedCreator {
     static createCalculationEmbed(
         beatmap: MapInfo,
         calculationParams: DifficultyCalculationParameters,
-        droidDiffAttribs: CacheableDifficultyAttributes<
-            DroidDifficultyAttributes | RebalanceDroidDifficultyAttributes
-        >,
-        osuDiffAttribs: CacheableDifficultyAttributes<
-            OsuDifficultyAttributes | RebalanceOsuDifficultyAttributes
-        >,
-        droidPerfAttribs?: DroidPerformanceAttributes,
+        droidDiffAttribs:
+            | CacheableDifficultyAttributes<DroidDifficultyAttributes>
+            | CacheableDifficultyAttributes<RebalanceDroidDifficultyAttributes>,
+        osuDiffAttribs:
+            | CacheableDifficultyAttributes<OsuDifficultyAttributes>
+            | CacheableDifficultyAttributes<RebalanceOsuDifficultyAttributes>,
+        droidPerfAttribs?:
+            | DroidPerformanceAttributes
+            | RebalanceDroidPerformanceAttributes,
         osuPerfAttribs?: OsuPerformanceAttributes,
         language: Language = "en",
         droidStrainChart?: Buffer,

@@ -182,7 +182,7 @@ export abstract class LocalBeatmapDifficultyHelper {
     static calculatePerformance(
         attributes:
             | DroidDifficultyAttributes
-            | RebalanceOsuDifficultyAttributes
+            | RebalanceDroidDifficultyAttributes
             | OsuDifficultyAttributes
             | RebalanceOsuDifficultyAttributes,
         calculationParams: PerformanceCalculationParameters
