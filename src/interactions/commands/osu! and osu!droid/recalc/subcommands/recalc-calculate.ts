@@ -12,6 +12,7 @@ import { FindOptions } from "mongodb";
 import { DatabaseUserBind } from "structures/database/elainaDb/DatabaseUserBind";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
 import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
+import { inlineCode } from "discord.js";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new RecalcLocalization(
@@ -33,17 +34,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     }
 
     const dbManager = DatabaseManager.elainaDb.collections.userBind;
-    const reworkType =
-        interaction.options.getString("reworktype") ??
-        process.env.CURRENT_REWORK_TYPE;
-
-    if (reworkType !== process.env.CURRENT_REWORK_TYPE) {
-        return InteractionHelper.reply(interaction, {
-            content: MessageCreator.createReject(
-                localization.getTranslation("reworkTypeNotCurrent")
-            ),
-        });
-    }
+    const reworkType = process.env.CURRENT_REWORK_TYPE;
 
     if (
         !reworkType ||
@@ -124,7 +115,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     await InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
             localization.getTranslation("userQueued"),
-            `uid ${uid.toString()}`
+            `uid ${uid.toString()}`,
+            inlineCode(reworkType)
         ),
     });
 };

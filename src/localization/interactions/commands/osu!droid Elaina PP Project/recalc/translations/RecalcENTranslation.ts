@@ -14,7 +14,7 @@ export class RecalcENTranslation extends Translation<RecalcStrings> {
         reworkTypeNotCurrent:
             "I'm sorry, the specified rework type is not the current rework type!",
         reworkTypeDoesntExist: "I'm sorry, this rework type does not exist!",
-        userQueued: "Successfully queued %s for recalculation.",
+        userQueued: "Successfully queued %s for recalculation (%s).",
         fullRecalcInProgress: "Successfully started recalculation.",
         fullRecalcSuccess: "%s, recalculation done!",
         userQueueList: "Recalculation Queue",

@@ -14,7 +14,7 @@ export class RecalcESTranslation extends Translation<RecalcStrings> {
         reworkTypeNotCurrent: "",
         reworkTypeDoesntExist: "",
         userQueued:
-            "%s añadido correctamente a la cola para realizarle un recuento.",
+            "%s añadido correctamente a la cola para realizarle un recuento (%s).",
         fullRecalcInProgress: "Recuento iniciado correctamente.",
         fullRecalcSuccess: "%s, el recuento ha finalizado!",
         userQueueList: "",
