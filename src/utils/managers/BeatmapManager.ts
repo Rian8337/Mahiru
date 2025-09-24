@@ -1,17 +1,12 @@
-import { Config } from "@core/Config";
 import {
     BeatmapDecoder,
     BeatmapDifficulty,
-    DroidHitWindow,
     MapInfo,
     Modes,
     ModMap,
-    ModPrecise,
     ModUtil,
-    PreciseDroidHitWindow,
     Precision,
     RankedStatus,
-    ScoreRank,
 } from "@rian8337/osu-base";
 import { BeatmapRetrievalOptions } from "@structures/utils/BeatmapRetrievalOptions";
 import { Manager } from "@utils/base/Manager";
@@ -23,8 +18,6 @@ import * as d3 from "d3";
 import {
     AttachmentBuilder,
     bold,
-    ColorResolvable,
-    formatEmoji,
     hyperlink,
     Message,
     Snowflake,
@@ -39,11 +32,7 @@ export abstract class BeatmapManager extends Manager {
     /**
      * Color spectrum for difficulty rating icon.
      */
-    private static readonly difficultyColorSpectrum: d3.ScaleLinear<
-        string,
-        string,
-        never
-    > = d3
+    private static readonly difficultyColorSpectrum = d3
         .scaleLinear<string>()
         .domain([0.1, 1.25, 2, 2.5, 3.3, 4.2, 4.9, 5.8, 6.7, 7.7, 9])
         .clamp(true)
@@ -131,7 +120,7 @@ export abstract class BeatmapManager extends Manager {
      */
     static async getBeatmaps(
         beatmapsetID: number,
-        checkFile: boolean = true
+        checkFile = true
     ): Promise<MapInfo[]> {
         const apiBeatmaps =
             await BeatmapProcessorRESTManager.getBeatmapset(beatmapsetID);
@@ -711,15 +700,6 @@ export abstract class BeatmapManager extends Manager {
         difficulty.hp = beatmap.hp;
 
         ModUtil.applyModsToBeatmapDifficulty(difficulty, mode, mods, true);
-
-        if (mode === Modes.droid && mods?.has(ModPrecise)) {
-            // Special case for OD. The Precise mod changes the hit window and not the OD itself, but we must
-            // map the hit window back to the original hit window for the user to understand the difficulty
-            // increase of the mod.
-            const { greatWindow } = new PreciseDroidHitWindow(difficulty.od);
-
-            difficulty.od = DroidHitWindow.greatWindowToOD(greatWindow);
-        }
 
         return difficulty;
     }
