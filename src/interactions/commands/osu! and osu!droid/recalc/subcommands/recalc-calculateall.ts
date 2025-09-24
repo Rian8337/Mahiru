@@ -14,7 +14,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     }
 
     const localization = new RecalcLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const prototypeDbManager = DatabaseManager.aliceDb.collections.prototypePP;
@@ -24,12 +24,12 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     let calculatedCount = 0;
 
     let player: PrototypePP | undefined;
-    const reworkType = interaction.options.getString("reworktype", true);
+    const reworkType = process.env.CURRENT_REWORK_TYPE;
 
-    if (reworkType !== process.env.CURRENT_REWORK_TYPE) {
+    if (!reworkType) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("reworkTypeNotCurrent"),
+                localization.getTranslation("reworkTypeDoesntExist")
             ),
         });
     }
@@ -41,7 +41,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         if (!reworkName) {
             return InteractionHelper.reply(interaction, {
                 content: MessageCreator.createReject(
-                    localization.getTranslation("reworkNameMissing"),
+                    localization.getTranslation("reworkNameMissing")
                 ),
             });
         }
@@ -57,7 +57,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     await InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
-            localization.getTranslation("fullRecalcInProgress"),
+            localization.getTranslation("fullRecalcInProgress")
         ),
     });
 
@@ -71,23 +71,23 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         ).first())
     ) {
         consola.info(
-            `Now calculating player ${player.uid} for rework ${reworkType}`,
+            `Now calculating player ${player.uid} for rework ${reworkType}`
         );
 
         await PrototypeRecalculationManager.calculatePlayer(
             player.uid,
-            reworkType,
+            reworkType
         );
 
         consola.info(
-            `${++calculatedCount} players recalculated for rework ${reworkType}`,
+            `${++calculatedCount} players recalculated for rework ${reworkType}`
         );
     }
 
     interaction.channel.send({
         content: MessageCreator.createAccept(
             localization.getTranslation("fullRecalcSuccess"),
-            interaction.user.toString(),
+            interaction.user.toString()
         ),
     });
 };
