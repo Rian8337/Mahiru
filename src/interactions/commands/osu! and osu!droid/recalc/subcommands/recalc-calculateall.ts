@@ -24,12 +24,12 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     let calculatedCount = 0;
 
     let player: PrototypePP | undefined;
-    const reworkType = process.env.CURRENT_REWORK_TYPE;
+    const reworkType = interaction.options.getString("reworktype", true);
 
-    if (!reworkType) {
+    if (reworkType !== process.env.CURRENT_REWORK_TYPE) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("reworkTypeDoesntExist")
+                localization.getTranslation("reworkTypeNotCurrent")
             ),
         });
     }
