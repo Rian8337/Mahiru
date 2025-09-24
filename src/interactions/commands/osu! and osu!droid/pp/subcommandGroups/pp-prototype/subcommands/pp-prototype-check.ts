@@ -14,7 +14,7 @@ import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { LocaleHelper } from "@utils/helpers/LocaleHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { ProfileManager } from "@utils/managers/ProfileManager";
-import { bold, GuildMember, hyperlink } from "discord.js";
+import { bold, GuildMember, hyperlink, time } from "discord.js";
 import { SlashSubcommand } from "structures/core/SlashSubcommand";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
@@ -138,10 +138,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 ppInfo.uid
             }/${reworkType})\n` +
             `${localization.getTranslation("lastUpdate")}: ${bold(
-                `${DateTimeFormatHelper.dateToLocaleString(
-                    new Date(ppInfo.lastUpdate),
-                    localization.language
-                )}`
+                time(new Date(ppInfo.lastUpdate), "F")
             )}`
     );
 
