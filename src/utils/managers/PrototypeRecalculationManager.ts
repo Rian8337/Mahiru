@@ -92,7 +92,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
         const currentList: PPEntry[] = [];
         const newList: PrototypePPEntry[] = [];
 
-        const topScores = await DroidHelper.getTopScores(uid, 200);
+        const topScores = await DroidHelper.getTopScores(uid);
 
         if (topScores.length === 0) {
             return this.createOperationResult(
