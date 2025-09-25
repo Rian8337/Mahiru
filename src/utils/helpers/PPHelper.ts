@@ -177,12 +177,27 @@ export abstract class PPHelper {
      * @param scores The scores.
      * @returns The final performance points.
      */
-    static calculateFinalPerformancePoints<T extends { pp: number | null }>(
-        scores: T[]
+    static calculateFinalPerformancePoints(
+        scores: { pp: number | null }[]
     ): number {
-        return scores
-            .sort((a, b) => (b.pp ?? 0) - (a.pp ?? 0))
-            .reduce((a, v, i) => a + (v.pp ?? 0) * Math.pow(0.95, i), 0);
+        let total = 0;
+
+        const sortedScores = scores
+            .slice()
+            .sort((a, b) => (b.pp ?? 0) - (a.pp ?? 0));
+
+        for (let i = 0; i < sortedScores.length; ++i) {
+            const weight = Math.pow(0.95, i);
+
+            if (weight === 0) {
+                // Avoid unnecessary iterations.
+                break;
+            }
+
+            total += (sortedScores[i].pp ?? 0) * weight;
+        }
+
+        return total;
     }
 
     /**
