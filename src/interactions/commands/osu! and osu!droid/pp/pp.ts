@@ -167,7 +167,7 @@ export const config: SlashCommand["config"] = {
                             name: "rework",
                             type: ApplicationCommandOptionType.String,
                             description:
-                                "The rework to check. If unspecified, defaults to the overall rework.",
+                                "The rework to check. If unspecified, defaults to the currently configured rework.",
                             autocomplete: true,
                         },
                     ],
@@ -201,7 +201,7 @@ export const config: SlashCommand["config"] = {
                             name: "rework",
                             type: ApplicationCommandOptionType.String,
                             description:
-                                "The rework to export. If unspecified, defaults to the overall rework.",
+                                "The rework to export. If unspecified, defaults to the currently configured rework.",
                             autocomplete: true,
                         },
                     ],

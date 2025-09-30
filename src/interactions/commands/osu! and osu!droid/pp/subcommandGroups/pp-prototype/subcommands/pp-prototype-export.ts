@@ -30,7 +30,9 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     }
 
     const dbManager = DatabaseManager.aliceDb.collections.prototypePP;
-    const reworkType = interaction.options.getString("rework") ?? "overall";
+    const reworkType =
+        interaction.options.getString("rework") ??
+        process.env.CURRENT_REWORK_TYPE!;
 
     let ppInfo: PrototypePP | null;
 
