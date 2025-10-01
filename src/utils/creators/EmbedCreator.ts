@@ -562,14 +562,15 @@ export abstract class EmbedCreator {
             ),
         });
 
+        const mods =
+            score instanceof Score || score instanceof RecentPlay
+                ? score.mods
+                : ModUtil.deserializeMods(score.mods);
+
         const modString =
             score instanceof Score || score instanceof RecentPlay
                 ? score.completeModString
-                : `+${
-                      ModUtil.modsToOrderedString(
-                          ModUtil.deserializeMods(score.mods)
-                      ) || "No Mod"
-                  }`;
+                : `+${ModUtil.modsToOrderedString(mods) || "No Mod"}`;
 
         const avatarURL = DroidHelper.getAvatarURL(score.uid);
 
@@ -720,7 +721,7 @@ export abstract class EmbedCreator {
         ModUtil.applyModsToBeatmapDifficulty(
             modifiedDifficulty,
             Modes.droid,
-            ModUtil.deserializeMods(droidAttribs.params.mods),
+            mods,
             true
         );
 
@@ -836,6 +837,12 @@ export abstract class EmbedCreator {
             )}ms ${localization.getTranslation(
                 "hitErrorAvg"
             )} ${arrow} ${hitError.unstableRate.toFixed(2)} UR`;
+
+            const rate = ModUtil.calculateRateWithMods(mods.values());
+
+            if (rate !== 1) {
+                beatmapInformation += ` (${(hitError.unstableRate / rate).toFixed(2)} cv.)`;
+            }
         }
 
         const {
