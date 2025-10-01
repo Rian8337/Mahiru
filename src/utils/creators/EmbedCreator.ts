@@ -16,6 +16,7 @@ import {
 } from "@localization/utils/creators/EmbedCreator/EmbedCreatorLocalization";
 import {
     Accuracy,
+    BeatmapDifficulty,
     MapInfo,
     ModReplayV6,
     ModUtil,
@@ -698,13 +699,53 @@ export abstract class EmbedCreator {
             }
         }
 
+        const originalDifficulty = new BeatmapDifficulty();
+        originalDifficulty.cs = beatmap.cs;
+        originalDifficulty.ar = beatmap.ar;
+        originalDifficulty.od = beatmap.od;
+        originalDifficulty.hp = beatmap.hp;
+
+        const modifiedDifficulty = new BeatmapDifficulty(originalDifficulty);
+
+        ModUtil.applyModsToBeatmapDifficulty(
+            modifiedDifficulty,
+            Modes.droid,
+            ModUtil.deserializeMods(droidAttribs.params.mods)
+        );
+
         beatmapInformation +=
             `${arrow} ${(accuracy.value() * 100).toFixed(2)}%\n` +
             `${arrow} ${score.score.toLocaleString(BCP47)} ${arrow} ${
                 score.combo
             }x/${maxCombo}x ${arrow} [${accuracy.n300}/${
                 accuracy.n100
-            }/${accuracy.n50}/${accuracy.nmiss}]`;
+            }/${accuracy.n50}/${accuracy.nmiss}]\n` +
+            `${arrow} `;
+
+        let difficultyInformation = "";
+
+        const appendInformation = (
+            prefix: string,
+            original: number,
+            modified: number
+        ) => {
+            difficultyInformation += `${prefix}: ${modified.toFixed(2)}`;
+
+            if (!Precision.almostEqualsNumber(original, modified)) {
+                difficultyInformation +=
+                    original < modified
+                        ? Symbols.upArrowSmall
+                        : Symbols.downArrowSmall;
+            }
+        };
+
+        appendInformation("CS", originalDifficulty.cs, modifiedDifficulty.cs);
+        appendInformation("AR", originalDifficulty.ar, modifiedDifficulty.ar);
+        appendInformation("OD", originalDifficulty.od, modifiedDifficulty.od);
+        appendInformation("HP", originalDifficulty.hp, modifiedDifficulty.hp);
+
+        beatmapInformation += difficultyInformation.trimEnd();
+
         let hitError: HitErrorInformation | null | undefined;
 
         if (score instanceof RecentPlay) {

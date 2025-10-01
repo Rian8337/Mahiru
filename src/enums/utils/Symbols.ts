@@ -15,6 +15,8 @@ export enum Symbols {
     thumbsDown = "👎",
     star = "★",
     rightArrowSmall = "▸",
+    upArrowSmall = "▴",
+    downArrowSmall = "▾",
     missIcon = "❌",
     upIcon = "🆙",
     cake = "🎂",
