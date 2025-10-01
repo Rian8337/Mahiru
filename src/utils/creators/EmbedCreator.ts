@@ -18,7 +18,6 @@ import {
     Accuracy,
     BeatmapDifficulty,
     MapInfo,
-    ModReplayV6,
     ModUtil,
     Modes,
     Precision,
@@ -50,6 +49,7 @@ import { BeatmapDifficultyHelper } from "@utils/helpers/BeatmapDifficultyHelper"
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
 import { LocaleHelper } from "@utils/helpers/LocaleHelper";
+import { NumberHelper } from "@utils/helpers/NumberHelper";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
@@ -83,6 +83,7 @@ import {
     channelMention,
     heading,
     hyperlink,
+    inlineCode,
     underline,
     userMention,
 } from "discord.js";
@@ -699,6 +700,15 @@ export abstract class EmbedCreator {
             }
         }
 
+        beatmapInformation +=
+            `${arrow} ${(accuracy.value() * 100).toFixed(2)}%\n` +
+            `${arrow} ${score.score.toLocaleString(BCP47)} ${arrow} ${
+                score.combo
+            }x/${maxCombo}x ${arrow} [${accuracy.n300}/${
+                accuracy.n100
+            }/${accuracy.n50}/${accuracy.nmiss}]\n` +
+            `${arrow} `;
+
         const originalDifficulty = new BeatmapDifficulty();
         originalDifficulty.cs = beatmap.cs;
         originalDifficulty.ar = beatmap.ar;
@@ -710,17 +720,9 @@ export abstract class EmbedCreator {
         ModUtil.applyModsToBeatmapDifficulty(
             modifiedDifficulty,
             Modes.droid,
-            ModUtil.deserializeMods(droidAttribs.params.mods)
+            ModUtil.deserializeMods(droidAttribs.params.mods),
+            true
         );
-
-        beatmapInformation +=
-            `${arrow} ${(accuracy.value() * 100).toFixed(2)}%\n` +
-            `${arrow} ${score.score.toLocaleString(BCP47)} ${arrow} ${
-                score.combo
-            }x/${maxCombo}x ${arrow} [${accuracy.n300}/${
-                accuracy.n100
-            }/${accuracy.n50}/${accuracy.nmiss}]\n` +
-            `${arrow} `;
 
         let difficultyInformation = "";
 
@@ -729,14 +731,16 @@ export abstract class EmbedCreator {
             original: number,
             modified: number
         ) => {
-            difficultyInformation += `${prefix}: ${modified.toFixed(2)}`;
+            difficultyInformation += `${prefix}: ${NumberHelper.round(modified, 2).toString()}`;
 
             if (!Precision.almostEqualsNumber(original, modified)) {
                 difficultyInformation +=
                     original < modified
-                        ? Symbols.upArrowSmall
-                        : Symbols.downArrowSmall;
+                        ? Symbols.upTriangle
+                        : Symbols.downTriangle;
             }
+
+            difficultyInformation += " ";
         };
 
         appendInformation("CS", originalDifficulty.cs, modifiedDifficulty.cs);
@@ -744,7 +748,7 @@ export abstract class EmbedCreator {
         appendInformation("OD", originalDifficulty.od, modifiedDifficulty.od);
         appendInformation("HP", originalDifficulty.hp, modifiedDifficulty.hp);
 
-        beatmapInformation += difficultyInformation.trimEnd();
+        beatmapInformation += inlineCode(difficultyInformation.trimEnd());
 
         let hitError: HitErrorInformation | null | undefined;
 
