@@ -662,8 +662,6 @@ export abstract class EmbedCreator {
             const calcParams =
                 BeatmapDifficultyHelper.getCalculationParamsFromScore(score);
 
-            // TODO: temporary until 1.8.4 is out
-            calcParams.mods.set(ModReplayV6);
             calcParams.combo = maxCombo;
             calcParams.accuracy = new Accuracy({
                 n300: accuracy.n300 + accuracy.nmiss,
