@@ -197,7 +197,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 prevTapDifficulty: diffResult.tapDifficulty,
                 prevRhythmDifficulty: diffResult.rhythmDifficulty,
                 prevFlashlightDifficulty: diffResult.flashlightDifficulty,
-                prevVisualDifficulty: diffResult.visualDifficulty,
+                prevReadingDifficulty: diffResult.readingDifficulty,
                 prevPP: perfResult.total,
                 prevAim: perfResult.aim,
                 prevTap: perfResult.tap,

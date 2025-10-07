@@ -37,7 +37,7 @@ export class PerformanceCalculationResult<
                 droidDifficultyAttributes.flashlightDifficulty,
                 "flashlight"
             );
-            addDetail(droidDifficultyAttributes.visualDifficulty, "visual");
+            addDetail(droidDifficultyAttributes.readingDifficulty, "reading");
         } else {
             const osuDifficultyAttributes = <IOsuDifficultyAttributes>(
                 difficultyAttributes

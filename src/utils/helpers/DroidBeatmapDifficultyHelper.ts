@@ -213,11 +213,5 @@ export class DroidBeatmapDifficultyHelper extends BeatmapDifficultyHelper<
         calcResult.result.applyFlashlightSliderCheesePenalty(
             replay.sliderCheesePenalty.flashlightPenalty
         );
-
-        if (calcResult.result instanceof DroidPerformanceCalculator) {
-            calcResult.result.applyVisualSliderCheesePenalty(
-                replay.sliderCheesePenalty.visualPenalty
-            );
-        }
     }
 }

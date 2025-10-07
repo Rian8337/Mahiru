@@ -166,8 +166,6 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
             aimSliderCheesePenalty: this.sliderCheesePenalty?.aimPenalty ?? 1,
             flashlightSliderCheesePenalty:
                 this.sliderCheesePenalty?.flashlightPenalty ?? 1,
-            visualSliderCheesePenalty:
-                this.sliderCheesePenalty?.visualPenalty ?? 1,
         };
     }
 

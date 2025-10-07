@@ -35,9 +35,9 @@ export interface PrototypePPEntry extends PPEntry {
     prevFlashlightDifficulty: number;
 
     /**
-     * The previous visual difficulty.
+     * The previous reading difficulty.
      */
-    prevVisualDifficulty: number;
+    prevReadingDifficulty: number;
 
     /**
      * The new star rating.
