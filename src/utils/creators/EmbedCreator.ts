@@ -849,14 +849,12 @@ export abstract class EmbedCreator {
             tapPenalty,
             aimSliderCheesePenalty,
             flashlightSliderCheesePenalty,
-            visualSliderCheesePenalty,
         } = droidAttribs.performance;
 
         const isThreeFinger = tapPenalty !== 1;
         const isSliderCheese = [
             aimSliderCheesePenalty,
             flashlightSliderCheesePenalty,
-            visualSliderCheesePenalty,
         ].some((v) => v !== 1);
 
         if (isThreeFinger || isSliderCheese) {

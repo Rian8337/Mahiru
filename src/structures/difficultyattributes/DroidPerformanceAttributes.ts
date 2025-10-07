@@ -38,9 +38,4 @@ export interface DroidPerformanceAttributes extends PerformanceAttributes {
      * The penalty used to penalize the flashlight performance value.
      */
     flashlightSliderCheesePenalty: number;
-
-    /**
-     * The penalty used to penalize the visual performance value.
-     */
-    visualSliderCheesePenalty: number;
 }
