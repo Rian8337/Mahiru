@@ -10,9 +10,9 @@ export interface DroidPerformanceAttributes extends PerformanceAttributes {
     tap: number;
 
     /**
-     * The visual performance points.
+     * The reading performance points.
      */
-    visual: number;
+    reading: number;
 
     /**
      * The estimated deviation of the score.

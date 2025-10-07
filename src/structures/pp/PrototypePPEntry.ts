@@ -95,9 +95,9 @@ export interface PrototypePPEntry extends PPEntry {
     prevFlashlight: number;
 
     /**
-     * The previous visual pp value.
+     * The previous reading pp value.
      */
-    prevVisual: number;
+    prevReading: number;
 
     /**
      * The new aim pp value.

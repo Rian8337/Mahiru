@@ -337,7 +337,7 @@ export abstract class PPHelper {
         addDetail(attributes.tap, "tap");
         addDetail(attributes.accuracy, "accuracy");
         addDetail(attributes.flashlight, "flashlight");
-        addDetail(attributes.visual, "visual");
+        addDetail(attributes.reading, "reading");
 
         string += starRatingDetails.join(", ") + ")";
 

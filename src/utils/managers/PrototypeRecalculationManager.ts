@@ -203,7 +203,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 prevTap: perfResult.tap,
                 prevAccuracy: perfResult.accuracy,
                 prevFlashlight: perfResult.flashlight,
-                prevVisual: perfResult.visual,
+                prevReading: perfResult.reading,
                 mods: rebalAttribs.attributes.difficulty.mods,
                 accuracy: accuracy.value() * 100,
                 combo: params.combo,
