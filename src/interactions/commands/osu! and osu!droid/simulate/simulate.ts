@@ -243,12 +243,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     }
 
     if (
-        StringHelper.sortAlphabet(
-            [...realMods.values()].reduce((a, v) => a + v.acronym, "")
-        ) ===
-            StringHelper.sortAlphabet(
-                [...simulatedMods.values()].reduce((a, v) => a + v.acronym, "")
-            ) &&
+        realMods.equals(simulatedMods) &&
         (speedMultiplierInput ?? 1) === realSpeedMultiplier
     ) {
         return InteractionHelper.reply(interaction, {
