@@ -13,6 +13,7 @@ import {
     DroidHitWindow,
     MapInfo,
     ModCustomSpeed,
+    ModDifficultyAdjust,
     Modes,
     ModFlashlight,
     ModHidden,
@@ -73,8 +74,10 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     const modInput = interaction.options.getString("mods");
     const speedMultiplierInput =
         interaction.options.getNumber("speedmultiplier");
+    const overallDifficultyInput =
+        interaction.options.getNumber("overalldifficulty");
 
-    if (!modInput && !speedMultiplierInput) {
+    if (!modInput && !speedMultiplierInput && !overallDifficultyInput) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 localization.getTranslation("noSimulateOptions")
@@ -231,6 +234,12 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     if (speedMultiplierInput !== null) {
         simulatedMods.set(new ModCustomSpeed(speedMultiplierInput));
+    }
+
+    if (overallDifficultyInput !== null) {
+        simulatedMods.set(
+            new ModDifficultyAdjust({ od: overallDifficultyInput })
+        );
     }
 
     if (
@@ -673,6 +682,14 @@ export const config: SlashCommand["config"] = {
                 "The speed multiplier to calculate for, from 0.5 to 2. Stackable with modifications. Defaults to 1.",
             minValue: 0.5,
             maxValue: 2,
+        },
+        {
+            name: "overalldifficulty",
+            type: ApplicationCommandOptionType.Number,
+            description:
+                "The overall difficulty to calculate for, from 0 to 11. Defaults to the beatmap's OD.",
+            minValue: 0,
+            maxValue: 11,
         },
     ],
     example: [],
