@@ -1,8 +1,8 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { OnboardingShowMostRecentPlayLocalization } from "@localization/interactions/buttons/Onboarding/onboardingShowMostRecentPlay/OnboardingShowMostRecentPlayLocalization";
-import { Modes, ModUtil } from "@rian8337/osu-base";
-import { Player, Score } from "@rian8337/osu-droid-utilities";
+import { Modes } from "@rian8337/osu-base";
+import { Player } from "@rian8337/osu-droid-utilities";
 import { ButtonCommand } from "@structures/core/ButtonCommand";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
@@ -76,6 +76,8 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
                   "bad",
                   "miss",
                   "date",
+                  "slider_tick_hit",
+                  "slider_end_hit",
               ]);
 
     if (recentPlays.length === 0) {
@@ -112,33 +114,22 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
         ephemeral: true,
     };
 
-    if ((score instanceof Score ? score.accuracy.nmiss : score.miss) > 0) {
-        const replay = await ReplayHelper.analyzeReplay(score);
+    const replay = await ReplayHelper.analyzeReplay(score);
 
-        if (!replay.data) {
-            return InteractionHelper.reply(interaction, options);
-        }
-
-        const beatmapInfo = await BeatmapManager.getBeatmap(score.hash, {
-            checkFile: true,
-        });
-
-        if (beatmapInfo?.hasDownloadedBeatmap()) {
-            MessageButtonCreator.createRecentScoreButton(
-                interaction,
-                options,
-                beatmapInfo.beatmap,
-                replay.data,
-                score instanceof Score
-                    ? score.mods
-                    : ModUtil.deserializeMods(score.mods)
-            );
-        } else {
-            InteractionHelper.reply(interaction, options);
-        }
-    } else {
-        InteractionHelper.reply(interaction, options);
+    if (!replay.data) {
+        return InteractionHelper.reply(interaction, options);
     }
+
+    const beatmapInfo = await BeatmapManager.getBeatmap(score.hash);
+
+    void MessageButtonCreator.createRecentScoreButton(
+        interaction,
+        options,
+        beatmapInfo?.beatmap,
+        score,
+        player.username,
+        replay
+    );
 };
 
 export const config: ButtonCommand["config"] = {

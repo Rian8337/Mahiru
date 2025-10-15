@@ -8,7 +8,7 @@ import { CommandCategory } from "@enums/core/CommandCategory";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { RecentLocalization } from "@localization/interactions/commands/osu! and osu!droid/recent/RecentLocalization";
-import { Modes, ModUtil } from "@rian8337/osu-base";
+import { Modes } from "@rian8337/osu-base";
 import { Player, Score } from "@rian8337/osu-droid-utilities";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
@@ -134,6 +134,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
               | "bad"
               | "mark"
               | "date"
+              | "slider_tick_hit"
+              | "slider_end_hit"
           >
         | Score
         | RecentPlay
@@ -172,6 +174,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 "bad",
                 "mark",
                 "date",
+                "slider_tick_hit",
+                "slider_end_hit",
             ]
         ).then((res) =>
             considerNonOverwrite
@@ -221,7 +225,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(
                 score,
-                (<GuildMember | null>interaction.member)?.displayColor,
+                (interaction.member as GuildMember | null)?.displayColor,
                 scoreAttribs,
                 score instanceof RecentPlay
                     ? (score.osuAttribs ?? null)
@@ -231,6 +235,10 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         ],
     };
 
+    if (score instanceof RecentPlay) {
+        return InteractionHelper.reply(interaction, options);
+    }
+
     const replay = await ReplayHelper.analyzeReplay(score);
 
     if (!replay.data) {
@@ -239,19 +247,14 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     const beatmapInfo = await BeatmapManager.getBeatmap(score.hash);
 
-    if (beatmapInfo?.hasDownloadedBeatmap()) {
-        MessageButtonCreator.createRecentScoreButton(
-            interaction,
-            options,
-            beatmapInfo.beatmap,
-            replay.data,
-            score instanceof Score || score instanceof RecentPlay
-                ? score.mods
-                : ModUtil.deserializeMods(score.mods)
-        );
-    } else {
-        InteractionHelper.reply(interaction, options);
-    }
+    void MessageButtonCreator.createRecentScoreButton(
+        interaction,
+        options,
+        beatmapInfo?.beatmap,
+        score,
+        player.username,
+        replay
+    );
 };
 
 export const category: SlashCommand["category"] = CommandCategory.osu;

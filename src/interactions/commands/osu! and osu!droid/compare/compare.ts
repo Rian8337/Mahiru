@@ -6,8 +6,8 @@ import { CommandCategory } from "@enums/core/CommandCategory";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { CompareLocalization } from "@localization/interactions/commands/osu! and osu!droid/compare/CompareLocalization";
-import { Modes, ModUtil } from "@rian8337/osu-base";
-import { Player, Score } from "@rian8337/osu-droid-utilities";
+import { Modes } from "@rian8337/osu-base";
+import { Player } from "@rian8337/osu-droid-utilities";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
@@ -68,7 +68,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     switch (true) {
         case !!uid:
-            player = await DroidHelper.getPlayer(uid!, ["id", "username"]);
+            player = await DroidHelper.getPlayer(uid, ["id", "username"]);
 
             break;
         case !!username:
@@ -139,6 +139,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         "bad",
         "miss",
         "date",
+        "slider_tick_hit",
+        "slider_end_hit",
     ]);
 
     if (!score) {
@@ -168,7 +170,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(
                 score,
-                (<GuildMember | null>interaction.member)?.displayColor,
+                (interaction.member as GuildMember | null)?.displayColor,
                 scoreAttribs?.attributes,
                 undefined,
                 localization.language
@@ -182,23 +184,16 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         return InteractionHelper.reply(interaction, options);
     }
 
-    const beatmapInfo = await BeatmapManager.getBeatmap(score.hash, {
-        checkFile: true,
-    });
+    const beatmapInfo = await BeatmapManager.getBeatmap(score.hash);
 
-    if (beatmapInfo?.hasDownloadedBeatmap()) {
-        MessageButtonCreator.createRecentScoreButton(
-            interaction,
-            options,
-            beatmapInfo.beatmap,
-            replay.data,
-            score instanceof Score
-                ? score.mods
-                : ModUtil.deserializeMods(score.mods)
-        );
-    } else {
-        InteractionHelper.reply(interaction, options);
-    }
+    void MessageButtonCreator.createRecentScoreButton(
+        interaction,
+        options,
+        beatmapInfo?.beatmap,
+        score,
+        player.username,
+        replay
+    );
 };
 
 export const category: SlashCommand["category"] = CommandCategory.osu;

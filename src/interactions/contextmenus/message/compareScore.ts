@@ -3,8 +3,7 @@ import { DatabaseManager } from "@database/DatabaseManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { CompareScoreLocalization } from "@localization/interactions/contextmenus/message/compareScore/CompareScoreLocalization";
-import { Modes, ModUtil } from "@rian8337/osu-base";
-import { Score } from "@rian8337/osu-droid-utilities";
+import { Modes } from "@rian8337/osu-base";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageButtonCreator } from "@utils/creators/MessageButtonCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
@@ -99,6 +98,8 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         "bad",
         "miss",
         "date",
+        "slider_tick_hit",
+        "slider_end_hit",
     ]);
 
     if (!score) {
@@ -129,7 +130,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(
                 score,
-                (<GuildMember | null>interaction.member)?.displayColor,
+                (interaction.member as GuildMember | null)?.displayColor,
                 scoreAttribs?.attributes,
                 undefined,
                 localization.language
@@ -143,14 +144,13 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         return InteractionHelper.reply(interaction, options);
     }
 
-    MessageButtonCreator.createRecentScoreButton(
+    void MessageButtonCreator.createRecentScoreButton(
         interaction,
         options,
         beatmapInfo.beatmap,
-        replay.data,
-        score instanceof Score
-            ? score.mods
-            : ModUtil.deserializeMods(score.mods)
+        score,
+        player.username,
+        replay
     );
 };
 

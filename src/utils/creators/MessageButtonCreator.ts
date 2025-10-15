@@ -1,8 +1,13 @@
+import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
 import { Symbols } from "@enums/utils/Symbols";
 import { Language } from "@localization/base/Language";
 import { MessageButtonCreatorLocalization } from "@localization/utils/creators/MessageButtonCreator/MessageButtonCreatorLocalization";
-import { Beatmap, ModMap } from "@rian8337/osu-base";
-import { ReplayData } from "@rian8337/osu-droid-replay-analyzer";
+import { Accuracy, Beatmap, ModUtil } from "@rian8337/osu-base";
+import {
+    ExportedReplayJSONV3,
+    ReplayAnalyzer,
+} from "@rian8337/osu-droid-replay-analyzer";
+import { Score } from "@rian8337/osu-droid-utilities";
 import { OnButtonCollectorEnd } from "@structures/utils/OnButtonCollectorEnd";
 import { OnButtonPageChange } from "@structures/utils/OnButtonPageChange";
 import { OnButtonPressed } from "@structures/utils/OnButtonPressed";
@@ -11,6 +16,8 @@ import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { CacheManager } from "@utils/managers/CacheManager";
 import { MissAnalyzer } from "@utils/missanalyzer/MissAnalyzer";
 import { TimingDistributionChart } from "@utils/timingdistribution/TimingDistributionChart";
+import AdmZip from "adm-zip";
+import { createHash } from "crypto";
 import {
     ActionRow,
     ActionRowBuilder,
@@ -229,26 +236,45 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
     }
 
     /**
-     * Creates a miss analyzer button.
+     * Creates buttons for a recent score embed.
      *
      * @param interaction The interaction that triggered the button.
      * @param options Options of the message.
-     * @param beatmap The beatmap shown in the miss analyzer.
-     * @param replayData The replay data.
-     * @param mods The mods in the replay. If replay data is from version 3 or later, defaults to the
-     * mods in the replay data. Otherwise, it defaults to No Mod.
+     * @param beatmap The beatmap of the score.
+     * @param score The score to create buttons for.
+     * @param username The username of the player who achieved the score.
+     * @param replay The replay of the score, if any.
      * @returns The message resulted from the interaction's reply.
      */
     static createRecentScoreButton(
         interaction: RepliableInteraction,
         options: InteractionReplyOptions,
-        beatmap: Beatmap,
-        replayData: ReplayData,
-        mods = replayData.isReplayV3() ? replayData.convertedMods : new ModMap()
+        beatmap: Beatmap | null | undefined,
+        score:
+            | Score
+            | Pick<
+                  OfficialDatabaseScore,
+                  | "id"
+                  | "uid"
+                  | "hash"
+                  | "score"
+                  | "combo"
+                  | "mark"
+                  | "mods"
+                  | "perfect"
+                  | "good"
+                  | "bad"
+                  | "miss"
+                  | "date"
+                  | "slider_tick_hit"
+                  | "slider_end_hit"
+              >,
+        username: string,
+        replay?: ReplayAnalyzer
     ): Promise<Message> {
         const missAnalyzerButtonId = "analyzeMissesFromRecent";
         const missAnalyzerButton = new ButtonBuilder()
-            .setDisabled(replayData.accuracy.nmiss === 0)
+            .setDisabled(!beatmap || (replay?.data?.accuracy.nmiss ?? 0) === 0)
             .setCustomId(missAnalyzerButtonId)
             .setLabel("Analyze First 10 Misses")
             .setStyle(ButtonStyle.Primary)
@@ -256,18 +282,28 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
 
         const timingDistributionButtonId = "timingDistribution";
         const timingDistributionButton = new ButtonBuilder()
+            .setDisabled(!beatmap || !replay?.data)
             .setCustomId(timingDistributionButtonId)
             .setLabel("View Timing Distribution")
             .setStyle(ButtonStyle.Primary)
             .setEmoji(Symbols.timer);
 
+        const exportReplayButtonId = "exportReplay";
+        const exportReplayButton = new ButtonBuilder()
+            .setDisabled(!replay?.data || !replay.originalODR)
+            .setCustomId(exportReplayButtonId)
+            .setLabel("Export Replay")
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji(Symbols.outboxTray);
+
         CacheManager.exemptedButtonCustomIds.add(missAnalyzerButtonId);
         CacheManager.exemptedButtonCustomIds.add(timingDistributionButtonId);
+        CacheManager.exemptedButtonCustomIds.add(exportReplayButtonId);
 
         return this.createLimitedTimeButtons(
             interaction,
             options,
-            [missAnalyzerButton, timingDistributionButton],
+            [missAnalyzerButton, timingDistributionButton, exportReplayButton],
             [interaction.user.id],
             60,
             async (c, i) => {
@@ -277,11 +313,18 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
 
                 switch (i.customId) {
                     case missAnalyzerButtonId: {
+                        if (!beatmap || !replay?.data) {
+                            return;
+                        }
+
                         const missAnalyzer = new MissAnalyzer(
                             beatmap,
-                            replayData,
-                            mods
+                            replay.data,
+                            typeof score.mods === "string"
+                                ? ModUtil.deserializeMods(score.mods)
+                                : score.mods
                         );
+
                         const missInformations = missAnalyzer.analyze();
 
                         const options: InteractionReplyOptions = {
@@ -377,11 +420,17 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                     }
 
                     case timingDistributionButtonId: {
+                        if (!beatmap || !replay?.data) {
+                            return;
+                        }
+
                         const timingDistributionChart =
                             new TimingDistributionChart(
                                 beatmap,
-                                mods,
-                                replayData.hitObjectData
+                                typeof score.mods === "string"
+                                    ? ModUtil.deserializeMods(score.mods)
+                                    : score.mods,
+                                replay.data.hitObjectData
                             );
 
                         const chart = timingDistributionChart.generate();
@@ -394,6 +443,87 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
 
                         // Disable the button
                         timingDistributionButton.setDisabled(true);
+                        break;
+                    }
+
+                    case exportReplayButtonId: {
+                        if (!replay?.data || !replay.originalODR) {
+                            return;
+                        }
+
+                        const { data } = replay;
+                        const replayFilename = `${createHash("md5").update(replay.originalODR).digest("hex")}.odr`;
+                        const zip = new AdmZip();
+
+                        zip.addFile(replayFilename, replay.originalODR);
+
+                        const accuracy =
+                            score instanceof Score
+                                ? score.accuracy
+                                : new Accuracy({
+                                      n300: score.perfect,
+                                      n100: score.good,
+                                      n50: score.bad,
+                                      nmiss: score.miss,
+                                  });
+
+                        const json: ExportedReplayJSONV3 = {
+                            version: 3,
+                            replaydata: {
+                                filename: `${data.folderName}\\/${data.fileName}`,
+                                playername: data.isReplayV3()
+                                    ? data.playerName
+                                    : username,
+                                replayfile: replayFilename,
+                                beatmapMD5: data.hash,
+                                mods:
+                                    score instanceof Score
+                                        ? JSON.stringify(
+                                              score.mods.serializeMods()
+                                          )
+                                        : score.mods,
+                                score: score.score,
+                                combo: score.combo,
+                                mark:
+                                    score instanceof Score
+                                        ? score.rank
+                                        : score.mark,
+                                h300k: data.hit300k,
+                                h300: accuracy.n300,
+                                h100k: data.hit100k,
+                                h100: accuracy.n100,
+                                h50: accuracy.n50,
+                                misses: accuracy.nmiss,
+                                accuracy: accuracy.value(),
+                                time: score.date.getTime(),
+                                //@ts-expect-error: Should exist in exported replay data v3, library bump will fix this.
+                                sliderTickHits:
+                                    score instanceof Score
+                                        ? score.sliderTickHits
+                                        : score.slider_tick_hit,
+                                sliderEndHits:
+                                    score instanceof Score
+                                        ? score.sliderEndHits
+                                        : score.slider_end_hit,
+                            },
+                        };
+
+                        zip.addFile(
+                            "entry.json",
+                            Buffer.from(JSON.stringify(json, null, 2))
+                        );
+
+                        const attachment = new AttachmentBuilder(
+                            zip.toBuffer(),
+                            {
+                                name: `${data.fileName} [${json.replaydata.playername}]-${score.date.getTime().toString()}.edr`,
+                            }
+                        );
+
+                        await i.editReply({ files: [attachment] });
+
+                        // Disable the button
+                        exportReplayButton.setDisabled(true);
                         break;
                     }
                 }
