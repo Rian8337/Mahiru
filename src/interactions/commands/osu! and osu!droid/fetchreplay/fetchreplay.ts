@@ -181,7 +181,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             h50: accuracy.n50,
             misses: accuracy.nmiss,
             accuracy: accuracy.value(),
-            time: score.date.getTime(),
+            time: Math.round(score.date.getTime() / 1000),
             //@ts-expect-error: Should exist in exported replay data v3, library bump will fix this.
             sliderTickHits:
                 score instanceof Score

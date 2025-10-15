@@ -495,7 +495,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                 h50: accuracy.n50,
                                 misses: accuracy.nmiss,
                                 accuracy: accuracy.value(),
-                                time: score.date.getTime(),
+                                time: Math.round(score.date.getTime() / 1000),
                                 //@ts-expect-error: Should exist in exported replay data v3, library bump will fix this.
                                 sliderTickHits:
                                     score instanceof Score
@@ -516,7 +516,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         const attachment = new AttachmentBuilder(
                             zip.toBuffer(),
                             {
-                                name: `${data.fileName} [${json.replaydata.playername}]-${score.date.getTime().toString()}.edr`,
+                                name: `${data.fileName} [${json.replaydata.playername}]-${Math.round(score.date.getTime() / 1000).toString()}.edr`,
                             }
                         );
 
