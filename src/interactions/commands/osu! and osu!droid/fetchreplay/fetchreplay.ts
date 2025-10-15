@@ -100,6 +100,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         "bad",
         "miss",
         "date",
+        "slider_tick_hit",
+        "slider_end_hit",
     ]);
 
     if (!score) {
@@ -180,6 +182,15 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             misses: accuracy.nmiss,
             accuracy: accuracy.value(),
             time: score.date.getTime(),
+            //@ts-expect-error: Should exist in exported replay data v3, library bump will fix this.
+            sliderTickHits:
+                score instanceof Score
+                    ? score.sliderTickHits
+                    : score.slider_tick_hit,
+            sliderEndHits:
+                score instanceof Score
+                    ? score.sliderEndHits
+                    : score.slider_end_hit,
         },
     };
 
