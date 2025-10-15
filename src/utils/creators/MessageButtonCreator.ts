@@ -537,7 +537,8 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
 
                 if (
                     missAnalyzerButton.data.disabled &&
-                    timingDistributionButton.data.disabled
+                    timingDistributionButton.data.disabled &&
+                    exportReplayButton.data.disabled
                 ) {
                     c.stop();
                 }
@@ -547,7 +548,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                 const index = (<ActionRowBuilder<ButtonBuilder>[]>(
                     options.components
                 )).findIndex((v) => {
-                    if (v.components.length !== 2) {
+                    if (v.components.length !== 3) {
                         return;
                     }
 
