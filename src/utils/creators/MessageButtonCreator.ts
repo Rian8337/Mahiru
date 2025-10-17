@@ -562,6 +562,11 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                             .custom_id ===
                             (<APIButtonComponentWithCustomId>(
                                 timingDistributionButton.data
+                            )).custom_id &&
+                        (<APIButtonComponentWithCustomId>v.components[2].data)
+                            .custom_id ===
+                            (<APIButtonComponentWithCustomId>(
+                                exportReplayButton.data
                             )).custom_id
                     );
                 });
