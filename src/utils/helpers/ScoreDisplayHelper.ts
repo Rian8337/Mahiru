@@ -340,9 +340,9 @@ export abstract class ScoreDisplayHelper {
                         ? `${arrow} ${bold(
                               `${attribs[0].performance.total.toFixed(
                                   2
-                              )}DPP | ${attribs[1].performance.total.toFixed(
+                              )}dpp | ${attribs[1].performance.total.toFixed(
                                   2
-                              )}PP`
+                              )}pp`
                           )} `
                         : " "
                 }${arrow} ${(score.accuracy.value() * 100).toFixed(2)}%\n` +

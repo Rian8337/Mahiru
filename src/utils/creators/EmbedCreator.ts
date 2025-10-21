@@ -655,8 +655,8 @@ export abstract class EmbedCreator {
             );
 
         beatmapInformation += `${bold(
-            `${droidAttribs.performance.total.toFixed(2)}DPP`
-        )} | ${bold(`${osuAttribs.performance.total.toFixed(2)}PP`)} `;
+            `${droidAttribs.performance.total.toFixed(2)}dpp`
+        )} | ${bold(`${osuAttribs.performance.total.toFixed(2)}pp`)} `;
 
         // Some beatmaps return `null` max combo from osu! API, i.e. /b/1462961.
         const { maxCombo } = droidAttribs.difficulty;
@@ -692,9 +692,9 @@ export abstract class EmbedCreator {
             if (droidFcAttribs && osuFcAttribs) {
                 beatmapInformation += `(${droidFcAttribs.attributes.performance.total.toFixed(
                     2
-                )}DPP, ${osuFcAttribs.attributes.performance.total.toFixed(
+                )}dpp, ${osuFcAttribs.attributes.performance.total.toFixed(
                     2
-                )}PP ${StringHelper.formatString(
+                )}pp ${StringHelper.formatString(
                     localization.getTranslation("forFC"),
                     (calcParams.accuracy.value() * 100).toFixed(2) + "%"
                 )}) `;
