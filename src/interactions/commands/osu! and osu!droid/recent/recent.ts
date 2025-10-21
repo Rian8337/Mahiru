@@ -21,9 +21,12 @@ import { ScoreHelper } from "@utils/helpers/ScoreHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
+import { ProfileManager } from "@utils/managers/ProfileManager";
 import {
     ApplicationCommandOptionType,
     GuildMember,
+    hideLinkEmbed,
+    hyperlink,
     InteractionReplyOptions,
 } from "discord.js";
 import { SlashCommand } from "structures/core/SlashCommand";
@@ -220,7 +223,10 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     const options: InteractionReplyOptions = {
         content: MessageCreator.createAccept(
             localization.getTranslation("recentPlayDisplay"),
-            player.username
+            hyperlink(
+                player.username,
+                hideLinkEmbed(ProfileManager.getProfileLink(player.id))
+            )
         ),
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(

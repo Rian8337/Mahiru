@@ -4,10 +4,11 @@ import { EventUtil } from "structures/core/EventUtil";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandUtilManager } from "@utils/managers/CommandUtilManager";
-import { TextChannel } from "discord.js";
+import { hideLinkEmbed, hyperlink, TextChannel } from "discord.js";
 import { Player } from "@rian8337/osu-droid-utilities";
 import { ScoreHelper } from "@utils/helpers/ScoreHelper";
 import { DroidHelper } from "@utils/helpers/DroidHelper";
+import { ProfileManager } from "@utils/managers/ProfileManager";
 
 export const run: EventUtil["run"] = async (client) => {
     const channel = <TextChannel>(
@@ -52,7 +53,7 @@ export const run: EventUtil["run"] = async (client) => {
 
                 channel.send({
                     content: MessageCreator.createAccept(
-                        `Recent play for ${player.username}:`
+                        `Recent play for ${hyperlink(player.username, hideLinkEmbed(ProfileManager.getProfileLink(player.id)))}:`
                     ),
                     embeds: [
                         await EmbedCreator.createRecentPlayEmbed(
