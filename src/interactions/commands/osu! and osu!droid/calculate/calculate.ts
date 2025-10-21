@@ -43,7 +43,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     const beatmapID = BeatmapManager.getBeatmapID(
         interaction.options.getString("beatmap") ?? ""
-    )[0];
+    ).at(0);
 
     const hash = BeatmapManager.getChannelLatestBeatmap(interaction.channelId);
 
@@ -69,7 +69,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     await InteractionHelper.deferReply(interaction);
 
     const beatmap: MapInfo | null = await BeatmapManager.getBeatmap(
-        beatmapID ?? hash,
+        beatmapID ?? hash!,
         { checkFile: false }
     );
 
@@ -90,6 +90,11 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     const forceCS = interaction.options.getNumber("circlesize");
     const forceAR = interaction.options.getNumber("approachrate");
     const forceOD = interaction.options.getNumber("overalldifficulty");
+    const sliderTicksMissed =
+        interaction.options.getInteger("sliderticksmissed");
+    const sliderEndsDropped =
+        interaction.options.getInteger("sliderendsdropped");
+    const totalScore = interaction.options.getInteger("totalscore");
 
     if (forceCS !== null || forceAR !== null || forceOD !== null) {
         mods.set(
@@ -122,6 +127,15 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                       beatmap.maxCombo
                   )
                 : (beatmap.maxCombo ?? undefined),
+        sliderTicksMissed:
+            sliderTicksMissed !== null
+                ? Math.max(0, sliderTicksMissed)
+                : undefined,
+        sliderEndsDropped:
+            sliderEndsDropped !== null
+                ? Math.max(0, sliderEndsDropped)
+                : undefined,
+        totalScore: totalScore !== null ? Math.max(0, totalScore) : undefined,
     });
 
     calcParams.recalculateAccuracy(beatmap.objects);
@@ -267,7 +281,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     BeatmapManager.setChannelLatestBeatmap(interaction.channelId, beatmap.hash);
 
-    InteractionHelper.reply(interaction, options, true);
+    void InteractionHelper.reply(interaction, options, true);
 };
 
 export const category: SlashCommand["category"] = CommandCategory.osu;
@@ -321,6 +335,25 @@ export const config: SlashCommand["config"] = {
             name: "misses",
             type: ApplicationCommandOptionType.Integer,
             description: "The amount of misses gained. Defaults to 0.",
+            minValue: 0,
+        },
+        {
+            name: "sliderticksmissed",
+            type: ApplicationCommandOptionType.Integer,
+            description: "The amount of slider ticks that were missed.",
+            minValue: 0,
+        },
+        {
+            name: "sliderendsdropped",
+            type: ApplicationCommandOptionType.Integer,
+            description: "The amount of slider ends that were dropped.",
+            minValue: 0,
+        },
+        {
+            name: "totalscore",
+            type: ApplicationCommandOptionType.Integer,
+            description:
+                "The total score achieved. Only relevant if slider tick or end misses are not given.",
             minValue: 0,
         },
         {

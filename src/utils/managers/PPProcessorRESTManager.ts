@@ -291,7 +291,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         );
 
         if (calculationParams) {
-            if (calculationParams.mods && !calculationParams.mods.isEmpty) {
+            if (!calculationParams.mods.isEmpty) {
                 formData.append(
                     "mods",
                     JSON.stringify(calculationParams.mods.serializeMods())
@@ -309,6 +309,27 @@ export abstract class PPProcessorRESTManager extends RESTManager {
 
             if (calculationParams.combo !== undefined) {
                 formData.append("maxcombo", calculationParams.combo.toString());
+            }
+
+            if (calculationParams.sliderTicksMissed !== undefined) {
+                formData.append(
+                    "sliderticksmissed",
+                    calculationParams.sliderTicksMissed.toString()
+                );
+            }
+
+            if (calculationParams.sliderEndsDropped !== undefined) {
+                formData.append(
+                    "sliderendsdropped",
+                    calculationParams.sliderEndsDropped.toString()
+                );
+            }
+
+            if (calculationParams.totalScore !== undefined) {
+                formData.append(
+                    "totalscore",
+                    calculationParams.totalScore.toString()
+                );
             }
         }
 

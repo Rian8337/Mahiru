@@ -33,6 +33,21 @@ export interface PerformanceCalculationParametersInit {
     inputAccuracy?: number;
 
     /**
+     * The amount of slider ticks that were missed.
+     */
+    sliderTicksMissed?: number;
+
+    /**
+     * The amount of slider ends that were dropped.
+     */
+    sliderEndsDropped?: number;
+
+    /**
+     * The total score achieved.
+     */
+    totalScore?: number;
+
+    /**
      * The tap penalty to apply for penalized scores. Defaults to 1.
      */
     tapPenalty?: number;
@@ -78,6 +93,21 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
     inputAccuracy: number;
 
     /**
+     * The amount of slider ticks that were missed.
+     */
+    sliderTicksMissed?: number;
+
+    /**
+     * The amount of slider ends that were dropped.
+     */
+    sliderEndsDropped?: number;
+
+    /**
+     * The total score achieved.
+     */
+    totalScore?: number;
+
+    /**
      * The tap penalty to apply for penalized scores. Defaults to 1.
      */
     tapPenalty?: number;
@@ -93,6 +123,9 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
         this.combo = values.combo;
         this.accuracy = values.accuracy;
         this.inputAccuracy = values.inputAccuracy ?? 100;
+        this.sliderTicksMissed = values.sliderTicksMissed;
+        this.sliderEndsDropped = values.sliderEndsDropped;
+        this.totalScore = values.totalScore;
         this.tapPenalty = values.tapPenalty;
         this.sliderCheesePenalty = values.sliderCheesePenalty;
     }
