@@ -716,6 +716,7 @@ export abstract class EmbedCreator {
         originalDifficulty.od = beatmap.od;
         originalDifficulty.hp = beatmap.hp;
 
+        const rate = ModUtil.calculateRateWithMods(mods.values());
         const modifiedDifficulty = new BeatmapDifficulty(originalDifficulty);
 
         ModUtil.applyModsToBeatmapDifficulty(
@@ -748,6 +749,7 @@ export abstract class EmbedCreator {
         appendInformation("AR", originalDifficulty.ar, modifiedDifficulty.ar);
         appendInformation("OD", originalDifficulty.od, modifiedDifficulty.od);
         appendInformation("HP", originalDifficulty.hp, modifiedDifficulty.hp);
+        appendInformation("BPM", beatmap.bpm, beatmap.bpm * rate);
 
         beatmapInformation += inlineCode(difficultyInformation.trimEnd());
 
@@ -837,8 +839,6 @@ export abstract class EmbedCreator {
             )}ms ${localization.getTranslation(
                 "hitErrorAvg"
             )} ${arrow} ${hitError.unstableRate.toFixed(2)} UR`;
-
-            const rate = ModUtil.calculateRateWithMods(mods.values());
 
             if (rate !== 1) {
                 beatmapInformation += ` (${(hitError.unstableRate / rate).toFixed(2)} cv.)`;
