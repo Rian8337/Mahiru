@@ -1,5 +1,6 @@
 import { Config } from "@core/Config";
 import { ScoreRank } from "@rian8337/osu-base";
+import { HitResult } from "@rian8337/osu-droid-replay-analyzer";
 import { Manager } from "@utils/base/Manager";
 import { formatEmoji } from "discord.js";
 
@@ -77,6 +78,44 @@ export abstract class EmoteManager extends Manager {
                 id = Config.isDebug
                     ? "1310146587539935272"
                     : "1310145297921478666";
+                break;
+        }
+
+        return formatEmoji(id);
+    }
+
+    /**
+     * Gets an emoji that represents a hit result.
+     *
+     * @param result The hit result.
+     * @returns The emoji representing the hit result.
+     */
+    static getHitResultEmote(result: HitResult) {
+        let id: string;
+
+        switch (result) {
+            case HitResult.miss:
+                id = Config.isDebug
+                    ? "1431657671626588201"
+                    : "1431661054672371774";
+                break;
+
+            case HitResult.meh:
+                id = Config.isDebug
+                    ? "1431657706774724730"
+                    : "1431661069713014864";
+                break;
+
+            case HitResult.good:
+                id = Config.isDebug
+                    ? "1431657726588489768"
+                    : "1431661086498623619";
+                break;
+
+            case HitResult.great:
+                id = Config.isDebug
+                    ? "1431657753000284201"
+                    : "1431661101015367861";
                 break;
         }
 

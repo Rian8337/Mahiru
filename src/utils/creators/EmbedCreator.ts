@@ -17,9 +17,13 @@ import {
 import {
     Accuracy,
     BeatmapDifficulty,
+    DroidHitWindow,
+    HitWindow,
     MapInfo,
+    ModPrecise,
     ModUtil,
     Modes,
+    PreciseDroidHitWindow,
     Precision,
     Slider,
     SliderTail,
@@ -719,10 +723,23 @@ export abstract class EmbedCreator {
         originalDifficulty.hp = beatmap.hp;
 
         const rate = ModUtil.calculateRateWithMods(mods.values());
-        const modifiedDifficulty = new BeatmapDifficulty(originalDifficulty);
+
+        const nonRateModifiedDifficulty = new BeatmapDifficulty(
+            originalDifficulty
+        );
+
+        const rateModifiedDifficulty = new BeatmapDifficulty(
+            originalDifficulty
+        );
 
         ModUtil.applyModsToBeatmapDifficulty(
-            modifiedDifficulty,
+            nonRateModifiedDifficulty,
+            Modes.droid,
+            mods
+        );
+
+        ModUtil.applyModsToBeatmapDifficulty(
+            rateModifiedDifficulty,
             Modes.droid,
             mods,
             true
@@ -747,13 +764,43 @@ export abstract class EmbedCreator {
             difficultyInformation += " ";
         };
 
-        appendInformation("CS", originalDifficulty.cs, modifiedDifficulty.cs);
-        appendInformation("AR", originalDifficulty.ar, modifiedDifficulty.ar);
-        appendInformation("OD", originalDifficulty.od, modifiedDifficulty.od);
-        appendInformation("HP", originalDifficulty.hp, modifiedDifficulty.hp);
+        appendInformation(
+            "CS",
+            originalDifficulty.cs,
+            rateModifiedDifficulty.cs
+        );
+
+        appendInformation(
+            "AR",
+            originalDifficulty.ar,
+            rateModifiedDifficulty.ar
+        );
+
+        appendInformation(
+            "OD",
+            originalDifficulty.od,
+            rateModifiedDifficulty.od
+        );
+
+        appendInformation(
+            "HP",
+            originalDifficulty.hp,
+            rateModifiedDifficulty.hp
+        );
+
         appendInformation("BPM", beatmap.bpm, beatmap.bpm * rate);
 
-        beatmapInformation += inlineCode(difficultyInformation.trimEnd());
+        beatmapInformation +=
+            inlineCode(difficultyInformation.trimEnd()) + "\n" + arrow + " ";
+
+        const hitWindow = mods.has(ModPrecise)
+            ? new PreciseDroidHitWindow(nonRateModifiedDifficulty.od)
+            : new DroidHitWindow(nonRateModifiedDifficulty.od);
+
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.great)} ${inlineCode(`±${NumberHelper.round(hitWindow.greatWindow / rate, 2).toString()}ms`)} `;
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.good)} ${inlineCode(`±${NumberHelper.round(hitWindow.okWindow / rate, 2).toString()}ms`)} `;
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.meh)} ${inlineCode(`±${NumberHelper.round(hitWindow.mehWindow / rate, 2).toString()}ms`)} `;
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.miss)} ${inlineCode(`±${NumberHelper.round(HitWindow.missWindow / rate, 2).toString()}ms`)}`;
 
         let hitError: HitErrorInformation | null | undefined;
 
