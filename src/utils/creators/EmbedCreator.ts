@@ -837,26 +837,28 @@ export abstract class EmbedCreator {
                     ? score.sliderEndHits
                     : score.slider_end_hit;
 
-            if (sliderTickHits !== null && sliderEndHits !== null) {
-                beatmapInformation += `\n${arrow} ${sliderTickHits}/${
-                    beatmap.beatmap!.hitObjects.sliderTicks
-                } ${localization.getTranslation(
-                    "sliderTicks"
-                )} ${arrow} ${sliderEndHits}/${
-                    beatmap.beatmap!.hitObjects.sliderEnds
-                } ${localization.getTranslation("sliderEnds")}`;
-            }
-
             const replay = await ReplayHelper.analyzeReplay(score);
             const { data } = replay;
 
             await BeatmapManager.downloadBeatmap(beatmap);
 
             if (data && beatmap.hasDownloadedBeatmap()) {
+                if (sliderTickHits !== null && sliderEndHits !== null) {
+                    beatmapInformation += `\n${arrow} ${sliderTickHits}/${
+                        beatmap.beatmap!.hitObjects.sliderTicks
+                    } ${localization.getTranslation(
+                        "sliderTicks"
+                    )} ${arrow} ${sliderEndHits}/${
+                        beatmap.beatmap!.hitObjects.sliderEnds
+                    } ${localization.getTranslation("sliderEnds")}`;
+                }
+
                 replay.beatmap ??= beatmap.beatmap!;
 
                 // Get hit error average and UR
                 hitError = replay.calculateHitError()!;
+            } else if (sliderTickHits !== null && sliderEndHits !== null) {
+                beatmapInformation += `\n${arrow} ${sliderTickHits} ${localization.getTranslation("sliderTicks")} ${arrow} ${sliderEndHits} ${localization.getTranslation("sliderEnds")}`;
             }
         }
 
