@@ -536,6 +536,8 @@ export abstract class EmbedCreator {
                   | "good"
                   | "bad"
                   | "miss"
+                  | "slider_tick_hit"
+                  | "slider_end_hit"
               >
             | Score
             | RecentPlay,
@@ -778,6 +780,26 @@ export abstract class EmbedCreator {
                 }
             }
         } else {
+            const sliderTickHits =
+                score instanceof Score
+                    ? score.sliderTickHits
+                    : score.slider_tick_hit;
+
+            const sliderEndHits =
+                score instanceof Score
+                    ? score.sliderEndHits
+                    : score.slider_end_hit;
+
+            if (sliderTickHits !== null && sliderEndHits !== null) {
+                beatmapInformation += `\n${arrow} ${sliderTickHits}/${
+                    beatmap.beatmap!.hitObjects.sliderTicks
+                } ${localization.getTranslation(
+                    "sliderTicks"
+                )} ${arrow} ${sliderEndHits}/${
+                    beatmap.beatmap!.hitObjects.sliderEnds
+                } ${localization.getTranslation("sliderEnds")}`;
+            }
+
             const replay = await ReplayHelper.analyzeReplay(score);
             const { data } = replay;
 
@@ -785,46 +807,6 @@ export abstract class EmbedCreator {
 
             if (data && beatmap.hasDownloadedBeatmap()) {
                 replay.beatmap ??= beatmap.beatmap!;
-
-                // Get amount of slider ticks and ends hit
-                let collectedSliderTicks = 0;
-                let collectedSliderEnds = 0;
-
-                for (let i = 0; i < data.hitObjectData.length; ++i) {
-                    // Using droid star rating as legacy slider tail doesn't exist.
-                    const object = beatmap.beatmap!.hitObjects.objects[i];
-                    const objectData = data.hitObjectData[i];
-
-                    if (
-                        objectData.result === HitResult.miss ||
-                        !(object instanceof Slider)
-                    ) {
-                        continue;
-                    }
-
-                    // Exclude the head circle.
-                    for (let j = 1; j < object.nestedHitObjects.length; ++j) {
-                        const nested = object.nestedHitObjects[j];
-
-                        if (!objectData.tickset[j - 1]) {
-                            continue;
-                        }
-
-                        if (nested instanceof SliderTick) {
-                            ++collectedSliderTicks;
-                        } else if (nested instanceof SliderTail) {
-                            ++collectedSliderEnds;
-                        }
-                    }
-                }
-
-                beatmapInformation += `\n${arrow} ${collectedSliderTicks}/${
-                    beatmap.beatmap!.hitObjects.sliderTicks
-                } ${localization.getTranslation(
-                    "sliderTicks"
-                )} ${arrow} ${collectedSliderEnds}/${
-                    beatmap.beatmap!.hitObjects.sliderEnds
-                } ${localization.getTranslation("sliderEnds")}`;
 
                 // Get hit error average and UR
                 hitError = replay.calculateHitError()!;

@@ -208,6 +208,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         "hash",
         "score",
         "date",
+        "slider_tick_hit",
+        "slider_end_hit",
     ]);
 
     if (!score) {
