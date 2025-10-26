@@ -13,7 +13,13 @@ import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
-import { GuildMember, InteractionReplyOptions } from "discord.js";
+import { ProfileManager } from "@utils/managers/ProfileManager";
+import {
+    GuildMember,
+    hideLinkEmbed,
+    hyperlink,
+    InteractionReplyOptions,
+} from "discord.js";
 import { MessageContextMenuCommand } from "structures/core/MessageContextMenuCommand";
 
 export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
@@ -125,7 +131,10 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
     const options: InteractionReplyOptions = {
         content: MessageCreator.createAccept(
             localization.getTranslation("comparePlayDisplay"),
-            player.username
+            hyperlink(
+                player.username,
+                hideLinkEmbed(ProfileManager.getProfileLink(player.id))
+            )
         ),
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(

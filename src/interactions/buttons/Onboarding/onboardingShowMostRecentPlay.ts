@@ -13,7 +13,8 @@ import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
-import { InteractionReplyOptions } from "discord.js";
+import { ProfileManager } from "@utils/managers/ProfileManager";
+import { hideLinkEmbed, hyperlink, InteractionReplyOptions } from "discord.js";
 
 export const run: ButtonCommand["run"] = async (_, interaction) => {
     if (!interaction.inCachedGuild()) {
@@ -100,7 +101,10 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
     const options: InteractionReplyOptions = {
         content: MessageCreator.createAccept(
             localization.getTranslation("recentPlayDisplay"),
-            player.username
+            hyperlink(
+                player.username,
+                hideLinkEmbed(ProfileManager.getProfileLink(player.id))
+            )
         ),
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(

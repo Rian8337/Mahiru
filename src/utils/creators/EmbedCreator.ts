@@ -25,9 +25,6 @@ import {
     Modes,
     PreciseDroidHitWindow,
     Precision,
-    Slider,
-    SliderTail,
-    SliderTick,
 } from "@rian8337/osu-base";
 import {
     CacheableDifficultyAttributes,

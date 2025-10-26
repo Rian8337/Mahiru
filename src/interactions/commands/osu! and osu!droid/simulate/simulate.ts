@@ -38,8 +38,14 @@ import { ReplayHelper } from "@utils/helpers/ReplayHelper";
 import { StringHelper } from "@utils/helpers/StringHelper";
 import { BeatmapManager } from "@utils/managers/BeatmapManager";
 import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
+import { ProfileManager } from "@utils/managers/ProfileManager";
 import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
-import { ApplicationCommandOptionType, GuildMember } from "discord.js";
+import {
+    ApplicationCommandOptionType,
+    GuildMember,
+    hideLinkEmbed,
+    hyperlink,
+} from "discord.js";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new SimulateLocalization(
@@ -622,7 +628,10 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     InteractionHelper.reply(interaction, {
         content: MessageCreator.createAccept(
             localization.getTranslation("simulatedPlayDisplay"),
-            player.username
+            hyperlink(
+                player.username,
+                hideLinkEmbed(ProfileManager.getProfileLink(player.id))
+            )
         ),
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(
