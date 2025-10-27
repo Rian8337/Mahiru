@@ -19,7 +19,7 @@ import { DroidHelper } from "@utils/helpers/DroidHelper";
 
 export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
     const localization = new ProfileLocalization(
-        CommandHelper.getLocale(interaction),
+        CommandHelper.getLocale(interaction)
     );
 
     const playerInfoDbManager = DatabaseManager.aliceDb.collections.playerInfo;
@@ -32,15 +32,15 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
                     _id: 0,
                     uid: 1,
                 },
-            },
+            }
         );
 
     if (!bindInfo) {
         return InteractionHelper.update(interaction, {
             content: MessageCreator.createReject(
                 new ConstantsLocalization(localization.language).getTranslation(
-                    Constants.selfNotBindedReject,
-                ),
+                    Constants.selfNotBindedReject
+                )
             ),
         });
     }
@@ -49,7 +49,7 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
         await DatabaseManager.aliceDb.collections.profileBadges.get(
             "id",
             {},
-            { projection: { _id: 0 } },
+            { projection: { _id: 0 } }
         );
 
     const selectMenuInteraction =
@@ -57,7 +57,7 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
             interaction,
             {
                 content: MessageCreator.createWarn(
-                    localization.getTranslation("chooseClaimBadge"),
+                    localization.getTranslation("chooseClaimBadge")
                 ),
             },
             badgeList
@@ -69,7 +69,7 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
                 })
                 .sort((a, b) => a.label.localeCompare(b.label)),
             [interaction.user.id],
-            30,
+            30
         );
 
     if (!selectMenuInteraction) {
@@ -93,7 +93,7 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
     if (pictureConfig.badges.find((b) => b.id === badge.id)) {
         return InteractionHelper.update(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("badgeIsAlreadyClaimed"),
+                localization.getTranslation("badgeIsAlreadyClaimed")
             ),
         });
     }
@@ -107,7 +107,7 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.update(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("selfProfileNotFound"),
+                localization.getTranslation("selfProfileNotFound")
             ),
         });
     }
@@ -133,17 +133,17 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
                                 `${StringHelper.formatString(
                                     localization.getTranslation("enterBeatmap"),
                                     Symbols.star,
-                                    badge.requirement.toString(),
+                                    badge.requirement.toString()
                                 )}\n\n${localization.getTranslation(
-                                    "enterBeatmapRestriction",
+                                    "enterBeatmapRestriction"
                                 )}`,
-                                localization.language,
+                                localization.language
                             ),
                         ],
                     },
                     [],
                     [interaction.user.id],
-                    20,
+                    20
                 );
 
             if (!beatmapIDInput) {
@@ -156,8 +156,8 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
                 return InteractionHelper.update(interaction, {
                     content: MessageCreator.createReject(
                         localization.getTranslation(
-                            "beatmapToClaimBadgeNotValid",
-                        ),
+                            "beatmapToClaimBadgeNotValid"
+                        )
                     ),
                 });
             }
@@ -170,8 +170,8 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
                 return InteractionHelper.update(interaction, {
                     content: MessageCreator.createReject(
                         localization.getTranslation(
-                            "beatmapToClaimBadgeNotFound",
-                        ),
+                            "beatmapToClaimBadgeNotFound"
+                        )
                     ),
                 });
             }
@@ -183,8 +183,8 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
                 return InteractionHelper.update(interaction, {
                     content: MessageCreator.createReject(
                         localization.getTranslation(
-                            "beatmapToClaimBadgeNotRankedOrApproved",
-                        ),
+                            "beatmapToClaimBadgeNotRankedOrApproved"
+                        )
                     ),
                 });
             }
@@ -192,15 +192,16 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
             const score = await DroidHelper.getScore(
                 bindInfo.uid,
                 beatmapInfo.hash,
-                ["uid", "hash"],
+                false,
+                ["uid", "hash"]
             );
 
             if (!score) {
                 return InteractionHelper.update(interaction, {
                     content: MessageCreator.createReject(
                         localization.getTranslation(
-                            "userDoesntHaveScoreinBeatmap",
-                        ),
+                            "userDoesntHaveScoreinBeatmap"
+                        )
                     ),
                 });
             }
@@ -210,26 +211,27 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
                     score.uid,
                     score.hash,
                     Modes.osu,
-                    PPCalculationMethod.live,
+                    PPCalculationMethod.live
                 );
 
             if (!attribs) {
                 return InteractionHelper.update(interaction, {
                     content: MessageCreator.createReject(
                         localization.getTranslation(
-                            "userDoesntHaveScoreinBeatmap",
-                        ),
+                            "userDoesntHaveScoreinBeatmap"
+                        )
                     ),
                 });
             }
 
-            canUserClaimBadge = attribs.attributes.difficulty.starRating >= badge.requirement;
+            canUserClaimBadge =
+                attribs.attributes.difficulty.starRating >= badge.requirement;
             break;
         }
         case "unclaimable":
             return InteractionHelper.update(interaction, {
                 content: MessageCreator.createReject(
-                    localization.getTranslation("badgeUnclaimable"),
+                    localization.getTranslation("badgeUnclaimable")
                 ),
             });
     }
@@ -237,7 +239,7 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
     if (!canUserClaimBadge) {
         return InteractionHelper.update(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("userCannotClaimBadge"),
+                localization.getTranslation("userCannotClaimBadge")
             ),
         });
     }
@@ -249,7 +251,7 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
                 $push: {
                     "picture_config.badges": { id: badge.id, name: badge.name },
                 },
-            },
+            }
         );
     } else {
         await playerInfoDbManager.insert({
@@ -264,7 +266,7 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
         content: MessageCreator.createAccept(
             localization.getTranslation("claimBadgeSuccess"),
             interaction.user.toString(),
-            badge.id,
+            badge.id
         ),
     });
 };

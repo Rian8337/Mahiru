@@ -128,7 +128,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     uid = player.id;
 
-    const score = await DroidHelper.getScore(uid, cachedBeatmapHash, [
+    const score = await DroidHelper.getScore(uid, cachedBeatmapHash, false, [
         "id",
         "uid",
         "filename",

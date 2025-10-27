@@ -54,17 +54,22 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         });
     }
 
-    const score = await DroidHelper.getScore(bindInfo.uid, challenge.hash, [
-        "id",
-        "mods",
-        "score",
-        "combo",
-        "mark",
-        "perfect",
-        "good",
-        "bad",
-        "miss",
-    ]);
+    const score = await DroidHelper.getScore(
+        bindInfo.uid,
+        challenge.hash,
+        false,
+        [
+            "id",
+            "mods",
+            "score",
+            "combo",
+            "mark",
+            "perfect",
+            "good",
+            "bad",
+            "miss",
+        ]
+    );
 
     if (!score) {
         return InteractionHelper.reply(interaction, {

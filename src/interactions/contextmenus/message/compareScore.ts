@@ -89,24 +89,29 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         });
     }
 
-    const score = await DroidHelper.getScore(player.id, beatmapInfo.hash, [
-        "id",
-        "uid",
-        "hash",
-        "score",
-        "filename",
-        "hash",
-        "mods",
-        "combo",
-        "mark",
-        "perfect",
-        "good",
-        "bad",
-        "miss",
-        "date",
-        "slider_tick_hit",
-        "slider_end_hit",
-    ]);
+    const score = await DroidHelper.getScore(
+        player.id,
+        beatmapInfo.hash,
+        false,
+        [
+            "id",
+            "uid",
+            "hash",
+            "score",
+            "filename",
+            "hash",
+            "mods",
+            "combo",
+            "mark",
+            "perfect",
+            "good",
+            "bad",
+            "miss",
+            "date",
+            "slider_tick_hit",
+            "slider_end_hit",
+        ]
+    );
 
     if (!score) {
         return InteractionHelper.reply(interaction, {

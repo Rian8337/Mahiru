@@ -199,7 +199,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         });
     }
 
-    const score = await DroidHelper.getScore(player.id, beatmap.hash, [
+    const score = await DroidHelper.getScore(player.id, beatmap.hash, false, [
         "id",
         "uid",
         "hash",

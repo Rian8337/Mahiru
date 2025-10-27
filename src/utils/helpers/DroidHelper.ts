@@ -5,6 +5,7 @@ import {
     constructOfficialDatabaseTable,
     OfficialDatabaseTables,
 } from "@database/official/OfficialDatabaseTables";
+import { OfficialDatabaseBestScore } from "@database/official/schema/OfficialDatabaseBestScore";
 import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
 import { OfficialDatabaseUser } from "@database/official/schema/OfficialDatabaseUser";
 import { BeatmapLeaderboardSortMode } from "@enums/interactions/BeatmapLeaderboardSortMode";
@@ -40,8 +41,8 @@ export abstract class DroidHelper {
     static async getBeatmapLeaderboard(
         hash: string,
         order: BeatmapLeaderboardSortMode = BeatmapLeaderboardSortMode.score,
-        page: number = 1,
-        scoresPerPage: number = 100
+        page = 1,
+        scoresPerPage = 100
     ): Promise<Score[]> {
         if (Config.isDebug) {
             const apiRequestBuilder = new DroidAPIRequestBuilder()
@@ -68,7 +69,9 @@ export abstract class DroidHelper {
             let response: APIScore[];
 
             try {
-                response = JSON.parse(result.data.toString("utf-8"));
+                response = JSON.parse(
+                    result.data.toString("utf-8")
+                ) as APIScore[];
             } catch {
                 throw new Error("Failed to parse JSON response");
             }
@@ -129,8 +132,8 @@ export abstract class DroidHelper {
      * @returns The global leaderboard.
      */
     static async getGlobalLeaderboard(
-        page: number = 1,
-        scoresPerPage: number = 100
+        page = 1,
+        scoresPerPage = 100
     ): Promise<OnlinePlayerRank[]> {
         // Page is 1-indexed, but the API is 0-indexed.
         --page;
@@ -149,7 +152,9 @@ export abstract class DroidHelper {
             let response: OnlinePlayerRank[];
 
             try {
-                response = JSON.parse(result.data.toString("utf-8"));
+                response = JSON.parse(
+                    result.data.toString("utf-8")
+                ) as OnlinePlayerRank[];
             } catch {
                 throw new Error("Failed to parse JSON response");
             }
@@ -180,8 +185,8 @@ export abstract class DroidHelper {
      */
     static async getRecentScores<K extends keyof OfficialDatabaseScore>(
         uid: number,
-        amount: number = 50,
-        offset: number = 0,
+        amount = 50,
+        offset = 0,
         databaseColumns?: K[]
     ): Promise<Pick<OfficialDatabaseScore, K>[]> {
         if (Config.isDebug) {
@@ -190,6 +195,8 @@ export abstract class DroidHelper {
 
         const scoreQuery = await officialPool.query<RowDataPacket[]>(
             `SELECT ${
+                // Retrieve everything if no columns are specified.
+                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 databaseColumns?.join() || "*"
             } FROM ${constructOfficialDatabaseTable(
                 OfficialDatabaseTables.score
@@ -209,10 +216,7 @@ export abstract class DroidHelper {
      * @param amount The amount of scores to retrieve. Defaults to 100.
      * @returns The top scores.
      */
-    static async getTopScores(
-        uid: number,
-        amount: number = 100
-    ): Promise<Score[]> {
+    static async getTopScores(uid: number, amount = 100): Promise<Score[]> {
         if (Config.isDebug) {
             const apiRequestBuilder = new DroidAPIRequestBuilder()
                 .setEndpoint("scoresearchv2.php")
@@ -230,7 +234,9 @@ export abstract class DroidHelper {
             let response: APIScore[];
 
             try {
-                response = JSON.parse(data.data.toString("utf-8"));
+                response = JSON.parse(
+                    data.data.toString("utf-8")
+                ) as APIScore[];
             } catch {
                 throw new Error("Failed to parse JSON response");
             }
@@ -283,6 +289,8 @@ export abstract class DroidHelper {
 
         const playerQuery = await officialPool.query<RowDataPacket[]>(
             `SELECT ${
+                // Retrieve everything if no columns are specified.
+                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 databaseColumns?.join() || "*"
             } FROM ${constructOfficialDatabaseTable(
                 OfficialDatabaseTables.user
@@ -358,28 +366,98 @@ export abstract class DroidHelper {
      *
      * @param uid The uid of the player.
      * @param hash The MD5 hash of the beatmap.
+     * @param retrieveBestPP Whether to retrieve the best pp score instead of the most recent score.
      * @param databaseColumns The columns to retrieve from the database if the database is queried. Defaults to
      * @returns The score, `null` if not found.
      */
     static async getScore<K extends keyof OfficialDatabaseScore>(
         uid: number,
         hash: string,
+        retrieveBestPP: false,
         databaseColumns?: K[]
-    ): Promise<Pick<OfficialDatabaseScore, K> | Score | null> {
+    ): Promise<Pick<OfficialDatabaseScore, K> | Score | null>;
+
+    /**
+     * Gets a score from a player on a beatmap.
+     *
+     * In debug mode, the osu!droid API will be requested. Otherwise, the official database will be queried.
+     *
+     * @param uid The uid of the player.
+     * @param hash The MD5 hash of the beatmap.
+     * @param retrieveBestPP Whether to retrieve the best pp score instead of the most recent score.
+     * @param databaseColumns The columns to retrieve from the database if the database is queried. Defaults to
+     * @returns The score, `null` if not found.
+     */
+    static async getScore<K extends keyof OfficialDatabaseBestScore>(
+        uid: number,
+        hash: string,
+        retrieveBestPP: true,
+        databaseColumns?: K[]
+    ): Promise<Pick<OfficialDatabaseBestScore, K> | Score | null>;
+
+    /**
+     * Gets a score from a player on a beatmap.
+     *
+     * In debug mode, the osu!droid API will be requested. Otherwise, the official database will be queried.
+     *
+     * @param uid The uid of the player.
+     * @param hash The MD5 hash of the beatmap.
+     * @param retrieveBestPP Whether to retrieve the best pp score instead of the most recent score.
+     * @param databaseColumns The columns to retrieve from the database if the database is queried. Defaults to
+     * @returns The score, `null` if not found.
+     */
+    static async getScore<
+        K extends keyof (OfficialDatabaseScore | OfficialDatabaseBestScore),
+    >(
+        uid: number,
+        hash: string,
+        retrieveBestPP: boolean,
+        databaseColumns?: K[]
+    ): Promise<
+        | Pick<OfficialDatabaseScore | OfficialDatabaseBestScore, K>
+        | Score
+        | null
+    >;
+
+    static async getScore<
+        K extends keyof (OfficialDatabaseScore | OfficialDatabaseBestScore),
+    >(
+        uid: number,
+        hash: string,
+        retrieveBestPP: boolean,
+        databaseColumns?: K[]
+    ): Promise<
+        | Pick<OfficialDatabaseScore | OfficialDatabaseBestScore, K>
+        | Score
+        | null
+    > {
         if (Config.isDebug) {
-            return Score.getFromHash(uid, hash);
+            return Score.getFromHash(uid, hash, retrieveBestPP);
         }
+
+        const table = constructOfficialDatabaseTable(
+            retrieveBestPP
+                ? OfficialDatabaseTables.bestScore
+                : OfficialDatabaseTables.score
+        );
 
         const scoreQuery = await officialPool.query<RowDataPacket[]>(
             `SELECT ${
+                // Retrieve everything if no columns are specified.
+                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 databaseColumns?.join() || "*"
-            } FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.score
-            )} WHERE uid = ? AND hash = ? AND score > 0;`,
+            } FROM ${table} WHERE uid = ? AND hash = ? AND score > 0;`,
             [uid, hash]
         );
 
-        return (scoreQuery[0] as OfficialDatabaseScore[]).at(0) ?? null;
+        return (
+            (
+                scoreQuery[0] as (
+                    | OfficialDatabaseScore
+                    | OfficialDatabaseBestScore
+                )[]
+            ).at(0) ?? null
+        );
     }
 
     /**
@@ -394,8 +472,8 @@ export abstract class DroidHelper {
      */
     static async getScores<K extends keyof OfficialDatabaseScore>(
         uid: number,
-        page: number = 1,
-        scoresPerPage: number = 100,
+        page = 1,
+        scoresPerPage = 100,
         order: keyof OfficialDatabaseScore = "id",
         databaseColumns?: K[]
     ): Promise<Pick<OfficialDatabaseScore, K>[] | Score[]> {
@@ -414,7 +492,9 @@ export abstract class DroidHelper {
             let response: APIScore[];
 
             try {
-                response = JSON.parse(data.data.toString("utf-8"));
+                response = JSON.parse(
+                    data.data.toString("utf-8")
+                ) as APIScore[];
             } catch {
                 throw new Error("Failed to parse JSON response");
             }
@@ -424,6 +504,8 @@ export abstract class DroidHelper {
 
         const scoreQuery = await officialPool.query<RowDataPacket[]>(
             `SELECT ${
+                // Retrieve everything if no columns are specified.
+                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 databaseColumns?.join() || "*"
             } FROM ${constructOfficialDatabaseTable(
                 OfficialDatabaseTables.score
@@ -457,7 +539,7 @@ export abstract class DroidHelper {
      * @returns The avatar URL.
      */
     static getAvatarURL(uid: number): string {
-        return `https://osudroid.moe/user/avatar?id=${uid}`;
+        return `https://osudroid.moe/user/avatar?id=${uid.toString()}`;
     }
 
     /**
@@ -526,7 +608,7 @@ export abstract class DroidHelper {
         }
 
         const avatarBasePath = "/hdd/osudroid/avatar/";
-        let avatarPath = `${avatarBasePath}${uid}.png`;
+        let avatarPath = `${avatarBasePath}${uid.toString()}.png`;
 
         const avatarStats = await stat(avatarPath).catch(() => null);
 
@@ -573,7 +655,7 @@ export abstract class DroidHelper {
         const playerQuery = await officialPool
             .query<
                 RowDataPacket[]
-            >(`SELECT username FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.user)} WHERE username LIKE ? LIMIT ${amount};`, [`${name}%`])
+            >(`SELECT username FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.user)} WHERE username LIKE ? LIMIT ${amount.toString()};`, [`${name}%`])
             .then((res) => res[0] as Pick<OfficialDatabaseUser, "username">[]);
 
         return playerQuery.map((v) => {
