@@ -47,7 +47,11 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         });
     }
 
-    if (interaction.options.data.length > 1) {
+    const discordid = interaction.options.getUser("user")?.id;
+    let uid = interaction.options.getInteger("uid");
+    const username = interaction.options.getString("username");
+
+    if ([discordid, uid, username].filter((v) => v !== null).length > 1) {
         interaction.ephemeral = true;
 
         return InteractionHelper.reply(interaction, {
@@ -58,10 +62,6 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     }
 
     await InteractionHelper.deferReply(interaction);
-
-    const discordid = interaction.options.getUser("user")?.id;
-    let uid = interaction.options.getInteger("uid");
-    const username = interaction.options.getString("username");
 
     const dbManager = DatabaseManager.elainaDb.collections.userBind;
 
@@ -128,23 +128,28 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     uid = player.id;
 
-    const score = await DroidHelper.getScore(uid, cachedBeatmapHash, false, [
-        "id",
-        "uid",
-        "filename",
-        "hash",
-        "mods",
-        "score",
-        "combo",
-        "mark",
-        "perfect",
-        "good",
-        "bad",
-        "miss",
-        "date",
-        "slider_tick_hit",
-        "slider_end_hit",
-    ]);
+    const score = await DroidHelper.getScore(
+        uid,
+        cachedBeatmapHash,
+        interaction.options.getBoolean("comparebestpp") ?? false,
+        [
+            "id",
+            "uid",
+            "filename",
+            "hash",
+            "mods",
+            "score",
+            "combo",
+            "mark",
+            "perfect",
+            "good",
+            "bad",
+            "miss",
+            "date",
+            "slider_tick_hit",
+            "slider_end_hit",
+        ]
+    );
 
     if (!score) {
         return InteractionHelper.reply(interaction, {
@@ -226,6 +231,12 @@ export const config: SlashCommand["config"] = {
             minLength: 2,
             maxLength: 20,
             autocomplete: true,
+        },
+        {
+            name: "comparebestpp",
+            type: ApplicationCommandOptionType.Boolean,
+            description:
+                "Compare the best score in terms of pp instead of score. Defaults to false.",
         },
     ],
     example: [
