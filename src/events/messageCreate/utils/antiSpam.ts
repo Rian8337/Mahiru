@@ -9,11 +9,15 @@ import { CacheManager } from "@utils/managers/CacheManager";
 import { bold, EmbedBuilder, Message, Snowflake } from "discord.js";
 
 interface MessageInformation {
-    readonly messages: Message<true>[];
+    /**
+     * Messages with the same content across different channels.
+     */
+    readonly messages: Map<Snowflake, Message<true>>;
+
     timeout: NodeJS.Timeout;
 }
 
-// Map from user ID to a map of message content and messages with the same content
+// Map from user ID to a map of message content and messages with the same content across different channels.
 const messageCache = new Map<Snowflake, Map<string, MessageInformation>>();
 
 const ignoredChannelIds = new Set<Snowflake>([
@@ -58,27 +62,31 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
 
     const timeout = setTimeout(() => {
         userMessages.delete(message.content);
-    }, 15000);
+    }, 10000);
 
     let messageInformation = userMessages.get(message.content);
 
     if (messageInformation) {
-        messageInformation.messages.push(message);
+        messageInformation.messages.set(message.channelId, message);
 
         clearTimeout(messageInformation.timeout);
         messageInformation.timeout = timeout;
     } else {
-        messageInformation = { messages: [message], timeout: timeout };
+        messageInformation = {
+            messages: new Map([[message.channelId, message]]),
+            timeout: timeout,
+        };
+
         userMessages.set(message.content, messageInformation);
     }
 
     messageCache.set(message.author.id, userMessages);
 
-    if (messageInformation.messages.length < 5) {
+    if (messageInformation.messages.size < 4) {
         return;
     }
 
-    // More than 5 messages - consider as spam.
+    // More than 4 messages - consider as spam.
     const logChannel = await guildConfig.getGuildLogChannel(message.guild);
 
     if (!logChannel?.isTextBased()) {
@@ -86,12 +94,13 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
     }
 
     const botOwner = await message.guild.members.fetch(Config.botOwners[1]);
-    const duration = 30 * 1000;
-    const reason = `${bold("[Automated Timeout]")} You were sending multiple similar messages too fast! Please calm down.`;
+    const duration = 180 * 1000;
+    const reason =
+        "[Automated Timeout] You were sending multiple similar messages too fast! Please calm down.";
 
     await member.timeout(duration, reason);
 
-    for (const message of messageInformation.messages) {
+    for (const message of messageInformation.messages.values()) {
         await message.delete();
     }
 
