@@ -1,23 +1,21 @@
 import { CommandCategory } from "@enums/core/CommandCategory";
-import { SlashCommand } from "structures/core/SlashCommand";
 import { BotinfoLocalization } from "@localization/interactions/commands/General/botinfo/BotinfoLocalization";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
-import { GuildMember, EmbedBuilder, hyperlink } from "discord.js";
-//@ts-expect-error: package.json will be included in distribution folder otherwise
-import { version } from "../../../../../package.json";
-//@ts-expect-error: package-lock.json will be included in distribution folder otherwise
-import { packages } from "../../../../../package-lock.json";
-import { StringHelper } from "@utils/helpers/StringHelper";
+import { GuildMember, hyperlink } from "discord.js";
+import { SlashCommand } from "structures/core/SlashCommand";
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
+import { StringHelper } from "@utils/helpers/StringHelper";
+//@ts-expect-error: package.json will be included in distribution folder otherwise
+import packageJson from "../../../../../package.json" assert { type: "json" };
 
 export const run: SlashCommand["run"] = async (client, interaction) => {
-    const localization: BotinfoLocalization = new BotinfoLocalization(
-        CommandHelper.getLocale(interaction)
+    const localization = new BotinfoLocalization(
+        CommandHelper.getLocale(interaction),
     );
 
-    const embed: EmbedBuilder = EmbedCreator.createNormalEmbed({
+    const embed = EmbedCreator.createNormalEmbed({
         author: interaction.user,
         color: (<GuildMember | null>interaction.member)?.displayColor,
     });
@@ -28,21 +26,21 @@ export const run: SlashCommand["run"] = async (client, interaction) => {
             | "osu-difficulty-calculator"
             | "osu-rebalance-difficulty-calculator"
             | "osu-droid-replay-analyzer"
-            | "osu-droid-utilities"
+            | "osu-droid-utilities",
     ): string => {
-        let version: string = (
-            packages[`node_modules/@rian8337/${moduleName}`] ??
-            packages[`../osu-droid-module/packages/${moduleName}`]
-        ).version;
-        const source: string = `https://github.com/Rian8337/osu-droid-module/tree/master/packages/${moduleName}`;
+        let version: string =
+            packageJson.dependencies[`@rian8337/${moduleName}`];
+        const source = `https://github.com/Rian8337/osu-droid-module/tree/master/packages/${moduleName}`;
 
         // Local version.
-        if (packages[`../osu-droid-module/packages/${moduleName}`]) {
+        if (version.includes("../")) {
             version = "Local version";
         }
 
-        return hyperlink(version, source);
+        return hyperlink(formatVersion(version), source);
     };
+
+    const formatVersion = (version: string) => version.replace("^", "");
 
     embed
         .setThumbnail(client.user.avatarURL()!)
@@ -54,20 +52,20 @@ export const run: SlashCommand["run"] = async (client, interaction) => {
                 "https://github.com/NeroYuki",
                 "https://osudroid.moe",
                 "https://discord.gg/nyD92cE",
-                "https://ko-fi.com/rian8337"
-            )
+                "https://ko-fi.com/rian8337",
+            ),
         )
         .addFields(
             {
                 name: localization.getTranslation("botInfo"),
                 value:
                     `${localization.getTranslation(
-                        "botVersion"
-                    )}: ${version}\n` +
+                        "botVersion",
+                    )}: ${packageJson.version}\n` +
                     `${localization.getTranslation(
-                        "botUptime"
+                        "botUptime",
                     )}: ${DateTimeFormatHelper.secondsToDHMS(
-                        client.uptime / 1000
+                        client.uptime / 1000,
                     )}`,
             },
             {
@@ -78,39 +76,41 @@ export const run: SlashCommand["run"] = async (client, interaction) => {
                 name: localization.getTranslation("coreLibraries"),
                 value:
                     `${localization.getTranslation("discordJs")}: ${hyperlink(
-                        packages["node_modules/discord.js"].version,
-                        "https://discord.js.org"
+                        formatVersion(packageJson.dependencies["discord.js"]),
+                        "https://discord.js.org",
                     )}\n` +
                     `${localization.getTranslation("typescript")}: ${hyperlink(
-                        packages["node_modules/typescript"].version,
-                        "https://typescriptlang.org"
+                        formatVersion(
+                            packageJson.devDependencies["typescript"],
+                        ),
+                        "https://typescriptlang.org",
                     )}`,
             },
             {
                 name: localization.getTranslation("osuLibraries"),
                 value:
                     `${localization.getTranslation(
-                        "osuBase"
+                        "osuBase",
                     )}: ${getOsuModuleVersionAndSource("osu-base")}\n` +
                     `${localization.getTranslation(
-                        "osuDiffCalc"
+                        "osuDiffCalc",
                     )}: ${getOsuModuleVersionAndSource(
-                        "osu-difficulty-calculator"
+                        "osu-difficulty-calculator",
                     )}\n` +
                     `${localization.getTranslation(
-                        "osuRebalDiffCalc"
+                        "osuRebalDiffCalc",
                     )}: ${getOsuModuleVersionAndSource(
-                        "osu-rebalance-difficulty-calculator"
+                        "osu-rebalance-difficulty-calculator",
                     )}\n` +
                     `${localization.getTranslation(
-                        "osuDroidReplayAnalyzer"
+                        "osuDroidReplayAnalyzer",
                     )}: ${getOsuModuleVersionAndSource(
-                        "osu-droid-replay-analyzer"
+                        "osu-droid-replay-analyzer",
                     )}\n` +
                     `${localization.getTranslation(
-                        "osuDroidUtilities"
+                        "osuDroidUtilities",
                     )}: ${getOsuModuleVersionAndSource("osu-droid-utilities")}`,
-            }
+            },
         );
 
     InteractionHelper.reply(interaction, {
