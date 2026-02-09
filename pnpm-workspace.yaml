@@ -1,0 +1,9 @@
+onlyBuiltDependencies:
+  - '@discordjs/opus'
+  - bufferutil
+  - canvas
+  - erlpack
+  - es5-ext
+  - utf-8-validate
+  - youtube-dl-exec
+  - zlib-sync
