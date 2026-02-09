@@ -19,7 +19,7 @@ import { SlashSubcommand } from "structures/core/SlashSubcommand";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new PPLocalization(
-        CommandHelper.getLocale(interaction)
+        CommandHelper.getLocale(interaction),
     );
 
     const discordid = interaction.options.getUser("user")?.id;
@@ -31,7 +31,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("tooManyOptions")
+                localization.getTranslation("tooManyOptions"),
             ),
         });
     }
@@ -45,13 +45,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const reworkInfo =
         await DatabaseManager.aliceDb.collections.prototypePPType.getFromType(
             reworkType,
-            { projection: { _id: 0, name: 1, type: 1 } }
+            { projection: { _id: 0, name: 1, type: 1 } },
         );
 
     if (!reworkInfo) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("reworkTypeDoesntExist")
+                localization.getTranslation("reworkTypeDoesntExist"),
             ),
         });
     }
@@ -73,19 +73,19 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 await DatabaseManager.elainaDb.collections.userBind.getFromUser(
                     // If no arguments are specified, default to self
                     discordid ?? interaction.user.id,
-                    { projection: { _id: 0, uid: 1 } }
+                    { projection: { _id: 0, uid: 1 } },
                 );
 
             if (!bindInfo) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
                         new ConstantsLocalization(
-                            localization.language
+                            localization.language,
                         ).getTranslation(
                             discordid
                                 ? Constants.userNotBindedReject
-                                : Constants.selfNotBindedReject
-                        )
+                                : Constants.selfNotBindedReject,
+                        ),
                     ),
                 });
             }
@@ -100,8 +100,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 localization.getTranslation(
                     uid || username || discordid
                         ? "userInfoNotAvailable"
-                        : "selfInfoNotAvailable"
-                )
+                        : "selfInfoNotAvailable",
+                ),
             ),
         });
     }
@@ -117,52 +117,54 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 localization.getTranslation("ppProfileTitle"),
                 hyperlink(
                     ppInfo.username,
-                    ProfileManager.getProfileLink(ppInfo.uid)
-                )
-            )
+                    ProfileManager.getProfileLink(ppInfo.uid),
+                ),
+            ),
         )}\n` +
             `${localization.getTranslation("reworkTypeEmbedDescription")}: ${bold(reworkInfo.name)}\n` +
             `${localization.getTranslation("totalPP")}: ${bold(
                 `${ppInfo.pptotal.toFixed(2)} pp (#${(
                     await dbManager.getUserDPPRank(ppInfo.pptotal, reworkType)
                 ).toLocaleString(
-                    LocaleHelper.convertToBCP47(localization.language)
-                )})`
+                    LocaleHelper.convertToBCP47(localization.language),
+                )})`,
             )}\n` +
             `${localization.getTranslation("prevTotalPP")}: ${bold(
-                `${ppInfo.prevpptotal.toFixed(2)} pp`
+                `${ppInfo.prevpptotal.toFixed(2)} pp`,
             )}\n` +
             `Difference: ${bold(
-                `${(ppInfo.pptotal - ppInfo.prevpptotal).toFixed(2)} pp`
+                `${(ppInfo.pptotal - ppInfo.prevpptotal).toFixed(2)} pp`,
             )}\n` +
             `[${localization.getTranslation(
-                "ppProfile"
+                "ppProfile",
             )}](https://droidpp.osudroid.moe/prototype/profile/${
                 ppInfo.uid
             }/${reworkType})\n` +
             `${localization.getTranslation("lastUpdate")}: ${bold(
-                time(new Date(ppInfo.lastUpdate), "F")
-            )}`
+                time(new Date(ppInfo.lastUpdate), "F"),
+            )}`,
     );
 
     const entries = [...ppInfo.pp.values()];
 
     const onPageChange: OnButtonPageChange = async (_, page) => {
         for (let i = 5 * (page - 1); i < 5 + 5 * (page - 1); ++i) {
-            const pp = entries.at(i);
+            const entry = entries.at(i);
 
-            if (pp) {
-                const modstring = pp.mods
-                    ? `+${ModUtil.modsToOrderedString(ModUtil.deserializeMods(pp.mods), false)}`
+            if (entry) {
+                const { live, local } = entry;
+
+                const modstring = entry.mods
+                    ? `+${ModUtil.modsToOrderedString(ModUtil.deserializeMods(entry.mods), false)}`
                     : "";
 
                 embed.addFields({
-                    name: `${i + 1}. ${pp.title} ${modstring}`,
-                    value: `${pp.combo}x | ${pp.accuracy.toFixed(2)}% | ${
-                        pp.miss
-                    } ❌ | ${bold(pp.prevPP.toFixed(2))} ⮕ ${bold(
-                        pp.pp.toFixed(2)
-                    )} pp (${(pp.pp - pp.prevPP).toFixed(2)} pp)`,
+                    name: `${i + 1}. ${entry.title} ${modstring}`,
+                    value: `${entry.combo}x | ${entry.accuracy.toFixed(2)}% | ${
+                        entry.miss
+                    } ❌ | ${bold(live.performance.total.toFixed(2))} ⮕ ${bold(
+                        local.performance.total.toFixed(2),
+                    )} pp (${(local.performance.total - live.performance.total).toFixed(2)} pp)`,
                 });
             } else {
                 embed.addFields({ name: `${i + 1}. -`, value: "-" });
@@ -177,6 +179,6 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         Math.max(interaction.options.getInteger("page") ?? 1, 1),
         Math.ceil(ppInfo.pp.size / 5),
         120,
-        onPageChange
+        onPageChange,
     );
 };

@@ -12,7 +12,7 @@ import { ModUtil } from "@rian8337/osu-base";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new PPLocalization(
-        CommandHelper.getLocale(interaction)
+        CommandHelper.getLocale(interaction),
     );
 
     const discordid = interaction.options.getUser("user")?.id;
@@ -24,7 +24,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("tooManyOptions")
+                localization.getTranslation("tooManyOptions"),
             ),
         });
     }
@@ -50,19 +50,19 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 await DatabaseManager.elainaDb.collections.userBind.getFromUser(
                     // If no arguments are specified, default to self
                     discordid ?? interaction.user.id,
-                    { projection: { _id: 0, uid: 1 } }
+                    { projection: { _id: 0, uid: 1 } },
                 );
 
             if (!bindInfo) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
                         new ConstantsLocalization(
-                            localization.language
+                            localization.language,
                         ).getTranslation(
                             discordid
                                 ? Constants.userNotBindedReject
-                                : Constants.selfNotBindedReject
-                        )
+                                : Constants.selfNotBindedReject,
+                        ),
                     ),
                 });
             }
@@ -77,8 +77,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 localization.getTranslation(
                     uid || username || discordid
                         ? "userInfoNotAvailable"
-                        : "selfInfoNotAvailable"
-                )
+                        : "selfInfoNotAvailable",
+                ),
             ),
         });
     }
@@ -87,7 +87,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         'UID,Username,"Total PP","Previous Total PP",Diff,"Last Update"\n';
 
     csvString += `${ppInfo.uid},${ppInfo.username},${ppInfo.pptotal.toFixed(
-        2
+        2,
     )},${ppInfo.prevpptotal.toFixed(2)},${(
         ppInfo.pptotal - ppInfo.prevpptotal
     ).toFixed(2)},"${new Date(ppInfo.lastUpdate).toUTCString()}"\n\n`;
@@ -99,14 +99,14 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         const modstring = pp.mods
             ? ModUtil.modsToOrderedString(
                   ModUtil.deserializeMods(pp.mods),
-                  false
+                  false,
               )
             : "NM";
 
         csvString += `"${pp.title.replace(/"/g, '""')}","${modstring}",${
             pp.combo
-        },${pp.accuracy},${pp.miss},${pp.prevPP},${pp.pp},${(
-            pp.pp - pp.prevPP
+        },${pp.accuracy},${pp.miss},${pp.live.performance.total},${pp.local.performance.total},${(
+            pp.local.performance.total - pp.live.performance.total
         ).toFixed(2)}\n`;
     }
 

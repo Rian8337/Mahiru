@@ -44,7 +44,7 @@ export abstract class PPHelper {
     static async displayPPList(
         interaction: RepliableInteraction,
         player: Pick<OfficialDatabaseUser, "id" | "username" | "pp"> | Player,
-        page: number
+        page: number,
     ): Promise<void> {
         const topScores = await DroidHelper.getTopScores(player.id);
 
@@ -52,7 +52,7 @@ export abstract class PPHelper {
             interaction,
             player,
             undefined,
-            CommandHelper.getLocale(interaction)
+            CommandHelper.getLocale(interaction),
         );
 
         const onPageChange: OnButtonPageChange = async (_, page) => {
@@ -65,7 +65,7 @@ export abstract class PPHelper {
                         value: `${score.combo}x | ${(score.accuracy.value() * 100).toFixed(2)}% | ${
                             score.miss
                         } ${Symbols.missIcon} | ${underscore(
-                            `${(score.pp ?? 0).toFixed(2)} pp`
+                            `${(score.pp ?? 0).toFixed(2)} pp`,
                         )} (Net pp: ${(
                             (score.pp ?? 0) * Math.pow(0.95, i)
                         ).toFixed(2)} pp)`,
@@ -85,7 +85,7 @@ export abstract class PPHelper {
             Math.max(page, 1),
             Math.ceil(topScores.length / 5),
             120,
-            onPageChange
+            onPageChange,
         );
     }
 
@@ -98,7 +98,7 @@ export abstract class PPHelper {
      */
     static checkScoreInsertion(
         dppList: Collection<string, PPEntry>,
-        entry: PPEntry
+        entry: PPEntry,
     ): boolean {
         if (dppList.size < 75) {
             return true;
@@ -128,7 +128,7 @@ export abstract class PPHelper {
         attributes: CompleteCalculationAttributes<
             IDroidDifficultyAttributes,
             DroidPerformanceAttributes
-        >
+        >,
     ): PPEntry {
         const { params, difficulty, performance } = attributes;
         const accuracy = new Accuracy(params.accuracy);
@@ -152,7 +152,7 @@ export abstract class PPHelper {
      * @returns The weighted accuracy of the list.
      */
     static calculateWeightedAccuracy(
-        dppList: Collection<string, PPEntry>
+        dppList: Collection<string, PPEntry>,
     ): number {
         if (dppList.size === 0) {
             return 0;
@@ -172,19 +172,15 @@ export abstract class PPHelper {
     }
 
     /**
-     * Calculates the final performance points from a list of scores.
+     * Calculates the final performance points from a list of score pp values.
      *
-     * @param scores The scores.
+     * @param values The list of score pp values.
      * @returns The final performance points.
      */
-    static calculateFinalPerformancePoints(
-        scores: { pp: number | null }[]
-    ): number {
+    static calculateFinalPerformancePoints(values: (number | null)[]): number {
         let total = 0;
 
-        const sortedScores = scores
-            .slice()
-            .sort((a, b) => (b.pp ?? 0) - (a.pp ?? 0));
+        const sortedScores = values.slice().sort((a, b) => (b ?? 0) - (a ?? 0));
 
         for (let i = 0; i < sortedScores.length; ++i) {
             const weight = Math.pow(0.95, i);
@@ -194,7 +190,7 @@ export abstract class PPHelper {
                 break;
             }
 
-            total += (sortedScores[i].pp ?? 0) * weight;
+            total += (sortedScores[i] ?? 0) * weight;
         }
 
         return total;
@@ -219,7 +215,7 @@ export abstract class PPHelper {
     static getDroidDifficultyAttributesInfo(
         attributes:
             | IDroidDifficultyAttributes
-            | CacheableDifficultyAttributes<IDroidDifficultyAttributes>
+            | CacheableDifficultyAttributes<IDroidDifficultyAttributes>,
     ): string {
         let string = `${attributes.starRating.toFixed(2)} stars (`;
         const starRatingDetails: string[] = [];
@@ -247,7 +243,7 @@ export abstract class PPHelper {
     static getRebalanceDroidDifficultyAttributesInfo(
         attributes:
             | IRebalanceDroidDifficultyAttributes
-            | CacheableDifficultyAttributes<IRebalanceDroidDifficultyAttributes>
+            | CacheableDifficultyAttributes<IRebalanceDroidDifficultyAttributes>,
     ): string {
         let string = `${attributes.starRating.toFixed(2)} stars (`;
         const starRatingDetails: string[] = [];
@@ -275,7 +271,7 @@ export abstract class PPHelper {
     static getOsuDifficultyAttributesInfo(
         attributes:
             | IOsuDifficultyAttributes
-            | CacheableDifficultyAttributes<IOsuDifficultyAttributes>
+            | CacheableDifficultyAttributes<IOsuDifficultyAttributes>,
     ): string {
         let string = `${attributes.starRating.toFixed(2)} stars (`;
         const starRatingDetails: string[] = [];
@@ -301,7 +297,7 @@ export abstract class PPHelper {
     static getRebalanceOsuDifficultyAttributesInfo(
         attributes:
             | IRebalanceOsuDifficultyAttributes
-            | CacheableDifficultyAttributes<IRebalanceOsuDifficultyAttributes>
+            | CacheableDifficultyAttributes<IRebalanceOsuDifficultyAttributes>,
     ): string {
         let string = `${attributes.starRating.toFixed(2)} stars (`;
         const starRatingDetails: string[] = [];
@@ -325,7 +321,7 @@ export abstract class PPHelper {
      * @returns The string.
      */
     static getDroidPerformanceAttributesInfo(
-        attributes: DroidPerformanceAttributes
+        attributes: DroidPerformanceAttributes,
     ): string {
         let string = `${attributes.total.toFixed(2)} pp (`;
         const starRatingDetails: string[] = [];
@@ -351,7 +347,7 @@ export abstract class PPHelper {
      * @returns The string.
      */
     static getRebalanceDroidPerformanceAttributesInfo(
-        attributes: RebalanceDroidPerformanceAttributes
+        attributes: RebalanceDroidPerformanceAttributes,
     ): string {
         let string = `${attributes.total.toFixed(2)} pp (`;
         const starRatingDetails: string[] = [];
@@ -377,7 +373,7 @@ export abstract class PPHelper {
      * @returns The string.
      */
     static getOsuPerformanceAttributesInfo(
-        attributes: OsuPerformanceAttributes
+        attributes: OsuPerformanceAttributes,
     ): string {
         let string = `${attributes.total.toFixed(2)} pp (`;
         const starRatingDetails: string[] = [];

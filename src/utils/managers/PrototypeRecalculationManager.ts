@@ -61,7 +61,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
     static queue(
         interaction: CommandInteraction,
         uid: number,
-        reworkType: string
+        reworkType: string,
     ): void {
         this._recalculationQueue.set(uid, {
             interaction: interaction,
@@ -81,7 +81,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
      */
     static async calculatePlayer(
         uid: number,
-        reworkType: string
+        reworkType: string,
     ): Promise<OperationResult> {
         const player = await DroidHelper.getPlayer(uid, ["id", "username"]);
 
@@ -97,7 +97,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
         if (topScores.length === 0) {
             return this.createOperationResult(
                 false,
-                "Failed to fetch top scores"
+                "Failed to fetch top scores",
             );
         }
 
@@ -116,36 +116,37 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     score.hash,
                     Modes.droid,
                     PPCalculationMethod.live,
-                    true
+                    true,
                 );
 
             if (!liveAttribs) {
                 continue;
             }
 
-            const rebalAttribs =
+            const localAttribs =
                 await PPProcessorRESTManager.getOnlineScoreAttributes(
                     score.uid,
                     score.hash,
                     Modes.droid,
                     PPCalculationMethod.rebalance,
-                    true
+                    true,
                 );
 
-            if (!rebalAttribs) {
+            if (!localAttribs) {
                 continue;
             }
 
             const {
-                difficulty: diffResult,
-                performance: perfResult,
-                params,
+                difficulty: liveDiffResult,
+                performance: livePerfResult,
+                params: liveParams,
             } = liveAttribs.attributes;
+
             const {
-                difficulty: rebalDiffResult,
-                performance: rebalPerfResult,
-                params: rebalParams,
-            } = rebalAttribs.attributes;
+                difficulty: localDiffResult,
+                performance: localPerfResult,
+                params: localParams,
+            } = localAttribs.attributes;
 
             const beatmapDifficulty = new BeatmapDifficulty();
             beatmapDifficulty.cs = beatmapInfo.cs;
@@ -157,75 +158,138 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 beatmapDifficulty,
                 Modes.droid,
                 score.mods,
-                true
+                true,
             );
 
-            const accuracy = new Accuracy(params.accuracy);
+            const accuracy = new Accuracy(liveParams.accuracy);
 
             const currentEntry: PPEntry = {
                 uid: score.uid,
                 hash: beatmapInfo.hash,
                 title: beatmapInfo.fullTitle,
-                pp: perfResult.total,
+                pp: livePerfResult.total,
                 mods: liveAttribs.attributes.difficulty.mods,
                 accuracy: accuracy.value() * 100,
-                combo: params.combo,
+                combo: liveParams.combo,
                 miss: accuracy.nmiss,
             };
 
-            const prototypeEntry: PrototypePPEntry = {
+            const basePrototypeEntry = {
                 uid: score.uid,
                 hash: beatmapInfo.hash,
                 title: beatmapInfo.fullTitle,
                 circleSize: beatmapDifficulty.cs,
                 approachRate: beatmapDifficulty.ar,
                 overallDifficulty: beatmapDifficulty.od,
-                newStarRating: rebalDiffResult.starRating,
-                newAimDifficulty: rebalDiffResult.aimDifficulty,
-                newTapDifficulty: rebalDiffResult.tapDifficulty,
-                newRhythmDifficulty: rebalDiffResult.rhythmDifficulty,
-                newFlashlightDifficulty: rebalDiffResult.flashlightDifficulty,
-                newReadingDifficulty: rebalDiffResult.readingDifficulty,
-                pp: rebalPerfResult.total,
-                newAim: rebalPerfResult.aim,
-                newTap: rebalPerfResult.tap,
-                newAccuracy: rebalPerfResult.accuracy,
-                newFlashlight: rebalPerfResult.flashlight,
-                newReading: rebalPerfResult.reading,
-                prevStarRating: diffResult.starRating,
-                prevAimDifficulty: diffResult.aimDifficulty,
-                prevTapDifficulty: diffResult.tapDifficulty,
-                prevRhythmDifficulty: diffResult.rhythmDifficulty,
-                prevFlashlightDifficulty: diffResult.flashlightDifficulty,
-                prevReadingDifficulty: diffResult.readingDifficulty,
-                prevPP: perfResult.total,
-                prevAim: perfResult.aim,
-                prevTap: perfResult.tap,
-                prevAccuracy: perfResult.accuracy,
-                prevFlashlight: perfResult.flashlight,
-                prevReading: perfResult.reading,
-                mods: rebalAttribs.attributes.difficulty.mods,
                 accuracy: accuracy.value() * 100,
-                combo: params.combo,
-                maxCombo: diffResult.maxCombo,
-                miss: accuracy.nmiss,
-                estimatedUnstableRate: rebalPerfResult.deviation * 10,
-                estimatedSpeedUnstableRate: rebalPerfResult.tapDeviation * 10,
+                combo: liveParams.combo,
+                maxCombo: liveDiffResult.maxCombo,
+                mods: liveDiffResult.mods,
                 hit300: accuracy.n300,
                 hit100: accuracy.n100,
                 hit50: accuracy.n50,
-                aimSliderCheesePenalty: rebalPerfResult.aimSliderCheesePenalty,
-                flashlightSliderCheesePenalty:
-                    rebalPerfResult.flashlightSliderCheesePenalty,
-                speedNoteCount:
-                    rebalAttribs.attributes.difficulty.speedNoteCount,
-                liveTapPenalty: params.tapPenalty,
-                rebalanceTapPenalty: rebalParams.tapPenalty,
+                miss: accuracy.nmiss,
+            } as const satisfies Partial<PrototypePPEntry>;
+
+            const prototypeEntry: PrototypePPEntry = {
+                ...basePrototypeEntry,
+                live: {
+                    difficulty: {
+                        starRating: liveDiffResult.starRating,
+                        aim: liveDiffResult.aimDifficulty,
+                        tap: liveDiffResult.tapDifficulty,
+                        rhythm: liveDiffResult.rhythmDifficulty,
+                        flashlight: liveDiffResult.flashlightDifficulty,
+                        reading: liveDiffResult.readingDifficulty,
+                        speedNoteCount: liveDiffResult.speedNoteCount,
+                    },
+                    performance: {
+                        total: livePerfResult.total,
+                        aim: livePerfResult.aim,
+                        tap: livePerfResult.tap,
+                        accuracy: livePerfResult.accuracy,
+                        flashlight: livePerfResult.flashlight,
+                        reading: livePerfResult.reading,
+                        estimatedUnstableRate: livePerfResult.deviation * 10,
+                        estimatedTapUnstableRate:
+                            livePerfResult.tapDeviation * 10,
+                        tapPenalty: liveParams.tapPenalty,
+                    },
+                },
+                local: {
+                    difficulty: {
+                        starRating: localDiffResult.starRating,
+                        aim: localDiffResult.aimDifficulty,
+                        tap: localDiffResult.tapDifficulty,
+                        rhythm: localDiffResult.rhythmDifficulty,
+                        flashlight: localDiffResult.flashlightDifficulty,
+                        reading: localDiffResult.readingDifficulty,
+                        speedNoteCount: localDiffResult.speedNoteCount,
+                    },
+                    performance: {
+                        total: localPerfResult.total,
+                        aim: localPerfResult.aim,
+                        tap: localPerfResult.tap,
+                        accuracy: localPerfResult.accuracy,
+                        flashlight: localPerfResult.flashlight,
+                        reading: localPerfResult.reading,
+                        estimatedUnstableRate: localPerfResult.deviation * 10,
+                        estimatedTapUnstableRate:
+                            localPerfResult.tapDeviation * 10,
+                        tapPenalty: localParams.tapPenalty,
+                    },
+                },
             };
+
+            if (reworkType !== "overall") {
+                const masterAttribs =
+                    await PPProcessorRESTManager.getOnlineScoreAttributes(
+                        score.uid,
+                        score.hash,
+                        Modes.droid,
+                        PPCalculationMethod.rebalance,
+                        true,
+                        false,
+                        true,
+                    );
+
+                if (!masterAttribs) {
+                    continue;
+                }
+
+                const {
+                    difficulty: masterDiffResult,
+                    performance: masterPerfResult,
+                } = masterAttribs.attributes;
+
+                prototypeEntry.master = {
+                    difficulty: {
+                        starRating: masterDiffResult.starRating,
+                        aim: masterDiffResult.aimDifficulty,
+                        tap: masterDiffResult.tapDifficulty,
+                        rhythm: masterDiffResult.rhythmDifficulty,
+                        flashlight: masterDiffResult.flashlightDifficulty,
+                        reading: masterDiffResult.readingDifficulty,
+                        speedNoteCount: masterDiffResult.speedNoteCount,
+                    },
+                    performance: {
+                        total: masterPerfResult.total,
+                        aim: masterPerfResult.aim,
+                        tap: masterPerfResult.tap,
+                        accuracy: masterPerfResult.accuracy,
+                        flashlight: masterPerfResult.flashlight,
+                        reading: masterPerfResult.reading,
+                        estimatedUnstableRate: masterPerfResult.deviation * 10,
+                        estimatedTapUnstableRate:
+                            masterPerfResult.tapDeviation * 10,
+                        tapPenalty: localParams.tapPenalty,
+                    },
+                };
+            }
 
             if (Config.isDebug) {
                 consola.info(
-                    `${beatmapInfo.fullTitle} ${score.completeModString}: ${prototypeEntry.prevPP.toFixed(2)} ⮕  ${prototypeEntry.pp.toFixed(2)}`
+                    `${beatmapInfo.fullTitle} ${score.completeModString}: ${(prototypeEntry.master ?? prototypeEntry.live).performance.total.toFixed(2)} ⮕  ${prototypeEntry.local.performance.total.toFixed(2)}`,
                 );
             }
 
@@ -234,15 +298,22 @@ export abstract class PrototypeRecalculationManager extends Manager {
         }
 
         currentList.sort((a, b) => b.pp - a.pp);
-        newList.sort((a, b) => b.pp - a.pp);
 
-        const currentTotal =
-            PPHelper.calculateFinalPerformancePoints(currentList);
-        const newTotal = PPHelper.calculateFinalPerformancePoints(newList);
+        newList.sort(
+            (a, b) => b.local.performance.total - a.local.performance.total,
+        );
+
+        const currentTotal = PPHelper.calculateFinalPerformancePoints(
+            currentList.map((e) => e.pp),
+        );
+
+        const newTotal = PPHelper.calculateFinalPerformancePoints(
+            newList.map((e) => e.local.performance.total),
+        );
 
         if (Config.isDebug) {
             consola.info(
-                `${currentTotal.toFixed(2)} ⮕  ${newTotal.toFixed(2)}`
+                `${currentTotal.toFixed(2)} ⮕  ${newTotal.toFixed(2)}`,
             );
         }
 
@@ -261,7 +332,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     scanDone: true,
                 },
             },
-            { upsert: true }
+            { upsert: true },
         );
     }
 
@@ -281,7 +352,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
             const { interaction, reworkType } = queue;
 
             const localization = this.getLocalization(
-                CommandHelper.getUserPreferredLocale(interaction)
+                CommandHelper.getUserPreferredLocale(interaction),
             );
 
             try {
@@ -292,21 +363,21 @@ export abstract class PrototypeRecalculationManager extends Manager {
                         await interaction.channel.send({
                             content: MessageCreator.createAccept(
                                 localization.getTranslation(
-                                    this.calculationSuccessResponse
+                                    this.calculationSuccessResponse,
                                 ),
                                 interaction.user.toString(),
-                                `uid ${hyperlink(uid.toString(), `https://droidpp.osudroid.moe/prototype/profile/${uid.toString()}/${reworkType}`)}`
+                                `uid ${hyperlink(uid.toString(), `https://droidpp.osudroid.moe/prototype/profile/${uid.toString()}/${reworkType}`)}`,
                             ),
                         });
                     } else if (result.failed()) {
                         await interaction.channel.send({
                             content: MessageCreator.createReject(
                                 localization.getTranslation(
-                                    this.calculationFailedResponse
+                                    this.calculationFailedResponse,
                                 ),
                                 interaction.user.toString(),
                                 `uid ${uid.toString()}`,
-                                result.reason
+                                result.reason,
                             ),
                         });
                     }
@@ -316,11 +387,11 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     await interaction.channel.send({
                         content: MessageCreator.createReject(
                             localization.getTranslation(
-                                this.calculationFailedResponse
+                                this.calculationFailedResponse,
                             ),
                             interaction.user.toString(),
                             `uid ${uid.toString()}`,
-                            e as string
+                            e as string,
                         ),
                     });
                 }
@@ -338,7 +409,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
      * @param language The language to localize.
      */
     private static getLocalization(
-        language: Language
+        language: Language,
     ): PrototypeRecalculationManagerLocalization {
         return new PrototypeRecalculationManagerLocalization(language);
     }
