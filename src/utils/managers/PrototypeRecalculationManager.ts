@@ -89,11 +89,9 @@ export abstract class PrototypeRecalculationManager extends Manager {
             return this.createOperationResult(false, "Player not found");
         }
 
-        const currentList: PPEntry[] = [];
-        const newList: PrototypePPEntry[] = [];
-        const masterList: PrototypePPEntry[] = [];
-
+        const entries: PrototypePPEntry[] = [];
         const topScores = await DroidHelper.getTopScores(uid);
+        const hasMaster = reworkType !== "overall";
 
         if (topScores.length === 0) {
             return this.createOperationResult(
@@ -164,18 +162,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
 
             const accuracy = new Accuracy(liveParams.accuracy);
 
-            const currentEntry: PPEntry = {
-                uid: score.uid,
-                hash: beatmapInfo.hash,
-                title: beatmapInfo.fullTitle,
-                pp: livePerfResult.total,
-                mods: liveAttribs.attributes.difficulty.mods,
-                accuracy: accuracy.value() * 100,
-                combo: liveParams.combo,
-                miss: accuracy.nmiss,
-            };
-
-            const basePrototypeEntry = {
+            const entry: PrototypePPEntry = {
                 uid: score.uid,
                 hash: beatmapInfo.hash,
                 title: beatmapInfo.fullTitle,
@@ -190,10 +177,6 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 hit100: accuracy.n100,
                 hit50: accuracy.n50,
                 miss: accuracy.nmiss,
-            } as const satisfies Partial<PrototypePPEntry>;
-
-            const prototypeEntry: PrototypePPEntry = {
-                ...basePrototypeEntry,
                 live: {
                     difficulty: {
                         starRating: liveDiffResult.starRating,
@@ -242,7 +225,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 },
             };
 
-            if (reworkType !== "overall") {
+            if (hasMaster) {
                 const masterAttribs =
                     await PPProcessorRESTManager.getOnlineScoreAttributes(
                         score.uid,
@@ -263,7 +246,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     performance: masterPerfResult,
                 } = masterAttribs.attributes;
 
-                prototypeEntry.master = {
+                entry.master = {
                     difficulty: {
                         starRating: masterDiffResult.starRating,
                         aim: masterDiffResult.aimDifficulty,
@@ -286,43 +269,34 @@ export abstract class PrototypeRecalculationManager extends Manager {
                         tapPenalty: localParams.tapPenalty,
                     },
                 };
-
-                masterList.push(prototypeEntry);
             }
 
             if (Config.isDebug) {
                 consola.info(
-                    `${beatmapInfo.fullTitle} ${score.completeModString}: ${(prototypeEntry.master ?? prototypeEntry.live).performance.total.toFixed(2)} ⮕  ${prototypeEntry.local.performance.total.toFixed(2)}`,
+                    `${beatmapInfo.fullTitle} ${score.completeModString}: ${(entry.master ?? entry.live).performance.total.toFixed(2)} ⮕  ${entry.local.performance.total.toFixed(2)}`,
                 );
             }
 
-            currentList.push(currentEntry);
-            newList.push(prototypeEntry);
+            entries.push(entry);
         }
 
-        currentList.sort((a, b) => b.pp - a.pp);
-
-        newList.sort(
+        entries.sort(
             (a, b) => b.local.performance.total - a.local.performance.total,
         );
 
-        masterList.sort(
-            (a, b) =>
-                (b.master ?? b.live).performance.total -
-                (a.master ?? a.live).performance.total,
-        );
-
         const currentTotal = PPHelper.calculateFinalPerformancePoints(
-            currentList.map((e) => e.pp),
+            entries.map((e) => e.live.performance.total),
         );
 
         const newTotal = PPHelper.calculateFinalPerformancePoints(
-            newList.map((e) => e.local.performance.total),
+            entries.map((e) => e.local.performance.total),
         );
 
-        const masterTotal = PPHelper.calculateFinalPerformancePoints(
-            masterList.map((e) => (e.master ?? e.live).performance.total),
-        );
+        const masterTotal = hasMaster
+            ? PPHelper.calculateFinalPerformancePoints(
+                  entries.map((e) => (e.master ?? e.live).performance.total),
+              )
+            : undefined;
 
         if (Config.isDebug) {
             consola.info(
@@ -337,7 +311,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
             },
             {
                 $set: {
-                    pp: [...newList.values()],
+                    pp: [...entries.values()],
                     localPPTotal: newTotal,
                     livePPTotal: currentTotal,
                     masterPPTotal: masterTotal,
