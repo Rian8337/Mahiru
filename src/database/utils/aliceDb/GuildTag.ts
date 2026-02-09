@@ -2,7 +2,7 @@ import { DatabaseManager } from "@database/DatabaseManager";
 import { DatabaseGuildTag } from "structures/database/aliceDb/DatabaseGuildTag";
 import { OperationResult } from "structures/core/OperationResult";
 import { Manager } from "@utils/base/Manager";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 
 /**
  * Represents guild-specific tags.

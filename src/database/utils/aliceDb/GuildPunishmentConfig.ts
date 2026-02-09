@@ -4,7 +4,7 @@ import { OperationResult } from "structures/core/OperationResult";
 import { RoleTimeoutPermission } from "structures/moderation/RoleTimeoutPermission";
 import { Manager } from "@utils/base/Manager";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import {
     ChannelType,
     Collection,
@@ -54,7 +54,7 @@ export class GuildPunishmentConfig extends Manager {
 
     constructor(
         data: DatabaseGuildPunishmentConfig = DatabaseManager.aliceDb
-            ?.collections.guildPunishmentConfig.defaultDocument ?? {}
+            ?.collections.guildPunishmentConfig.defaultDocument ?? {},
     ) {
         super();
 
@@ -63,7 +63,7 @@ export class GuildPunishmentConfig extends Manager {
         this.logChannel = data.logChannel;
         this.allowedTimeoutRoles = ArrayHelper.arrayToCollection(
             data.allowedTimeoutRoles ?? [],
-            "id"
+            "id",
         );
         this.immuneTimeoutRoles = data.immuneTimeoutRoles ?? [];
         this.permanentTimeoutRole = data.permanentTimeoutRole;
@@ -109,12 +109,12 @@ export class GuildPunishmentConfig extends Manager {
         if (role) {
             result = await this.db.updateOne(
                 { guildID: this.guildID },
-                { $set: { permanentTimeoutRole: role.id } }
+                { $set: { permanentTimeoutRole: role.id } },
             );
         } else {
             result = await this.db.updateOne(
                 { guildID: this.guildID },
-                { $unset: { permanentTimeoutRole: "" } }
+                { $unset: { permanentTimeoutRole: "" } },
             );
         }
 
@@ -143,13 +143,13 @@ export class GuildPunishmentConfig extends Manager {
                     Connect: false,
                     Speak: false,
                 },
-                { reason: "New permanent timeout role" }
+                { reason: "New permanent timeout role" },
             );
 
             if (this.permanentTimeoutRole) {
                 await channel.permissionOverwrites.delete(
                     this.permanentTimeoutRole,
-                    "New permanent timeout role"
+                    "New permanent timeout role",
                 );
             }
         }
@@ -178,7 +178,7 @@ export class GuildPunishmentConfig extends Manager {
 
         const result = await this.db.updateOne(
             { guildID: this.guildID },
-            { $unset: { permanentTimeoutRole: "" } }
+            { $unset: { permanentTimeoutRole: "" } },
         );
 
         if (result.failed()) {
@@ -191,7 +191,7 @@ export class GuildPunishmentConfig extends Manager {
         for (const channel of guildChannels.values()) {
             await channel?.permissionOverwrites.delete(
                 role,
-                "Removed permanent timeout role"
+                "Removed permanent timeout role",
             );
         }
 
@@ -219,7 +219,7 @@ export class GuildPunishmentConfig extends Manager {
                 $addToSet: {
                     immuneTimeoutRoles: roleId,
                 },
-            }
+            },
         );
     }
 
@@ -240,7 +240,7 @@ export class GuildPunishmentConfig extends Manager {
 
         return this.db.updateOne(
             { guildID: this.guildID },
-            { $pull: { immuneTimeoutRoles: roleId } }
+            { $pull: { immuneTimeoutRoles: roleId } },
         );
     }
 
@@ -252,7 +252,7 @@ export class GuildPunishmentConfig extends Manager {
      */
     async grantTimeoutPermission(
         roleId: Snowflake,
-        maxTime: number
+        maxTime: number,
     ): Promise<OperationResult> {
         const roleTimeoutPermission = this.allowedTimeoutRoles.get(roleId);
 
@@ -268,7 +268,7 @@ export class GuildPunishmentConfig extends Manager {
                 $set: {
                     allowedTimeoutRoles: [...this.allowedTimeoutRoles.values()],
                 },
-            }
+            },
         );
     }
 
@@ -289,7 +289,7 @@ export class GuildPunishmentConfig extends Manager {
                 $set: {
                     allowedTimeoutRoles: [...this.allowedTimeoutRoles.values()],
                 },
-            }
+            },
         );
     }
 }

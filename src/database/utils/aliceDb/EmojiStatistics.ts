@@ -1,7 +1,7 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import { DatabaseEmojiStatistics } from "structures/database/aliceDb/DatabaseEmojiStatistics";
 import { Manager } from "@utils/base/Manager";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 
 /**
  * Represents a guild's emoji statistics.

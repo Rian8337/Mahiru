@@ -3,7 +3,7 @@ import { DatabasePrototypePP } from "structures/database/aliceDb/DatabasePrototy
 import { PrototypePPEntry } from "@structures/pp/PrototypePPEntry";
 import { Manager } from "@utils/base/Manager";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { Collection } from "discord.js";
 
 /**

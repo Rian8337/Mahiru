@@ -3,7 +3,7 @@ import { OperationResult } from "structures/core/OperationResult";
 import { DatabaseTournamentMatch } from "structures/database/elainaDb/DatabaseTournamentMatch";
 import { TournamentBeatmap } from "structures/tournament/TournamentBeatmap";
 import { Manager } from "@utils/base/Manager";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { Snowflake } from "discord.js";
 import {
     Mod,
@@ -51,7 +51,7 @@ export class TournamentMatch
 
     constructor(
         data: DatabaseTournamentMatch = DatabaseManager.elainaDb?.collections
-            .tournamentMatch.defaultDocument ?? {}
+            .tournamentMatch.defaultDocument ?? {},
     ) {
         super();
 
@@ -84,7 +84,7 @@ export class TournamentMatch
                     status: this.status,
                     team: this.team,
                 },
-            }
+            },
         );
     }
 
@@ -99,7 +99,7 @@ export class TournamentMatch
     getLastPlayedBeatmap(
         pool: TournamentMappool,
         players: Player[],
-        pick?: string
+        pick?: string,
     ): TournamentBeatmap | null {
         let map: TournamentBeatmap | null = null;
 
@@ -136,7 +136,7 @@ export class TournamentMatch
     verifyTeamScore(
         scores: Score[],
         map: TournamentBeatmap,
-        language: Language = "en"
+        language: Language = "en",
     ): OperationResult {
         if (map.minPlayers === "ALL" || !map.pickId.startsWith("FM")) {
             return this.createOperationResult(true);
@@ -147,11 +147,11 @@ export class TournamentMatch
                 (score) =>
                     score.mods.has(ModEasy) ||
                     score.mods.has(ModHidden) ||
-                    score.mods.has(ModHardRock)
+                    score.mods.has(ModHardRock),
             ),
             this.getLocalization(language).getTranslation(
-                "teamMembersIncorrectFMmod"
-            )
+                "teamMembersIncorrectFMmod",
+            ),
         );
     }
 
@@ -167,7 +167,7 @@ export class TournamentMatch
         score: Score,
         map: TournamentBeatmap,
         teamScoreStatus: boolean,
-        language: Language = "en"
+        language: Language = "en",
     ): OperationResult {
         const localization: TournamentMatchLocalization =
             this.getLocalization(language);
@@ -175,7 +175,7 @@ export class TournamentMatch
         if (score.hash !== map.hash) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("scoreNotFound")
+                localization.getTranslation("scoreNotFound"),
             );
         }
 
@@ -225,8 +225,8 @@ export class TournamentMatch
                 teamScoreStatus,
             StringHelper.formatString(
                 localization.getTranslation("modsWasUsed"),
-                incorrectMods.reduce((a, m) => a + m.acronym, "")
-            )
+                incorrectMods.reduce((a, m) => a + m.acronym, ""),
+            ),
         );
     }
 

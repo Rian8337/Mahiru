@@ -39,7 +39,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         $and: [{ "challenges.id": challengeId }],
     };
 
-    const findOptions: FindOptions<DatabasePlayerInfo> = {
+    const findOptions: FindOptions = {
         projection: {
             "challenges.$": 1,
         },

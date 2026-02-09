@@ -26,7 +26,7 @@ export class SupportTicketPresetCollectionManager extends DatabaseCollectionMana
      */
     async searchPresets(
         name: string | RegExp,
-        amount: number = 25,
+        amount = 25,
     ): Promise<ApplicationCommandOptionChoiceData<string>[]> {
         let regExp: RegExp;
 

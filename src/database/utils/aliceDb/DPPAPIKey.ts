@@ -1,7 +1,7 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import { DatabaseDPPAPIKey } from "structures/database/aliceDb/DatabaseDPPAPIKey";
 import { Manager } from "@utils/base/Manager";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 
 /**
  * Represents a DPP API key.

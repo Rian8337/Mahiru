@@ -45,7 +45,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         | Player
         | null = null;
 
-    const findOptions: FindOptions<DatabaseUserBind> = {
+    const findOptions: FindOptions = {
         projection: {
             _id: 0,
             uid: 1,

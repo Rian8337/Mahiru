@@ -32,7 +32,7 @@ export class EmojiStatisticsCollectionManager extends DatabaseCollectionManager<
      */
     getGuildStatistics(
         guild: Guild,
-        options?: FindOptions<DatabaseEmojiStatistics>,
+        options?: FindOptions,
     ): Promise<DiscordCollection<Snowflake, EmojiStatistics> | null>;
 
     /**
@@ -44,7 +44,7 @@ export class EmojiStatisticsCollectionManager extends DatabaseCollectionManager<
      */
     getGuildStatistics(
         guildId: Snowflake,
-        options?: FindOptions<DatabaseEmojiStatistics>,
+        options?: FindOptions,
     ): Promise<DiscordCollection<Snowflake, EmojiStatistics> | null>;
 
     /**
@@ -56,7 +56,7 @@ export class EmojiStatisticsCollectionManager extends DatabaseCollectionManager<
      */
     getGuildStatistics(
         guildOrId: Guild | Snowflake,
-        options?: FindOptions<DatabaseEmojiStatistics>,
+        options?: FindOptions,
     ): Promise<DiscordCollection<Snowflake, EmojiStatistics> | null> {
         return this.get(
             "emojiId",
@@ -74,7 +74,7 @@ export class EmojiStatisticsCollectionManager extends DatabaseCollectionManager<
      */
     getEmojiStatistics(
         emojiId: Snowflake,
-        options?: FindOptions<DatabaseEmojiStatistics>,
+        options?: FindOptions,
     ): Promise<EmojiStatistics | null> {
         return this.getOne({ emojiId }, options);
     }

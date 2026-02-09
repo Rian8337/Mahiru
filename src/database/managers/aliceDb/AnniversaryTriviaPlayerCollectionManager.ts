@@ -32,7 +32,7 @@ export class AnniversaryTriviaPlayerCollectionManager extends DatabaseCollection
      */
     getFromId(
         discordId: Snowflake,
-        options?: FindOptions<DatabaseAnniversaryTriviaPlayer>,
+        options?: FindOptions,
     ): Promise<AnniversaryTriviaPlayer | null> {
         return this.getOne({ discordId }, options);
     }

@@ -3,7 +3,7 @@ import { VoteChoice } from "structures/interactions/commands/Tools/VoteChoice";
 import { DatabaseVoting } from "structures/database/aliceDb/DatabaseVoting";
 import { OperationResult } from "structures/core/OperationResult";
 import { Manager } from "@utils/base/Manager";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { Snowflake } from "discord.js";
 
 /**

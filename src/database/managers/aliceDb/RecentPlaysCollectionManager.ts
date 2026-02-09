@@ -12,7 +12,7 @@ export class RecentPlaysCollectionManager extends DatabaseCollectionManager<
     RecentPlay
 > {
     protected override utilityInstance: new (
-        data: DatabaseRecentPlay
+        data: DatabaseRecentPlay,
     ) => RecentPlay = RecentPlay;
 
     override get defaultDocument(): DatabaseRecentPlay {
@@ -44,8 +44,8 @@ export class RecentPlaysCollectionManager extends DatabaseCollectionManager<
      */
     async getFromUid(
         uid: number,
-        options?: FindOptions<DatabaseRecentPlay>,
-        limit: number = 50
+        options?: FindOptions,
+        limit = 50,
     ): Promise<RecentPlay[]> {
         const recentPlays: DatabaseRecentPlay[] = await this.collection
             .find({ uid: uid }, this.processFindOptions(options))
@@ -67,7 +67,7 @@ export class RecentPlaysCollectionManager extends DatabaseCollectionManager<
     async getRecentScoresFromPlayers(
         hash: string,
         uids: number[],
-        dateLimit: Date
+        dateLimit: Date,
     ): Promise<Collection<number, RecentPlay>> {
         const recentPlays: DatabaseRecentPlay[] = await this.collection
             .find({
@@ -95,8 +95,8 @@ export class RecentPlaysCollectionManager extends DatabaseCollectionManager<
     }
 
     protected override processFindOptions(
-        options?: FindOptions<DatabaseRecentPlay> | undefined
-    ): FindOptions<DatabaseRecentPlay> | undefined {
+        options?: FindOptions | undefined,
+    ): FindOptions | undefined {
         if (options?.projection) {
             options.projection.hash = 1;
         }

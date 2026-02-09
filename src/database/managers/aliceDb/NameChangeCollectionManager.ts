@@ -29,10 +29,7 @@ export class NameChangeCollectionManager extends DatabaseCollectionManager<
      * @param uid The uid.
      * @param options Options for the retrieval of the name change information.
      */
-    getFromUid(
-        uid: number,
-        options?: FindOptions<DatabaseNameChange>,
-    ): Promise<NameChange | null> {
+    getFromUid(uid: number, options?: FindOptions): Promise<NameChange | null> {
         return this.getOne({ uid: uid }, options);
     }
 

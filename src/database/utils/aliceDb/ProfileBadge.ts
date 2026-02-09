@@ -1,7 +1,7 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import { DatabaseProfileBadge } from "structures/database/aliceDb/DatabaseProfileBadge";
 import { Manager } from "@utils/base/Manager";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 
 /**
  * Represents a profile badge.

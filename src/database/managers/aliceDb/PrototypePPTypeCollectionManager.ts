@@ -47,7 +47,7 @@ export class PrototypePPTypeCollectionManager extends DatabaseCollectionManager<
      */
     async searchReworkTypesForAutocomplete(
         searchQuery: string | RegExp,
-        amount: number = 25,
+        amount = 25,
     ): Promise<ApplicationCommandOptionChoiceData<string>[]> {
         const result = await this.collection
             .find(
@@ -74,7 +74,7 @@ export class PrototypePPTypeCollectionManager extends DatabaseCollectionManager<
      */
     getFromType(
         type: string,
-        options?: FindOptions<DatabasePrototypePPType>,
+        options?: FindOptions,
     ): Promise<PrototypePPType | null> {
         return this.getOne({ type: type }, this.processFindOptions(options));
     }

@@ -3,7 +3,7 @@ import { DatabaseChannelActivity } from "@structures/database/aliceDb/DatabaseCh
 import { ChannelActivityData } from "@structures/utils/ChannelActivityData";
 import { Manager } from "@utils/base/Manager";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { Collection, Snowflake } from "discord.js";
 
 /**

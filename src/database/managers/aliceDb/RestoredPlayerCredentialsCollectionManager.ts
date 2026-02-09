@@ -36,8 +36,8 @@ export class RestoredPlayerCredentialsCollectionManager extends DatabaseCollecti
     }
 
     protected override processFindOptions(
-        options?: FindOptions<DatabaseRestoredPlayerCredentials>,
-    ): FindOptions<DatabaseRestoredPlayerCredentials> | undefined {
+        options?: FindOptions,
+    ): FindOptions | undefined {
         if (options?.projection) {
             options.projection.Id = 1;
         }

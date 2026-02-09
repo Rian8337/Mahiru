@@ -32,14 +32,14 @@ export class VotingCollectionManager extends DatabaseCollectionManager<
      */
     getCurrentVoteInChannel(
         channelId: Snowflake,
-        options?: FindOptions<DatabaseVoting>,
+        options?: FindOptions,
     ): Promise<Voting | null> {
         return this.getOne({ channel: channelId }, options);
     }
 
     protected override processFindOptions(
-        options?: FindOptions<DatabaseVoting>,
-    ): FindOptions<DatabaseVoting> | undefined {
+        options?: FindOptions,
+    ): FindOptions | undefined {
         if (options?.projection) {
             options.projection.channel = 1;
         }

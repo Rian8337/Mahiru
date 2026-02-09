@@ -32,7 +32,7 @@ export class AccountTransferCollectionManager extends DatabaseCollectionManager<
      */
     getFromUid(
         uid: number,
-        options?: FindOptions<DatabaseAccountTransfer>,
+        options?: FindOptions,
     ): Promise<AccountTransfer | null> {
         return this.getOne({ transferList: uid }, options);
     }
@@ -46,7 +46,7 @@ export class AccountTransferCollectionManager extends DatabaseCollectionManager<
      */
     getFromDiscordId(
         id: Snowflake,
-        options?: FindOptions<DatabaseAccountTransfer>,
+        options?: FindOptions,
     ): Promise<AccountTransfer | null> {
         return this.getOne({ discordId: id }, options);
     }

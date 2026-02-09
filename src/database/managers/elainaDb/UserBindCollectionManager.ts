@@ -35,10 +35,7 @@ export class UserBindCollectionManager extends DatabaseCollectionManager<
      * @param user The user.
      * @param options Options for the retrieval of the bind information.
      */
-    getFromUser(
-        user: User,
-        options?: FindOptions<DatabaseUserBind>,
-    ): Promise<UserBind | null>;
+    getFromUser(user: User, options?: FindOptions): Promise<UserBind | null>;
 
     /**
      * Gets the bind information of a Discord user.
@@ -48,12 +45,12 @@ export class UserBindCollectionManager extends DatabaseCollectionManager<
      */
     getFromUser(
         userId: Snowflake,
-        options?: FindOptions<DatabaseUserBind>,
+        options?: FindOptions,
     ): Promise<UserBind | null>;
 
     getFromUser(
         userOrId: User | Snowflake,
-        options?: FindOptions<DatabaseUserBind>,
+        options?: FindOptions,
     ): Promise<UserBind | null> {
         if (userOrId instanceof User && userOrId.bot) {
             return Promise.resolve(null);
@@ -73,10 +70,7 @@ export class UserBindCollectionManager extends DatabaseCollectionManager<
      * @param uid The uid of the osu!droid account.
      * @param options Options for the retrieval of the bind information.
      */
-    getFromUid(
-        uid: number,
-        options?: FindOptions<DatabaseUserBind>,
-    ): Promise<UserBind | null> {
+    getFromUid(uid: number, options?: FindOptions): Promise<UserBind | null> {
         return this.getOne({ uid: uid }, options);
     }
 
@@ -88,7 +82,7 @@ export class UserBindCollectionManager extends DatabaseCollectionManager<
      */
     getFromUsername(
         username: string,
-        options?: FindOptions<DatabaseUserBind>,
+        options?: FindOptions,
     ): Promise<UserBind | null> {
         return this.getOne({ username: username }, options);
     }
@@ -128,7 +122,7 @@ export class UserBindCollectionManager extends DatabaseCollectionManager<
      */
     async searchPlayersForAutocomplete(
         searchQuery: string | RegExp,
-        amount: number = 25,
+        amount = 25,
     ): Promise<ApplicationCommandOptionChoiceData<string>[]> {
         let regExp: RegExp;
 
@@ -195,8 +189,8 @@ export class UserBindCollectionManager extends DatabaseCollectionManager<
     }
 
     protected override processFindOptions(
-        options?: FindOptions<DatabaseUserBind>,
-    ): FindOptions<DatabaseUserBind> | undefined {
+        options?: FindOptions,
+    ): FindOptions | undefined {
         if (options?.projection) {
             options.projection.discordid = 1;
         }

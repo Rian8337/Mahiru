@@ -1,7 +1,7 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import { DatabaseProfileBackground } from "structures/database/aliceDb/DatabaseProfileBackground";
 import { Manager } from "@utils/base/Manager";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 
 /**
  * Represents a profile background that is applicable to profile commands.

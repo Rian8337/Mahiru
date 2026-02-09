@@ -38,7 +38,7 @@ export class GuildSettingsCollectionManager extends DatabaseCollectionManager<
      */
     async getGuildSetting(
         guildId: Snowflake,
-        options?: FindOptions<DatabaseGuildSettings>,
+        options?: FindOptions,
     ): Promise<GuildSettings | null> {
         return this.getOne({ id: guildId }, options);
     }
@@ -52,7 +52,7 @@ export class GuildSettingsCollectionManager extends DatabaseCollectionManager<
      */
     getGuildSettingWithChannel(
         channelId: Snowflake,
-        options?: FindOptions<DatabaseGuildSettings>,
+        options?: FindOptions,
     ): Promise<GuildSettings | null> {
         return this.getOne({ "channelSettings.id": channelId }, options);
     }
@@ -194,8 +194,8 @@ export class GuildSettingsCollectionManager extends DatabaseCollectionManager<
     }
 
     protected override processFindOptions(
-        options?: FindOptions<DatabaseGuildSettings>,
-    ): FindOptions<DatabaseGuildSettings> | undefined {
+        options?: FindOptions,
+    ): FindOptions | undefined {
         if (options?.projection) {
             options.projection.id = 1;
         }

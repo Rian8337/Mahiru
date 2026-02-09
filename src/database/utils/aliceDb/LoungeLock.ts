@@ -2,7 +2,7 @@ import { DatabaseManager } from "@database/DatabaseManager";
 import { DatabaseLoungeLock } from "structures/database/aliceDb/DatabaseLoungeLock";
 import { OperationResult } from "structures/core/OperationResult";
 import { Manager } from "@utils/base/Manager";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { Snowflake } from "discord.js";
 
 /**

@@ -6,7 +6,7 @@ import { ProfileImageConfig } from "@structures/profile/ProfileImageConfig";
 import { Manager } from "@utils/base/Manager";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
 import { NumberHelper } from "@utils/helpers/NumberHelper";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { Collection, Snowflake } from "discord.js";
 import { Player } from "@rian8337/osu-droid-utilities";
 import { PlayerInfoLocalization } from "@localization/database/utils/aliceDb/PlayerInfo/PlayerInfoLocalization";

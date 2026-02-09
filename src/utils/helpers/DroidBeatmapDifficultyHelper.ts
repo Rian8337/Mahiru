@@ -66,10 +66,9 @@ export class DroidBeatmapDifficultyHelper extends BeatmapDifficultyHelper<
             | RebalancePerformanceCalculationResult<RebalanceDroidPerformanceCalculator>,
         replay?: ReplayAnalyzer
     ): Promise<void> {
-        const difficultyAttributes = <
-            | ExtendedDroidDifficultyAttributes
-            | RebalanceExtendedDroidDifficultyAttributes
-        >calcResult.result.difficultyAttributes;
+        const difficultyAttributes = calcResult.result.difficultyAttributes as | ExtendedDroidDifficultyAttributes
+            | RebalanceExtendedDroidDifficultyAttributes;
+
         if (!ThreeFingerChecker.isEligibleToDetect(difficultyAttributes)) {
             return;
         }
@@ -84,14 +83,10 @@ export class DroidBeatmapDifficultyHelper extends BeatmapDifficultyHelper<
             replay.beatmap ??= beatmap;
             replay.difficultyAttributes = difficultyAttributes;
             replay.checkFor3Finger();
-
-            if (replay.tapPenalty > 1) {
-                calcResult.params;
-            }
             calcResult.params.tapPenalty = replay.tapPenalty;
         }
 
-        calcResult.result.applyTapPenalty(replay.tapPenalty);
+        calcResult.result.calculate(calcResult.params);
     }
 
     /**
@@ -142,7 +137,7 @@ export class DroidBeatmapDifficultyHelper extends BeatmapDifficultyHelper<
         attributes:
             | ExtendedDroidDifficultyAttributes
             | RebalanceExtendedDroidDifficultyAttributes,
-        tapPenalty: number = 1,
+        tapPenalty = 1,
         sliderCheesePenalty?: SliderCheeseInformation,
         replay?: ReplayAnalyzer
     ): Promise<
@@ -207,11 +202,6 @@ export class DroidBeatmapDifficultyHelper extends BeatmapDifficultyHelper<
             calcResult.params.sliderCheesePenalty = replay.sliderCheesePenalty;
         }
 
-        calcResult.result.applyAimSliderCheesePenalty(
-            replay.sliderCheesePenalty.aimPenalty
-        );
-        calcResult.result.applyFlashlightSliderCheesePenalty(
-            replay.sliderCheesePenalty.flashlightPenalty
-        );
+        calcResult.result.calculate(calcResult.params);
     }
 }

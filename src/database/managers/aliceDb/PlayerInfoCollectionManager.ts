@@ -49,10 +49,7 @@ export class PlayerInfoCollectionManager extends DatabaseCollectionManager<
      * @param uid The uid of the bound osu!droid account.
      * @param options Options for the retrieval of the user info.
      */
-    getFromUid(
-        uid: number,
-        options?: FindOptions<DatabasePlayerInfo>,
-    ): Promise<PlayerInfo | null> {
+    getFromUid(uid: number, options?: FindOptions): Promise<PlayerInfo | null> {
         return this.getOne({ uid: uid }, options);
     }
 
@@ -65,7 +62,7 @@ export class PlayerInfoCollectionManager extends DatabaseCollectionManager<
      */
     getFromUsername(
         username: string,
-        options?: FindOptions<DatabasePlayerInfo>,
+        options?: FindOptions,
     ): Promise<PlayerInfo | null> {
         return this.getOne({ username: username }, options);
     }
@@ -78,7 +75,7 @@ export class PlayerInfoCollectionManager extends DatabaseCollectionManager<
      */
     getFromUser(
         id: Snowflake,
-        options?: FindOptions<DatabasePlayerInfo>,
+        options?: FindOptions,
     ): Promise<PlayerInfo | null>;
 
     /**
@@ -87,14 +84,11 @@ export class PlayerInfoCollectionManager extends DatabaseCollectionManager<
      * @param user The Discord user.
      * @param options Options for the retrieval of the user info.
      */
-    getFromUser(
-        user: User,
-        options?: FindOptions<DatabasePlayerInfo>,
-    ): Promise<PlayerInfo | null>;
+    getFromUser(user: User, options?: FindOptions): Promise<PlayerInfo | null>;
 
     getFromUser(
         userOrId: Snowflake | User,
-        options?: FindOptions<DatabasePlayerInfo>,
+        options?: FindOptions,
     ): Promise<PlayerInfo | null> {
         return this.getOne(
             {
@@ -105,8 +99,8 @@ export class PlayerInfoCollectionManager extends DatabaseCollectionManager<
     }
 
     protected override processFindOptions(
-        options?: FindOptions<DatabasePlayerInfo>,
-    ): FindOptions<DatabasePlayerInfo> | undefined {
+        options?: FindOptions,
+    ): FindOptions | undefined {
         if (options?.projection) {
             options.projection.discordid = 1;
         }

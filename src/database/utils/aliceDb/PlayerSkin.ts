@@ -1,7 +1,7 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import { DatabasePlayerSkin } from "structures/database/aliceDb/DatabasePlayerSkin";
 import { Manager } from "@utils/base/Manager";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { Channel, Snowflake } from "discord.js";
 import { SkinPreview } from "@structures/skins/SkinPreview";
 import { OperationResult } from "@structures/core/OperationResult";

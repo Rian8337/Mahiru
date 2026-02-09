@@ -35,7 +35,7 @@ import { SlashCommand } from "structures/core/SlashCommand";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new FetchreplayLocalization(
-        CommandHelper.getLocale(interaction)
+        CommandHelper.getLocale(interaction),
     );
 
     const beatmapLink = interaction.options.getString("beatmap", true);
@@ -46,7 +46,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!beatmapID && !hash) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotProvided")
+                localization.getTranslation("beatmapNotProvided"),
             ),
         });
     }
@@ -60,15 +60,15 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                         _id: 0,
                         uid: 1,
                     },
-                }
+                },
             );
 
         if (!bindInfo) {
             return InteractionHelper.reply(interaction, {
                 content: MessageCreator.createReject(
                     new ConstantsLocalization(
-                        localization.language
-                    ).getTranslation(Constants.selfNotBindedReject)
+                        localization.language,
+                    ).getTranslation(Constants.selfNotBindedReject),
                 ),
             });
         }
@@ -80,7 +80,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     const beatmapInfo = await BeatmapManager.getBeatmap(
         hash ? hash : beatmapID,
-        { checkFile: false }
+        { checkFile: false },
     );
 
     if (beatmapInfo) {
@@ -110,8 +110,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 localization.getTranslation(
                     interaction.options.getInteger("uid")
                         ? "userScoreNotFound"
-                        : "selfScoreNotFound"
-                )
+                        : "selfScoreNotFound",
+                ),
             ),
         });
     }
@@ -127,8 +127,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 localization.getTranslation(
                     interaction.options.getInteger("uid")
                         ? "userScoreNotFound"
-                        : "selfScoreNotFound"
-                )
+                        : "selfScoreNotFound",
+                ),
             ),
         });
     }
@@ -138,7 +138,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!replay.data) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noReplayFound")
+                localization.getTranslation("noReplayFound"),
             ),
         });
     }
@@ -182,7 +182,6 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             misses: accuracy.nmiss,
             accuracy: accuracy.value(),
             time: Math.round(score.date.getTime() / 1000),
-            //@ts-expect-error: Should exist in exported replay data v3, library bump will fix this.
             sliderTickHits:
                 score instanceof Score
                     ? score.sliderTickHits
@@ -208,14 +207,14 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 localization.getTranslation("fetchReplayNoBeatmapSuccessful"),
                 rank,
                 score.score.toLocaleString(
-                    LocaleHelper.convertToBCP47(localization.language)
+                    LocaleHelper.convertToBCP47(localization.language),
                 ),
                 score.combo.toString(),
                 (accuracy.value() * 100).toFixed(2),
                 accuracy.n300.toString(),
                 accuracy.n100.toString(),
                 accuracy.n50.toString(),
-                accuracy.nmiss.toString()
+                accuracy.nmiss.toString(),
             ),
             files: [replayAttachment],
         });
@@ -227,7 +226,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         Modes.droid,
         PPCalculationMethod.live,
         false,
-        true
+        true,
     );
 
     if (!droidAttribs) {
@@ -236,14 +235,14 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 localization.getTranslation("fetchReplayNoBeatmapSuccessful"),
                 rank,
                 score.score.toLocaleString(
-                    LocaleHelper.convertToBCP47(localization.language)
+                    LocaleHelper.convertToBCP47(localization.language),
                 ),
                 score.combo.toString(),
                 (accuracy.value() * 100).toFixed(2),
                 accuracy.n300.toString(),
                 accuracy.n100.toString(),
                 accuracy.n50.toString(),
-                accuracy.nmiss.toString()
+                accuracy.nmiss.toString(),
             ),
             files: [replayAttachment],
         });
@@ -253,7 +252,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         score.uid,
         score.hash,
         Modes.osu,
-        PPCalculationMethod.live
+        PPCalculationMethod.live,
     );
 
     if (!osuAttribs) {
@@ -262,14 +261,14 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 localization.getTranslation("fetchReplayNoBeatmapSuccessful"),
                 rank,
                 score.score.toLocaleString(
-                    LocaleHelper.convertToBCP47(localization.language)
+                    LocaleHelper.convertToBCP47(localization.language),
                 ),
                 score.combo.toString(),
                 (accuracy.value() * 100).toFixed(2),
                 accuracy.n300.toString(),
                 accuracy.n100.toString(),
                 accuracy.n50.toString(),
-                accuracy.nmiss.toString()
+                accuracy.nmiss.toString(),
             ),
             files: [replayAttachment],
         });
@@ -283,7 +282,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         droidAttribs.attributes.performance,
         osuAttribs.attributes.performance,
         localization.language,
-        Buffer.from(droidAttribs.strainChart)
+        Buffer.from(droidAttribs.strainChart),
     );
 
     options.components = [
@@ -292,9 +291,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 localization.getTranslation("playInfo"),
                 hyperlink(
                     username,
-                    hideLinkEmbed(ProfileManager.getProfileLink(uid))
-                ) + ":"
-            )
+                    hideLinkEmbed(ProfileManager.getProfileLink(uid)),
+                ) + ":",
+            ),
         ),
         ...options.components!,
     ];
@@ -312,22 +311,22 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 new TextDisplayBuilder().setContent(
                     heading(
                         localization.getTranslation("hitErrorInfo"),
-                        HeadingLevel.Three
+                        HeadingLevel.Three,
                     ) +
                         "\n" +
                         `${hitErrorInformation.negativeAvg.toFixed(
-                            2
+                            2,
                         )}ms - ${hitErrorInformation.positiveAvg.toFixed(
-                            2
+                            2,
                         )}ms ${localization.getTranslation(
-                            "hitErrorAvg"
-                        )} | ${hitErrorInformation.unstableRate.toFixed(2)} UR`
-                )
+                            "hitErrorAvg",
+                        )} | ${hitErrorInformation.unstableRate.toFixed(2)} UR`,
+                ),
             );
     }
 
     containerBuilder.addFileComponents(
-        new FileBuilder().setURL(`attachment://${replayFilename}`)
+        new FileBuilder().setURL(`attachment://${replayFilename}`),
     );
 
     options.files ??= [];

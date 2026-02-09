@@ -39,7 +39,7 @@ export class SupportTicketCollectionManager extends DatabaseCollectionManager<
      */
     getFromChannel(
         id: Snowflake,
-        options?: FindOptions<DatabaseSupportTicket>,
+        options?: FindOptions,
     ): Promise<SupportTicket | null> {
         return this.getOne({ threadChannelId: id }, options);
     }
@@ -54,7 +54,7 @@ export class SupportTicketCollectionManager extends DatabaseCollectionManager<
     getFromUser(
         userId: Snowflake,
         ticketId: number,
-        options?: FindOptions<DatabaseSupportTicket>,
+        options?: FindOptions,
     ): Promise<SupportTicket | null> {
         return this.getOne({ authorId: userId, id: ticketId }, options);
     }

@@ -40,7 +40,7 @@ export const run: SlashSubcommand<true>["run"] = async (
 
     let playerInfo: PlayerInfo | null;
 
-    const findOptions: FindOptions<DatabasePlayerInfo> = {
+    const findOptions: FindOptions = {
         projection: {
             _id: 0,
             points: 1,

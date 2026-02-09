@@ -5,7 +5,7 @@ import { OperationResult } from "structures/core/OperationResult";
 import { MapShareSubmissionStatus } from "structures/utils/MapShareSubmissionStatus";
 import { Manager } from "@utils/base/Manager";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { BaseMessageOptions, Snowflake, TextChannel } from "discord.js";
 import { UserBind } from "../elainaDb/UserBind";
 import { PlayerInfo } from "./PlayerInfo";

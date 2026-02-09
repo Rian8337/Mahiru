@@ -1,12 +1,12 @@
+import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
+import { MapInfo, Modes, ModMap } from "@rian8337/osu-base";
+import { CacheableDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
+import { CachedDifficultyAttributes } from "@structures/difficultyattributes/CachedDifficultyAttributes";
+import { RawDifficultyAttributes } from "@structures/difficultyattributes/RawDifficultyAttributes";
+import { StringHelper } from "@utils/helpers/StringHelper";
+import { Collection } from "discord.js";
 import { mkdir, readdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
-import { Collection } from "@discordjs/collection";
-import { MapInfo, Mod, Modes, ModMap } from "@rian8337/osu-base";
-import { CacheableDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
-import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
-import { RawDifficultyAttributes } from "@structures/difficultyattributes/RawDifficultyAttributes";
-import { CachedDifficultyAttributes } from "@structures/difficultyattributes/CachedDifficultyAttributes";
-import { StringHelper } from "@utils/helpers/StringHelper";
 
 /**
  * A cache manager for difficulty attributes.
@@ -67,7 +67,7 @@ export abstract class DifficultyAttributesCacheManager<
             "files",
             "difficultyattributescache",
             attributeTypeFolder,
-            gamemodeFolder
+            gamemodeFolder,
         );
     }
 
@@ -78,7 +78,7 @@ export abstract class DifficultyAttributesCacheManager<
      * @returns The difficulty attributes of the beatmap, or `null` if it doesn't exist.
      */
     getBeatmapAttributes(
-        beatmapInfo: MapInfo
+        beatmapInfo: MapInfo,
     ): CachedDifficultyAttributes<T> | null {
         return this.getCache(beatmapInfo);
     }
@@ -92,7 +92,7 @@ export abstract class DifficultyAttributesCacheManager<
      */
     getDifficultyAttributes(
         beatmapInfo: MapInfo,
-        mods: ModMap
+        mods: ModMap,
     ): CacheableDifficultyAttributes<T> | null {
         return (
             this.getCache(beatmapInfo)?.difficultyAttributes[
@@ -110,7 +110,7 @@ export abstract class DifficultyAttributesCacheManager<
      */
     addAttribute(
         beatmapInfo: MapInfo,
-        difficultyAttributes: T
+        difficultyAttributes: T,
     ): CacheableDifficultyAttributes<T> {
         const cache = this.getBeatmapAttributes(beatmapInfo) ?? {
             lastUpdate: Date.now(),
@@ -138,7 +138,7 @@ export abstract class DifficultyAttributesCacheManager<
             "Reading difficulty cache of attribute type",
             PPCalculationMethod[this.attributeType],
             "and gamemode",
-            this.mode
+            this.mode,
         );
 
         const start = process.hrtime.bigint();
@@ -151,11 +151,11 @@ export abstract class DifficultyAttributesCacheManager<
                     continue;
                 }
 
-                const cache: CachedDifficultyAttributes<T> = JSON.parse(
+                const cache = JSON.parse(
                     await readFile(join(this.folderPath, fileName), {
                         encoding: "utf-8",
-                    })
-                );
+                    }),
+                ) as CachedDifficultyAttributes<T>;
 
                 this.cache.set(beatmapId, cache);
             }
@@ -171,7 +171,13 @@ export abstract class DifficultyAttributesCacheManager<
 
         const end = process.hrtime.bigint();
 
-        setInterval(async () => await this.saveToDisk(), 60 * 5 * 1000);
+        setInterval(
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            async () => {
+                await this.saveToDisk();
+            },
+            60 * 5 * 1000,
+        );
 
         console.log(
             "Reading difficulty cache of attribute type",
@@ -180,7 +186,7 @@ export abstract class DifficultyAttributesCacheManager<
             this.mode,
             "complete (took",
             Number(end - start) / 1e6,
-            "ms)"
+            "ms)",
         );
     }
 
@@ -190,8 +196,8 @@ export abstract class DifficultyAttributesCacheManager<
     private async saveToDisk(): Promise<void> {
         for (const [beatmapId, cache] of this.cacheToSave) {
             await writeFile(
-                join(this.folderPath, `${beatmapId}.json`),
-                JSON.stringify(cache)
+                join(this.folderPath, `${beatmapId.toString()}.json`),
+                JSON.stringify(cache),
             );
 
             this.cacheToSave.delete(beatmapId);
@@ -206,7 +212,7 @@ export abstract class DifficultyAttributesCacheManager<
      * @param beatmapInfo The information about the beatmap.
      */
     private getCache(
-        beatmapInfo: MapInfo
+        beatmapInfo: MapInfo,
     ): CachedDifficultyAttributes<T> | null {
         const cache = this.cache.get(beatmapInfo.beatmapId);
 
@@ -246,6 +252,11 @@ export abstract class DifficultyAttributesCacheManager<
      * @param mods The mods to construct with.
      */
     private getAttributeName(mods: ModMap): string {
-        return StringHelper.sortAlphabet(mods.serializeMods().join(""));
+        return StringHelper.sortAlphabet(
+            mods
+                .serializeMods()
+                .map((v) => JSON.stringify(v))
+                .join(""),
+        );
     }
 }

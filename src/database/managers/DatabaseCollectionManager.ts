@@ -98,24 +98,22 @@ export abstract class DatabaseCollectionManager<
     async get<K extends keyof T>(
         key: K,
         filter: Filter<T> = {},
-        options?: FindOptions<T>,
+        options?: FindOptions,
     ): Promise<DiscordCollection<NonNullable<T[K]>, C>> {
-        if (options?.projection?.[<keyof Document>key] === 0) {
+        if (options?.projection?.[key as keyof Document] === 0) {
             // Prevent cases where key is undefined.
-            options.projection[<keyof Document>key] = 1;
+            options.projection[key as keyof Document] = 1;
         }
 
-        const res = <T[]>(
-            await this.collection
-                .find(filter, this.processFindOptions(options))
-                .toArray()
-        );
+        const res = (await this.collection
+            .find(filter, this.processFindOptions(options))
+            .toArray()) as T[];
 
         const collection = new DiscordCollection<NonNullable<T[K]>, C>();
 
         for (const data of res) {
             collection.set(
-                <NonNullable<T[K]>>data[key],
+                data[key] as NonNullable<T[K]>,
                 new this.utilityInstance(data),
             );
         }
@@ -133,7 +131,7 @@ export abstract class DatabaseCollectionManager<
      */
     async getOne(
         filter: Filter<T> = {},
-        options?: FindOptions<T>,
+        options?: FindOptions,
     ): Promise<C | null> {
         const res = await this.collection.findOne(
             filter,
@@ -176,9 +174,10 @@ export abstract class DatabaseCollectionManager<
         const result = await this.collection.insertMany(
             docs.map(
                 (v) =>
-                    <OptionalUnlessRequiredId<T>>(
-                        Object.assign(this.defaultDocument, v)
-                    ),
+                    Object.assign(
+                        this.defaultDocument,
+                        v,
+                    ) as OptionalUnlessRequiredId<T>,
             ),
         );
 
@@ -191,8 +190,8 @@ export abstract class DatabaseCollectionManager<
      * @param options The options.
      */
     protected processFindOptions(
-        options?: FindOptions<T>,
-    ): FindOptions<T> | undefined {
+        options?: FindOptions,
+    ): FindOptions | undefined {
         return options;
     }
 }

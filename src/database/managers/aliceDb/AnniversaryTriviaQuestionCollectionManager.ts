@@ -33,7 +33,7 @@ export class AnniversaryTriviaQuestionCollectionManager extends DatabaseCollecti
      */
     getFromId(
         id: number,
-        options?: FindOptions<DatabaseAnniversaryTriviaQuestion>,
+        options?: FindOptions,
     ): Promise<AnniversaryTriviaQuestion | null> {
         return this.getOne({ id }, options);
     }

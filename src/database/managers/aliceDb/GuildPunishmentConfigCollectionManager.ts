@@ -14,7 +14,7 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
     GuildPunishmentConfig
 > {
     protected override readonly utilityInstance: new (
-        data: DatabaseGuildPunishmentConfig
+        data: DatabaseGuildPunishmentConfig,
     ) => GuildPunishmentConfig = GuildPunishmentConfig;
 
     override get defaultDocument(): DatabaseGuildPunishmentConfig {
@@ -35,7 +35,7 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
      */
     getGuildConfig(
         guild: Guild,
-        options?: FindOptions<DatabaseGuildPunishmentConfig>
+        options?: FindOptions,
     ): Promise<GuildPunishmentConfig | null>;
 
     /**
@@ -47,12 +47,12 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
      */
     getGuildConfig(
         guildId: Snowflake,
-        options?: FindOptions<DatabaseGuildPunishmentConfig>
+        options?: FindOptions,
     ): Promise<GuildPunishmentConfig | null>;
 
     getGuildConfig(
         guildOrGuildId: Snowflake | Guild,
-        options?: FindOptions<DatabaseGuildPunishmentConfig>
+        options?: FindOptions,
     ): Promise<GuildPunishmentConfig | null> {
         return this.getOne(
             {
@@ -61,7 +61,7 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
                         ? guildOrGuildId.id
                         : guildOrGuildId,
             },
-            options
+            options,
         );
     }
 
@@ -74,7 +74,7 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
      */
     setGuildLogChannel(
         guildId: Snowflake,
-        channelId: Snowflake
+        channelId: Snowflake,
     ): Promise<OperationResult> {
         const cache = CacheManager.guildPunishmentConfigs.get(guildId);
 
@@ -88,7 +88,7 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
                     logChannel: channelId,
                     allowedTimeoutRoles: [],
                     immuneTimeoutRoles: [],
-                })
+                }),
             );
         }
 
@@ -101,7 +101,7 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
                     immuneTimeoutRoles: [],
                 },
             },
-            { upsert: true }
+            { upsert: true },
         );
     }
 
@@ -120,7 +120,7 @@ export class GuildPunishmentConfigCollectionManager extends DatabaseCollectionMa
 
         return this.updateOne(
             { guildID: guildId },
-            { $unset: { logChannel: "" } }
+            { $unset: { logChannel: "" } },
         );
     }
 }

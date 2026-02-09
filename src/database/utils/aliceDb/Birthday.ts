@@ -2,7 +2,7 @@ import { DatabaseManager } from "@database/DatabaseManager";
 import { DatabaseBirthday } from "structures/database/aliceDb/DatabaseBirthday";
 import { OperationResult } from "structures/core/OperationResult";
 import { Manager } from "@utils/base/Manager";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { Snowflake } from "discord.js";
 import { Language } from "@localization/base/Language";
 

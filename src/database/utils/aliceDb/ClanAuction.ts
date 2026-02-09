@@ -4,7 +4,7 @@ import { DatabaseClanAuction } from "structures/database/aliceDb/DatabaseClanAuc
 import { Manager } from "@utils/base/Manager";
 import { Clan } from "@database/utils/elainaDb/Clan";
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
-import { ObjectId } from "bson";
+import { ObjectId } from "mongodb";
 import { Collection } from "discord.js";
 import { ArrayHelper } from "@utils/helpers/ArrayHelper";
 import { Powerup } from "structures/clan/Powerup";

@@ -19,7 +19,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const ticketId = interaction.options.getInteger("id");
 
     let ticket: SupportTicket | null;
-    const findOptions: FindOptions<DatabaseSupportTicket> = {
+    const findOptions: FindOptions = {
         projection: {
             _id: 0,
             id: 1,

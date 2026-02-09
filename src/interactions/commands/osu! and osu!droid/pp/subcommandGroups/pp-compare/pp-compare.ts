@@ -25,11 +25,11 @@ import { FindOptions } from "mongodb";
 
 export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
     const localization = new PPLocalization(
-        CommandHelper.getLocale(interaction)
+        CommandHelper.getLocale(interaction),
     );
 
     const dbManager = DatabaseManager.elainaDb.collections.userBind;
-    const findOptions: FindOptions<DatabaseUserBind> = {
+    const findOptions: FindOptions = {
         projection: {
             _id: 0,
             uid: 1,
@@ -68,20 +68,20 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
             if (uidToCompare === otherUid) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
-                        localization.getTranslation("cannotCompareSamePlayers")
+                        localization.getTranslation("cannotCompareSamePlayers"),
                     ),
                 });
             }
 
             firstPlayer = await DroidHelper.getPlayer(
                 uidToCompare!,
-                playerKeys
+                playerKeys,
             );
 
             if (otherUid) {
                 secondPlayer = await DroidHelper.getPlayer(
                     otherUid,
-                    playerKeys
+                    playerKeys,
                 );
             } else {
                 const bindInfo = await dbManager.getFromUser(interaction.user);
@@ -90,15 +90,15 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
                     return InteractionHelper.reply(interaction, {
                         content: MessageCreator.createReject(
                             new ConstantsLocalization(
-                                localization.language
-                            ).getTranslation(Constants.selfNotBindedReject)
+                                localization.language,
+                            ).getTranslation(Constants.selfNotBindedReject),
                         ),
                     });
                 }
 
                 secondPlayer = await DroidHelper.getPlayer(
                     bindInfo.uid,
-                    playerKeys
+                    playerKeys,
                 );
             }
 
@@ -108,19 +108,19 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
             if (userToCompare!.id === (otherUser ?? interaction.user).id) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
-                        localization.getTranslation("cannotCompareSamePlayers")
+                        localization.getTranslation("cannotCompareSamePlayers"),
                     ),
                 });
             }
 
             const firstBindInfo = await dbManager.getFromUser(
                 userToCompare!,
-                findOptions
+                findOptions,
             );
 
             const secondBindInfo = await dbManager.getFromUser(
                 otherUser ?? interaction.user,
-                findOptions
+                findOptions,
             );
 
             if (!firstBindInfo || !secondBindInfo) {
@@ -133,8 +133,8 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
                     return InteractionHelper.reply(interaction, {
                         content: MessageCreator.createReject(
                             new ConstantsLocalization(
-                                localization.language
-                            ).getTranslation(Constants.selfNotBindedReject)
+                                localization.language,
+                            ).getTranslation(Constants.selfNotBindedReject),
                         ),
                     });
                 }
@@ -143,20 +143,20 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
                     content: MessageCreator.createReject(
                         localization.getTranslation("playerNotBinded"),
                         localization.getTranslation(
-                            <keyof PPStrings>subcommand
+                            <keyof PPStrings>subcommand,
                         ),
-                        (!secondBindInfo ? otherUser : userToCompare)!.tag
+                        (!secondBindInfo ? otherUser : userToCompare)!.tag,
                     ),
                 });
             }
 
             firstPlayer = await DroidHelper.getPlayer(
                 firstBindInfo.uid,
-                playerKeys
+                playerKeys,
             );
             secondPlayer = await DroidHelper.getPlayer(
                 secondBindInfo.uid,
-                playerKeys
+                playerKeys,
             );
 
             break;
@@ -166,40 +166,40 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
             if (usernameToCompare === otherUsername) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
-                        localization.getTranslation("cannotCompareSamePlayers")
+                        localization.getTranslation("cannotCompareSamePlayers"),
                     ),
                 });
             }
 
             firstPlayer = await DroidHelper.getPlayer(
                 usernameToCompare!,
-                playerKeys
+                playerKeys,
             );
 
             if (otherUsername) {
                 secondPlayer = await DroidHelper.getPlayer(
                     otherUsername,
-                    playerKeys
+                    playerKeys,
                 );
             } else {
                 const bindInfo = await dbManager.getFromUser(
                     interaction.user,
-                    findOptions
+                    findOptions,
                 );
 
                 if (!bindInfo) {
                     return InteractionHelper.reply(interaction, {
                         content: MessageCreator.createReject(
                             new ConstantsLocalization(
-                                localization.language
-                            ).getTranslation(Constants.selfNotBindedReject)
+                                localization.language,
+                            ).getTranslation(Constants.selfNotBindedReject),
                         ),
                     });
                 }
 
                 secondPlayer = await DroidHelper.getPlayer(
                     bindInfo.uid,
-                    playerKeys
+                    playerKeys,
                 );
             }
 
@@ -212,8 +212,8 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
             return InteractionHelper.reply(interaction, {
                 content: MessageCreator.createReject(
                     new ConstantsLocalization(
-                        localization.language
-                    ).getTranslation(Constants.selfNotBindedReject)
+                        localization.language,
+                    ).getTranslation(Constants.selfNotBindedReject),
                 ),
             });
         }
@@ -242,18 +242,18 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
             content: MessageCreator.createReject(
                 localization.getTranslation("playerNotBinded"),
                 localization.getTranslation(<keyof PPStrings>subcommand),
-                comparedRejectValue
+                comparedRejectValue,
             ),
         });
     }
 
     const firstTopScores = ArrayHelper.arrayToCollection(
         await DroidHelper.getTopScores(firstPlayer.id),
-        "hash"
+        "hash",
     );
     const secondTopScores = ArrayHelper.arrayToCollection(
         await DroidHelper.getTopScores(secondPlayer.id),
-        "hash"
+        "hash",
     );
 
     const ppToCompare: string[] = [];
@@ -267,7 +267,7 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
     if (ppToCompare.length === 0) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noSimilarPlayFound")
+                localization.getTranslation("noSimilarPlayFound"),
             ),
         });
     }
@@ -294,32 +294,32 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
     if (firstPlayer.pp < secondPlayer.pp) {
         ppDescription = `${bold(
             `${firstPlayer.pp.toFixed(
-                2
-            )}pp (#${firstPlayerRank.toLocaleString(BCP47)})`
+                2,
+            )}pp (#${firstPlayerRank.toLocaleString(BCP47)})`,
         )} vs ${bold(
             `${Symbols.crown} ${secondPlayer.pp.toFixed(
-                2
-            )}pp (#${secondPlayerRank.toLocaleString(BCP47)})`
+                2,
+            )}pp (#${secondPlayerRank.toLocaleString(BCP47)})`,
         )}`;
     } else if (firstPlayer.pp > secondPlayer.pp) {
         ppDescription = `${bold(
             `${Symbols.crown} ${firstPlayer.pp.toFixed(
-                2
-            )}pp (#${firstPlayerRank.toLocaleString(BCP47)})`
+                2,
+            )}pp (#${firstPlayerRank.toLocaleString(BCP47)})`,
         )} vs ${bold(
             `${secondPlayer.pp.toFixed(
-                2
-            )}pp (#${secondPlayerRank.toLocaleString(BCP47)})`
+                2,
+            )}pp (#${secondPlayerRank.toLocaleString(BCP47)})`,
         )}`;
     } else {
         ppDescription = `${bold(
             `${firstPlayer.pp.toFixed(
-                2
-            )}pp (#${firstPlayerRank.toLocaleString(BCP47)})`
+                2,
+            )}pp (#${firstPlayerRank.toLocaleString(BCP47)})`,
         )} vs ${bold(
             `${secondPlayer.pp.toFixed(
-                2
-            )}pp (#${secondPlayerRank.toLocaleString(BCP47)})`
+                2,
+            )}pp (#${secondPlayerRank.toLocaleString(BCP47)})`,
         )}`;
     }
 
@@ -327,9 +327,9 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
         .setTitle(localization.getTranslation("topPlaysComparison"))
         .setDescription(
             `${localization.getTranslation("player")}: ${bold(
-                firstPlayer.username
+                firstPlayer.username,
             )} vs ${bold(secondPlayer.username)}\n` +
-                `${localization.getTranslation("totalPP")}: ${ppDescription}`
+                `${localization.getTranslation("totalPP")}: ${ppDescription}`,
         );
 
     const onPageChange: OnButtonPageChange = async (_, page) => {
@@ -369,10 +369,10 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
                 name: `${i + 1}. ${firstScore.title}`,
                 value:
                     `${bold(
-                        firstPlayer.username
+                        firstPlayer.username,
                     )}: ${firstPlayerDescription}\n` +
                     `${bold(
-                        secondPlayer.username
+                        secondPlayer.username,
                     )}: ${secondPlayerDescription}`,
             });
         }
@@ -385,6 +385,6 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
         1,
         Math.ceil(ppToCompare.length / 5),
         120,
-        onPageChange
+        onPageChange,
     );
 };

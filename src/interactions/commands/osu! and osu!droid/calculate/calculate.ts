@@ -38,11 +38,11 @@ import { SlashCommand } from "structures/core/SlashCommand";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new CalculateLocalization(
-        CommandHelper.getLocale(interaction)
+        CommandHelper.getLocale(interaction),
     );
 
     const beatmapID = BeatmapManager.getBeatmapID(
-        interaction.options.getString("beatmap") ?? ""
+        interaction.options.getString("beatmap") ?? "",
     ).at(0);
 
     const hash = BeatmapManager.getChannelLatestBeatmap(interaction.channelId);
@@ -50,7 +50,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!beatmapID && !hash) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noBeatmapProvided")
+                localization.getTranslation("noBeatmapProvided"),
             ),
         });
     }
@@ -61,7 +61,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     ) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapProvidedIsInvalid")
+                localization.getTranslation("beatmapProvidedIsInvalid"),
             ),
         });
     }
@@ -70,20 +70,20 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     const beatmap: MapInfo | null = await BeatmapManager.getBeatmap(
         beatmapID ?? hash!,
-        { checkFile: false }
+        { checkFile: false },
     );
 
     if (!beatmap) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotFound")
+                localization.getTranslation("beatmapNotFound"),
             ),
         });
     }
 
     // Get calculation parameters
     const mods = ModUtil.pcStringToMods(
-        interaction.options.getString("mods") ?? ""
+        interaction.options.getString("mods") ?? "",
     );
 
     const speedMultiplier = interaction.options.getNumber("speedmultiplier");
@@ -102,7 +102,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 cs: forceCS ?? undefined,
                 ar: forceAR ?? undefined,
                 od: forceOD ?? undefined,
-            })
+            }),
         );
     }
 
@@ -124,7 +124,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 ? MathUtils.clamp(
                       0,
                       interaction.options.getInteger("combo", true),
-                      beatmap.maxCombo
+                      beatmap.maxCombo,
                   )
                 : (beatmap.maxCombo ?? undefined),
         sliderTicksMissed:
@@ -172,7 +172,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                     Modes.droid,
                     PPCalculationMethod.rebalance,
                     calcParams,
-                    true
+                    true,
                 );
 
             if (droidCalcResult) {
@@ -181,7 +181,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                         beatmap.beatmapId,
                         Modes.osu,
                         PPCalculationMethod.rebalance,
-                        calcParams
+                        calcParams,
                     )) ?? null;
             }
             break;
@@ -193,7 +193,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                     Modes.droid,
                     PPCalculationMethod.live,
                     calcParams,
-                    true
+                    true,
                 );
 
             if (droidCalcResult) {
@@ -202,7 +202,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                         beatmap.beatmapId,
                         Modes.osu,
                         PPCalculationMethod.live,
-                        calcParams
+                        calcParams,
                     )) ?? null;
             }
     }
@@ -210,7 +210,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!droidCalcResult || !osuCalcResult) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotFound")
+                localization.getTranslation("beatmapNotFound"),
             ),
         });
     }
@@ -218,12 +218,13 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     const options = EmbedCreator.createCalculationEmbed(
         beatmap,
         calcParams,
+        //@ts-ignore: Should be fixed in next module release
         droidCalcResult.attributes.difficulty,
         osuCalcResult.attributes.difficulty,
         droidCalcResult.attributes.performance,
         osuCalcResult.attributes.performance,
         localization.language,
-        Buffer.from(droidCalcResult.strainChart)
+        Buffer.from(droidCalcResult.strainChart),
     );
 
     let string = "";
@@ -234,11 +235,11 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             PPCalculationMethod.rebalance
                 ? PPHelper.getRebalanceDroidDifficultyAttributesInfo(
                       droidCalcResult.attributes
-                          .difficulty as CacheableDifficultyAttributes<IRebalanceDroidDifficultyAttributes>
+                          .difficulty as CacheableDifficultyAttributes<IRebalanceDroidDifficultyAttributes>,
                   )
                 : PPHelper.getDroidDifficultyAttributesInfo(
                       droidCalcResult.attributes
-                          .difficulty as CacheableDifficultyAttributes<IDroidDifficultyAttributes>
+                          .difficulty as CacheableDifficultyAttributes<IDroidDifficultyAttributes>,
                   )
         }`;
         string += `\n${localization.getTranslation("rawDroidPp")}: ${
@@ -246,11 +247,11 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             PPCalculationMethod.rebalance
                 ? PPHelper.getRebalanceDroidPerformanceAttributesInfo(
                       droidCalcResult.attributes
-                          .performance as RebalanceDroidPerformanceAttributes
+                          .performance as RebalanceDroidPerformanceAttributes,
                   )
                 : PPHelper.getDroidPerformanceAttributesInfo(
                       droidCalcResult.attributes
-                          .performance as DroidPerformanceAttributes
+                          .performance as DroidPerformanceAttributes,
                   )
         }\n`;
     }
@@ -260,15 +261,16 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             interaction.options.getInteger("calculationmethod") ===
             PPCalculationMethod.rebalance
                 ? PPHelper.getRebalanceOsuDifficultyAttributesInfo(
-                      osuCalcResult.attributes.difficulty
+                      osuCalcResult.attributes
+                          .difficulty as CacheableDifficultyAttributes<IRebalanceOsuDifficultyAttributes>,
                   )
                 : PPHelper.getOsuDifficultyAttributesInfo(
-                      osuCalcResult.attributes.difficulty
+                      osuCalcResult.attributes.difficulty,
                   )
         }\n${localization.getTranslation(
-            "rawPcPp"
+            "rawPcPp",
         )}: ${PPHelper.getOsuPerformanceAttributesInfo(
-            osuCalcResult.attributes.performance
+            osuCalcResult.attributes.performance,
         )}`;
     }
 
