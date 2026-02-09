@@ -86,10 +86,10 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     let csvString: string =
         'UID,Username,"Total PP","Previous Total PP",Diff,"Last Update"\n';
 
-    csvString += `${ppInfo.uid},${ppInfo.username},${ppInfo.pptotal.toFixed(
+    csvString += `${ppInfo.uid},${ppInfo.username},${ppInfo.localPPTotal.toFixed(
         2,
-    )},${ppInfo.prevpptotal.toFixed(2)},${(
-        ppInfo.pptotal - ppInfo.prevpptotal
+    )},${ppInfo.livePPTotal.toFixed(2)},${(
+        ppInfo.localPPTotal - ppInfo.livePPTotal
     ).toFixed(2)},"${new Date(ppInfo.lastUpdate).toUTCString()}"\n\n`;
 
     csvString +=

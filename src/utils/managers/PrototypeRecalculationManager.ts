@@ -91,6 +91,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
 
         const currentList: PPEntry[] = [];
         const newList: PrototypePPEntry[] = [];
+        const masterList: PrototypePPEntry[] = [];
 
         const topScores = await DroidHelper.getTopScores(uid);
 
@@ -285,6 +286,8 @@ export abstract class PrototypeRecalculationManager extends Manager {
                         tapPenalty: localParams.tapPenalty,
                     },
                 };
+
+                masterList.push(prototypeEntry);
             }
 
             if (Config.isDebug) {
@@ -303,12 +306,22 @@ export abstract class PrototypeRecalculationManager extends Manager {
             (a, b) => b.local.performance.total - a.local.performance.total,
         );
 
+        masterList.sort(
+            (a, b) =>
+                (b.master ?? b.live).performance.total -
+                (a.master ?? a.live).performance.total,
+        );
+
         const currentTotal = PPHelper.calculateFinalPerformancePoints(
             currentList.map((e) => e.pp),
         );
 
         const newTotal = PPHelper.calculateFinalPerformancePoints(
             newList.map((e) => e.local.performance.total),
+        );
+
+        const masterTotal = PPHelper.calculateFinalPerformancePoints(
+            masterList.map((e) => (e.master ?? e.live).performance.total),
         );
 
         if (Config.isDebug) {
@@ -325,8 +338,9 @@ export abstract class PrototypeRecalculationManager extends Manager {
             {
                 $set: {
                     pp: [...newList.values()],
-                    pptotal: newTotal,
-                    prevpptotal: currentTotal,
+                    localPPTotal: newTotal,
+                    livePPTotal: currentTotal,
+                    masterPPTotal: masterTotal,
                     lastUpdate: Date.now(),
                     username: player.username,
                     scanDone: true,

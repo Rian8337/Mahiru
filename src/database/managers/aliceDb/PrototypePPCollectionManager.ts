@@ -23,8 +23,8 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
         return {
             lastUpdate: Date.now(),
             pp: [],
-            pptotal: 0,
-            prevpptotal: 0,
+            localPPTotal: 0,
+            livePPTotal: 0,
             reworkType: "overall",
             uid: 0,
             username: "",
@@ -64,7 +64,7 @@ export class PrototypePPCollectionManager extends DatabaseCollectionManager<
     async getUserDPPRank(totalPP: number, reworkType: string): Promise<number> {
         return (
             (await this.collection.countDocuments({
-                pptotal: { $gt: totalPP },
+                localPPTotal: { $gt: totalPP },
                 reworkType: reworkType,
             })) + 1
         );

@@ -24,12 +24,17 @@ export class PrototypePP extends Manager {
     /**
      * The total performance points of the account after recalculation.
      */
-    pptotal: number;
+    localPPTotal: number;
 
     /**
      * The total droid performance points of the account before recalculation.
      */
-    prevpptotal: number;
+    livePPTotal: number;
+
+    /**
+     * The total performance points of the account in the master recalculation.
+     */
+    masterPPTotal?: number;
 
     /**
      * The UID of the account.
@@ -65,8 +70,9 @@ export class PrototypePP extends Manager {
         this._id = data._id;
         this.lastUpdate = data.lastUpdate;
         this.pp = ArrayHelper.arrayToCollection(data.pp ?? [], "hash");
-        this.pptotal = data.pptotal;
-        this.prevpptotal = data.prevpptotal;
+        this.localPPTotal = data.localPPTotal;
+        this.livePPTotal = data.livePPTotal;
+        this.masterPPTotal = data.masterPPTotal;
         this.uid = data.uid;
         this.username = data.username;
         this.scanDone = data.scanDone;

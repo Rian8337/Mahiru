@@ -66,7 +66,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     .trim()
                     .padEnd(longestUsernameLength)} | ${player.uid
                     .toString()
-                    .padEnd(6)} | ${player.pptotal.toFixed(2)}`;
+                    .padEnd(6)} | ${player.localPPTotal.toFixed(2)}`;
             } else {
                 output += `${"-".padEnd(4)} | ${"-".padEnd(
                     longestUsernameLength,

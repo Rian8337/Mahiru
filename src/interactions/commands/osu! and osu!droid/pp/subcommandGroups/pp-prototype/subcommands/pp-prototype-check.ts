@@ -123,17 +123,20 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         )}\n` +
             `${localization.getTranslation("reworkTypeEmbedDescription")}: ${bold(reworkInfo.name)}\n` +
             `${localization.getTranslation("totalPP")}: ${bold(
-                `${ppInfo.pptotal.toFixed(2)} pp (#${(
-                    await dbManager.getUserDPPRank(ppInfo.pptotal, reworkType)
+                `${ppInfo.localPPTotal.toFixed(2)} pp (#${(
+                    await dbManager.getUserDPPRank(
+                        ppInfo.localPPTotal,
+                        reworkType,
+                    )
                 ).toLocaleString(
                     LocaleHelper.convertToBCP47(localization.language),
                 )})`,
             )}\n` +
             `${localization.getTranslation("prevTotalPP")}: ${bold(
-                `${ppInfo.prevpptotal.toFixed(2)} pp`,
+                `${ppInfo.livePPTotal.toFixed(2)} pp`,
             )}\n` +
             `Difference: ${bold(
-                `${(ppInfo.pptotal - ppInfo.prevpptotal).toFixed(2)} pp`,
+                `${(ppInfo.localPPTotal - ppInfo.livePPTotal).toFixed(2)} pp`,
             )}\n` +
             `[${localization.getTranslation(
                 "ppProfile",
