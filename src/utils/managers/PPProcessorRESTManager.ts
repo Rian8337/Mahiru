@@ -47,7 +47,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.droid,
         calculationMethod: PPCalculationMethod.live,
         calculationParams?: DifficultyCalculationParameters,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CacheableDifficultyAttributes<DroidDifficultyAttributes>,
         THasStrainChart
@@ -70,7 +70,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.droid,
         calculationMethod: PPCalculationMethod.rebalance,
         calculationParams?: DifficultyCalculationParameters,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CacheableDifficultyAttributes<RebalanceDroidDifficultyAttributes>,
         THasStrainChart
@@ -93,7 +93,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.osu,
         calculationMethod: PPCalculationMethod.live,
         calculationParams?: DifficultyCalculationParameters,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CacheableDifficultyAttributes<OsuDifficultyAttributes>,
         THasStrainChart
@@ -116,7 +116,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.osu,
         calculationMethod: PPCalculationMethod.rebalance,
         calculationParams?: DifficultyCalculationParameters,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CacheableDifficultyAttributes<RebalanceOsuDifficultyAttributes>,
         THasStrainChart
@@ -129,7 +129,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes,
         calculationMethod: PPCalculationMethod,
         calculationParams?: DifficultyCalculationParameters,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CacheableDifficultyAttributes<RawDifficultyAttributes>,
         THasStrainChart
@@ -142,13 +142,13 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         formData.append("calculationmethod", calculationMethod.toString());
         formData.append(
             typeof beatmapIdOrHash === "number" ? "beatmapid" : "beatmaphash",
-            beatmapIdOrHash.toString()
+            beatmapIdOrHash.toString(),
         );
 
         if (calculationParams?.mods && !calculationParams.mods.isEmpty) {
             formData.append(
                 "mods",
-                JSON.stringify(calculationParams.mods.serializeMods())
+                JSON.stringify(calculationParams.mods.serializeMods()),
             );
         }
 
@@ -185,7 +185,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.droid,
         calculationMethod: PPCalculationMethod.live,
         calculationParams?: PerformanceCalculationParameters,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
             DroidDifficultyAttributes,
@@ -209,7 +209,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.droid,
         calculationMethod: PPCalculationMethod.rebalance,
         calculationParams?: PerformanceCalculationParameters,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
             RebalanceDroidDifficultyAttributes,
@@ -233,7 +233,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.osu,
         calculationMethod: PPCalculationMethod.live,
         calculationParams?: PerformanceCalculationParameters,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
             OsuDifficultyAttributes,
@@ -257,7 +257,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.osu,
         calculationMethod: PPCalculationMethod.rebalance,
         calculationParams?: PerformanceCalculationParameters,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
             RebalanceOsuDifficultyAttributes,
@@ -271,7 +271,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes,
         calculationMethod: PPCalculationMethod,
         calculationParams?: PerformanceCalculationParameters,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
             RawDifficultyAttributes,
@@ -287,14 +287,14 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         formData.append("calculationmethod", calculationMethod.toString());
         formData.append(
             typeof beatmapIdOrHash === "number" ? "beatmapid" : "beatmaphash",
-            beatmapIdOrHash.toString()
+            beatmapIdOrHash.toString(),
         );
 
         if (calculationParams) {
             if (!calculationParams.mods.isEmpty) {
                 formData.append(
                     "mods",
-                    JSON.stringify(calculationParams.mods.serializeMods())
+                    JSON.stringify(calculationParams.mods.serializeMods()),
                 );
             }
 
@@ -304,7 +304,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
 
             formData.append(
                 "nmiss",
-                calculationParams.accuracy.nmiss.toString()
+                calculationParams.accuracy.nmiss.toString(),
             );
 
             if (calculationParams.combo !== undefined) {
@@ -314,21 +314,21 @@ export abstract class PPProcessorRESTManager extends RESTManager {
             if (calculationParams.sliderTicksMissed !== undefined) {
                 formData.append(
                     "sliderticksmissed",
-                    calculationParams.sliderTicksMissed.toString()
+                    calculationParams.sliderTicksMissed.toString(),
                 );
             }
 
             if (calculationParams.sliderEndsDropped !== undefined) {
                 formData.append(
                     "sliderendsdropped",
-                    calculationParams.sliderEndsDropped.toString()
+                    calculationParams.sliderEndsDropped.toString(),
                 );
             }
 
             if (calculationParams.totalScore !== undefined) {
                 formData.append(
                     "totalscore",
-                    calculationParams.totalScore.toString()
+                    calculationParams.totalScore.toString(),
                 );
             }
         }
@@ -368,7 +368,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.droid,
         calculationMethod: PPCalculationMethod.live,
         calculateBestPPScore?: boolean,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
             DroidDifficultyAttributes,
@@ -386,6 +386,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
      * @param calculationMethod The calculation method to use.
      * @param calculateBestPPScore Whether to calculate the score with the best PP instead of the best score. Defaults to `false`.
      * @param generateStrainChart Whether to generate a strain chart.
+     * @param useMaster Whether to use the master system to calculate the score. Defaults to `false`.
      * @returns The difficulty and performance attributes, `null` if the attributes cannot be retrieved.
      */
     static async getOnlineScoreAttributes<THasStrainChart extends boolean>(
@@ -394,7 +395,8 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.droid,
         calculationMethod: PPCalculationMethod.rebalance,
         calculateBestPPScore?: boolean,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
+        useMaster?: boolean,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
             RebalanceDroidDifficultyAttributes,
@@ -420,7 +422,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.osu,
         calculationMethod: PPCalculationMethod.live,
         calculateBestPPScore?: boolean,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
             OsuDifficultyAttributes,
@@ -438,6 +440,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
      * @param calculationMethod The calculation method to use.
      * @param calculateBestPPScore Whether to calculate the score with the best PP instead of the best score. Defaults to `false`.
      * @param generateStrainChart Whether to generate a strain chart.
+     * @param useMaster Whether to use the master system to calculate the score. Defaults to `false`.
      * @returns The difficulty and performance attributes, `null` if the attributes cannot be retrieved.
      */
     static async getOnlineScoreAttributes<THasStrainChart extends boolean>(
@@ -446,7 +449,8 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes.osu,
         calculationMethod: PPCalculationMethod.rebalance,
         calculateBestPPScore?: boolean,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
+        useMaster?: boolean,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
             RebalanceOsuDifficultyAttributes,
@@ -461,7 +465,8 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         mode: Modes,
         calculationMethod: PPCalculationMethod,
         calculateBestPPScore?: boolean,
-        generateStrainChart?: THasStrainChart
+        generateStrainChart?: THasStrainChart,
+        useMaster?: boolean,
     ): Promise<PPProcessorCalculationResponse<
         CompleteCalculationAttributes<
             RawDifficultyAttributes,
@@ -469,10 +474,10 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         >,
         THasStrainChart
     > | null> {
-        // const url = new URL(`${this.endpoint}get-online-score-attributes`);
-
         const url = new URL(
-            `${calculationMethod === PPCalculationMethod.rebalance ? "http://localhost:3006/api/dpp/processor" : "https://droidpp.osudroid.moe/api/dpp/processor"}/get-online-score-attributes`
+            useMaster
+                ? `${this.endpoint}get-online-score-attributes`
+                : "http://localhost:3006/api/dpp/processor/get-online-score-attributes",
         );
 
         url.searchParams.set("key", process.env.DROID_SERVER_INTERNAL_KEY!);
@@ -513,14 +518,14 @@ export abstract class PPProcessorRESTManager extends RESTManager {
                 url
                     .toString()
                     .replace(process.env.DROID_SERVER_INTERNAL_KEY!, ""),
-                result.data.toString("utf-8")
+                result.data.toString("utf-8"),
             );
         } else {
             consola.error(
                 "Request to %s failed with unknown error",
                 url
                     .toString()
-                    .replace(process.env.DROID_SERVER_INTERNAL_KEY!, "")
+                    .replace(process.env.DROID_SERVER_INTERNAL_KEY!, ""),
             );
         }
     }
