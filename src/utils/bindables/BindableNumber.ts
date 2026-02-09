@@ -470,7 +470,7 @@ export class BindableNumber extends Bindable<number> {
 
     override get isDefault(): boolean {
         // Take 50% of the precision to ensure the value doesn't underflow and return true for non-default values.
-        return Precision.almostEqualsNumber(
+        return Precision.almostEquals(
             this.value,
             this.defaultValue,
             this.precision / 2,

@@ -81,10 +81,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         if (
             attachment.width < 64 ||
             attachment.height < 64 ||
-            !Precision.almostEqualsNumber(
-                attachment.height / attachment.width,
-                1,
-            )
+            !Precision.almostEquals(attachment.height / attachment.width, 1)
         ) {
             return InteractionHelper.reply(interaction, {
                 content: MessageCreator.createReject(

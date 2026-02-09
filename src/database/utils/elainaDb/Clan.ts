@@ -917,7 +917,7 @@ export class Clan extends Manager {
             }
 
             if (
-                !Precision.almostEqualsNumber(
+                !Precision.almostEquals(
                     image.naturalWidth / image.naturalHeight,
                     3.6,
                 )

@@ -429,6 +429,8 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     }
                 }
             } catch (e) {
+                console.error(e);
+
                 if (interaction.channel?.isSendable()) {
                     await interaction.channel.send({
                         content: MessageCreator.createReject(

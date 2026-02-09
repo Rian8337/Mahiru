@@ -235,22 +235,22 @@ export abstract class EmbedCreator {
             .addSeparatorComponents(new SeparatorBuilder())
             .addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
-                    (Precision.almostEqualsNumber(
+                    (Precision.almostEquals(
                         droidBeatmapDifficulty.cs,
                         osuBeatmapDifficulty.cs,
                         1e-2,
                     ) &&
-                    Precision.almostEqualsNumber(
+                    Precision.almostEquals(
                         droidBeatmapDifficulty.ar,
                         osuBeatmapDifficulty.ar,
                         1e-2,
                     ) &&
-                    Precision.almostEqualsNumber(
+                    Precision.almostEquals(
                         droidBeatmapDifficulty.od,
                         osuBeatmapDifficulty.od,
                         1e-2,
                     ) &&
-                    Precision.almostEqualsNumber(
+                    Precision.almostEquals(
                         droidBeatmapDifficulty.hp,
                         osuBeatmapDifficulty.hp,
                         1e-2,
@@ -751,7 +751,7 @@ export abstract class EmbedCreator {
         ) => {
             difficultyInformation += `${prefix}: ${NumberHelper.round(modified, 2).toString()}`;
 
-            if (!Precision.almostEqualsNumber(original, modified)) {
+            if (!Precision.almostEquals(original, modified)) {
                 difficultyInformation +=
                     original < modified
                         ? Symbols.upTriangle
