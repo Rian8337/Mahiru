@@ -197,7 +197,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                         estimatedUnstableRate: livePerfResult.deviation * 10,
                         estimatedTapUnstableRate:
                             livePerfResult.tapDeviation * 10,
-                        tapPenalty: liveParams.tapPenalty,
+                        tapPenalty: livePerfResult.tapPenalty,
                     },
                 },
                 local: {
@@ -220,7 +220,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                         estimatedUnstableRate: localPerfResult.deviation * 10,
                         estimatedTapUnstableRate:
                             localPerfResult.tapDeviation * 10,
-                        tapPenalty: localParams.tapPenalty,
+                        tapPenalty: localPerfResult.tapPenalty,
                     },
                 },
             };
@@ -266,7 +266,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                         estimatedUnstableRate: masterPerfResult.deviation * 10,
                         estimatedTapUnstableRate:
                             masterPerfResult.tapDeviation * 10,
-                        tapPenalty: localParams.tapPenalty,
+                        tapPenalty: masterPerfResult.tapPenalty,
                     },
                 };
             }
