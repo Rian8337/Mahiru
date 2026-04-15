@@ -780,8 +780,7 @@ export abstract class EmbedCreator {
 
         appendInformation("BPM", beatmap.bpm, beatmap.bpm * rate);
 
-        beatmapInformation +=
-            inlineCode(difficultyInformation.trimEnd()) + "\n" + arrow + " ";
+        beatmapInformation += inlineCode(difficultyInformation.trimEnd());
 
         let hitError: HitErrorInformation | null | undefined;
 
