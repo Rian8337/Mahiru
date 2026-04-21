@@ -17,9 +17,13 @@ import {
 import {
     Accuracy,
     BeatmapDifficulty,
+    DroidHitWindow,
+    HitWindow,
     MapInfo,
+    ModPrecise,
     ModUtil,
     Modes,
+    PreciseDroidHitWindow,
     Precision,
 } from "@rian8337/osu-base";
 import {
@@ -27,7 +31,10 @@ import {
     DroidDifficultyAttributes,
     OsuDifficultyAttributes,
 } from "@rian8337/osu-difficulty-calculator";
-import { HitErrorInformation } from "@rian8337/osu-droid-replay-analyzer";
+import {
+    HitErrorInformation,
+    HitResult,
+} from "@rian8337/osu-droid-replay-analyzer";
 import { Player, Score } from "@rian8337/osu-droid-utilities";
 import {
     DroidDifficultyAttributes as RebalanceDroidDifficultyAttributes,
@@ -780,7 +787,17 @@ export abstract class EmbedCreator {
 
         appendInformation("BPM", beatmap.bpm, beatmap.bpm * rate);
 
-        beatmapInformation += inlineCode(difficultyInformation.trimEnd());
+        beatmapInformation +=
+            inlineCode(difficultyInformation.trimEnd()) + "\n" + arrow + " ";
+
+        const hitWindow = mods.has(ModPrecise)
+            ? new PreciseDroidHitWindow(nonRateModifiedDifficulty.od)
+            : new DroidHitWindow(nonRateModifiedDifficulty.od);
+
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.great)} ${inlineCode(`±${NumberHelper.round(hitWindow.greatWindow / rate, 2).toString()}ms`)} `;
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.good)} ${inlineCode(`±${NumberHelper.round(hitWindow.okWindow / rate, 2).toString()}ms`)} `;
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.meh)} ${inlineCode(`±${NumberHelper.round(hitWindow.mehWindow / rate, 2).toString()}ms`)} `;
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.miss)} ${inlineCode(`±${NumberHelper.round(HitWindow.missWindow / rate, 2).toString()}ms`)}`;
 
         let hitError: HitErrorInformation | null | undefined;
 
