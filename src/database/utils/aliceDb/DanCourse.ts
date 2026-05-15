@@ -1,5 +1,5 @@
 import { DatabaseManager } from "@database/DatabaseManager";
-import { ModUtil } from "@rian8337/osu-base";
+import { ModNoFail, ModUtil } from "@rian8337/osu-base";
 import { OperationResult } from "@structures/core/OperationResult";
 import { DanCoursePassRequirement } from "@structures/dancourse/DanCoursePassRequirement";
 import { DatabaseDanCourse } from "@structures/database/aliceDb/DatabaseDanCourse";
@@ -21,7 +21,7 @@ export class DanCourse extends Manager implements DatabaseDanCourse {
 
     constructor(
         data: DatabaseDanCourse = DatabaseManager.aliceDb?.collections
-            .danCourses.defaultDocument ?? {}
+            .danCourses.defaultDocument ?? {},
     ) {
         super();
 
@@ -42,8 +42,11 @@ export class DanCourse extends Manager implements DatabaseDanCourse {
     isScorePassed(score: DanCourseScore): OperationResult {
         const scoreMods = ModUtil.deserializeMods(score.mods);
         const requiredMods = ModUtil.deserializeMods(
-            this.requirement.requiredMods ?? []
+            this.requirement.requiredMods ?? [],
         );
+
+        // Remove NF since it's allowed (to allow players to not fail).
+        scoreMods.delete(ModNoFail);
 
         if (!scoreMods.equals(requiredMods)) {
             return this.createOperationResult(false, "Invalid mods were used");
@@ -52,7 +55,7 @@ export class DanCourse extends Manager implements DatabaseDanCourse {
         if (score.isSliderLock && !this.requirement.allowSliderLock) {
             return this.createOperationResult(
                 false,
-                "Slider lock was activated"
+                "Slider lock was activated",
             );
         }
 
@@ -63,17 +66,19 @@ export class DanCourse extends Manager implements DatabaseDanCourse {
             case "rank":
                 return this.createOperationResult(
                     score.grade >= this.requirement.value,
-                    "Pass requirement was not met"
+                    "Pass requirement was not met",
                 );
+
             case "acc":
                 return this.createOperationResult(
                     score.grade * 100 >= this.requirement.value,
-                    "Pass requirement was not met"
+                    "Pass requirement was not met",
                 );
+
             default:
                 return this.createOperationResult(
                     score.grade <= this.requirement.value,
-                    "Pass requirement was not met"
+                    "Pass requirement was not met",
                 );
         }
     }
