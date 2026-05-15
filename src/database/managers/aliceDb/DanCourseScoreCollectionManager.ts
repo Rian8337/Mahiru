@@ -12,7 +12,7 @@ export class DanCourseScoreCollectionManager extends DatabaseCollectionManager<
     DanCourseScore
 > {
     protected override utilityInstance: new (
-        data: DatabaseDanCourseScore
+        data: DatabaseDanCourseScore,
     ) => DanCourseScore = DanCourseScore;
     override get defaultDocument(): DatabaseDanCourseScore {
         return {
@@ -21,7 +21,6 @@ export class DanCourseScoreCollectionManager extends DatabaseCollectionManager<
             geki: 0,
             good: 0,
             hash: "",
-            isSliderLock: false,
             katu: 0,
             maxCombo: 0,
             miss: 0,
@@ -29,11 +28,8 @@ export class DanCourseScoreCollectionManager extends DatabaseCollectionManager<
             perfect: 0,
             rank: "X",
             score: 0,
-            skippedTime: 0,
             uid: 0,
-            unstableRate: 0,
             username: "",
-            replayFileName: "",
             grade: 0,
         };
     }
@@ -50,7 +46,7 @@ export class DanCourseScoreCollectionManager extends DatabaseCollectionManager<
     async checkExistingScore(uid: number, hash: string): Promise<boolean> {
         const score = await this.collection.findOne(
             { uid: uid, hash: hash },
-            { projection: { _id: 0, uid: 1 } }
+            { projection: { _id: 0, uid: 1 } },
         );
 
         return score !== null;

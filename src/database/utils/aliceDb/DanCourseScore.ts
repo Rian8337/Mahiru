@@ -9,7 +9,6 @@ import { ObjectId } from "mongodb";
  */
 export class DanCourseScore extends Manager implements DatabaseDanCourseScore {
     grade: number;
-    readonly replayFileName: string;
     readonly uid: number;
     readonly username: string;
     readonly hash: string;
@@ -24,20 +23,16 @@ export class DanCourseScore extends Manager implements DatabaseDanCourseScore {
     readonly bad: number;
     readonly miss: number;
     readonly date: number;
-    readonly unstableRate: number;
-    readonly isSliderLock: boolean;
-    readonly skippedTime: number;
     readonly _id?: ObjectId;
 
     constructor(
         data: DatabaseDanCourseScore = DatabaseManager.aliceDb?.collections
-            .danCourseScores.defaultDocument ?? {}
+            .danCourseScores.defaultDocument ?? {},
     ) {
         super();
 
         this._id = data._id;
         this.grade = data.grade;
-        this.replayFileName = data.replayFileName;
         this.uid = data.uid;
         this.username = data.username;
         this.hash = data.hash;
@@ -52,8 +47,5 @@ export class DanCourseScore extends Manager implements DatabaseDanCourseScore {
         this.bad = data.bad;
         this.miss = data.miss;
         this.date = data.date;
-        this.unstableRate = data.unstableRate;
-        this.isSliderLock = data.isSliderLock;
-        this.skippedTime = data.skippedTime;
     }
 }

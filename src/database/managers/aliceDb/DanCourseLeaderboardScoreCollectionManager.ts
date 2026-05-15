@@ -13,7 +13,7 @@ export class DanCourseLeaderboardScoreCollectionManager extends DatabaseCollecti
     DanCourseLeaderboardScore
 > {
     protected override utilityInstance: new (
-        data: DatabaseDanCourseScore
+        data: DatabaseDanCourseScore,
     ) => DanCourseLeaderboardScore = DanCourseLeaderboardScore;
 
     override get defaultDocument(): DatabaseDanCourseScore {
@@ -23,7 +23,6 @@ export class DanCourseLeaderboardScoreCollectionManager extends DatabaseCollecti
             geki: 0,
             good: 0,
             hash: "",
-            isSliderLock: false,
             katu: 0,
             maxCombo: 0,
             miss: 0,
@@ -31,11 +30,8 @@ export class DanCourseLeaderboardScoreCollectionManager extends DatabaseCollecti
             perfect: 0,
             rank: "X",
             score: 0,
-            skippedTime: 0,
             uid: 0,
-            unstableRate: 0,
             username: "",
-            replayFileName: "",
             grade: 0,
         };
     }
@@ -49,7 +45,7 @@ export class DanCourseLeaderboardScoreCollectionManager extends DatabaseCollecti
      */
     async getLeaderboard(
         hash: string,
-        page: number
+        page: number,
     ): Promise<DanCourseLeaderboardScore[]> {
         const amountPerPage = 50;
 
@@ -72,7 +68,7 @@ export class DanCourseLeaderboardScoreCollectionManager extends DatabaseCollecti
      */
     getScore(
         uid: number,
-        hash: string
+        hash: string,
     ): Promise<DanCourseLeaderboardScore | null> {
         return this.getOne({ uid: uid, hash: hash });
     }

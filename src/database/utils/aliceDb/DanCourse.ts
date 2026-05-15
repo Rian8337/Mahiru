@@ -52,13 +52,6 @@ export class DanCourse extends Manager implements DatabaseDanCourse {
             return this.createOperationResult(false, "Invalid mods were used");
         }
 
-        if (score.isSliderLock && !this.requirement.allowSliderLock) {
-            return this.createOperationResult(
-                false,
-                "Slider lock was activated",
-            );
-        }
-
         switch (this.requirement.id) {
             case "score":
             case "combo":

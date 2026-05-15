@@ -76,31 +76,9 @@ export interface DatabaseDanCourseScore extends BaseDocument {
     readonly date: number;
 
     /**
-     * The unstable rate achieved by the player.
-     */
-    readonly unstableRate: number;
-
-    /**
-     * Whether this player enables the slider lock option.
-     */
-    readonly isSliderLock: boolean;
-
-    /**
-     * The skipped time when using the skip button, in seconds. This is 0 if the player didn't use the skip button.
-     *
-     * Keep in mind that this value is not affected by speed multiplier.
-     */
-    readonly skippedTime: number;
-
-    /**
      * The grade of the score based on the pass requirement of the course.
      *
      * `null` means this score didn't pass the course.
      */
     readonly grade: number;
-
-    /**
-     * The name of replay file of the score.
-     */
-    readonly replayFileName: string;
 }
