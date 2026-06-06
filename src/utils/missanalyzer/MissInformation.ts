@@ -1,6 +1,7 @@
 import {
     BeatmapMetadata,
     DroidHitWindow,
+    HitResult,
     HitWindow,
     Interpolation,
     PlaceableHitObject,
@@ -14,7 +15,6 @@ import {
 } from "@rian8337/osu-base";
 import {
     CursorOccurrenceGroup,
-    HitResult,
     MovementType,
     ReplayObjectData,
 } from "@rian8337/osu-droid-replay-analyzer";

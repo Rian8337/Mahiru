@@ -11,6 +11,7 @@ import {
     BeatmapDifficulty,
     Circle,
     DroidHitWindow,
+    HitResult,
     MapInfo,
     ModCustomSpeed,
     ModDifficultyAdjust,
@@ -25,7 +26,6 @@ import {
     SliderNestedHitObject,
     SliderTick,
 } from "@rian8337/osu-base";
-import { HitResult } from "@rian8337/osu-droid-replay-analyzer";
 import { Player, Score } from "@rian8337/osu-droid-utilities";
 import { SlashCommand } from "@structures/core/SlashCommand";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
@@ -292,8 +292,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     let simulatedScoreMultiplier = 1;
     for (const mod of simulatedMods.values()) {
         if (mod.isApplicableToDroid()) {
-            if (mod.requiresOriginalBeatmap()) {
-                mod.applyFromBeatmap(beatmap.beatmap!);
+            if (mod.requiresBeatmapDifficulty()) {
+                mod.applyFromBeatmapDifficulty(beatmap.beatmap!.difficulty);
             }
 
             simulatedScoreMultiplier *= mod.droidScoreMultiplier;

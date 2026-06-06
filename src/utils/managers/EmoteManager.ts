@@ -1,6 +1,5 @@
 import { Config } from "@core/Config";
-import { ScoreRank } from "@rian8337/osu-base";
-import { HitResult } from "@rian8337/osu-droid-replay-analyzer";
+import { HitResult, ScoreRank } from "@rian8337/osu-base";
 import { Manager } from "@utils/base/Manager";
 import { formatEmoji } from "discord.js";
 

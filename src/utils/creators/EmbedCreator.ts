@@ -18,6 +18,7 @@ import {
     Accuracy,
     BeatmapDifficulty,
     DroidHitWindow,
+    HitResult,
     HitWindow,
     MapInfo,
     ModPrecise,
@@ -31,10 +32,7 @@ import {
     DroidDifficultyAttributes,
     OsuDifficultyAttributes,
 } from "@rian8337/osu-difficulty-calculator";
-import {
-    HitErrorInformation,
-    HitResult,
-} from "@rian8337/osu-droid-replay-analyzer";
+import { HitErrorInformation } from "@rian8337/osu-droid-replay-analyzer";
 import { Player, Score } from "@rian8337/osu-droid-utilities";
 import {
     DroidDifficultyAttributes as RebalanceDroidDifficultyAttributes,

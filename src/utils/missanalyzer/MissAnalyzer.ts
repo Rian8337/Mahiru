@@ -2,6 +2,7 @@ import {
     Beatmap,
     Circle,
     DroidPlayableBeatmap,
+    HitResult,
     Interpolation,
     ModHardRock,
     ModMap,
@@ -14,7 +15,6 @@ import {
 } from "@rian8337/osu-base";
 import {
     CursorOccurrenceGroup,
-    HitResult,
     MovementType,
     ReplayData,
     ReplayObjectData,

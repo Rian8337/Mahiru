@@ -2,6 +2,7 @@ import {
     Beatmap,
     BeatmapDifficulty,
     DroidHitWindow,
+    HitResult,
     HitWindow,
     Modes,
     ModMap,
@@ -12,10 +13,7 @@ import {
     Slider,
     Spinner,
 } from "@rian8337/osu-base";
-import {
-    HitResult,
-    ReplayObjectData,
-} from "@rian8337/osu-droid-replay-analyzer";
+import { ReplayObjectData } from "@rian8337/osu-droid-replay-analyzer";
 import { Canvas, createCanvas } from "canvas";
 
 /**
