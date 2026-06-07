@@ -24,11 +24,11 @@ import { MessageContextMenuCommand } from "structures/core/MessageContextMenuCom
 
 export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
     const localization = new CompareScoreLocalization(
-        CommandHelper.getLocale(interaction)
+        CommandHelper.getLocale(interaction),
     );
 
     const beatmapId = BeatmapManager.getBeatmapIDFromMessage(
-        interaction.targetMessage
+        interaction.targetMessage,
     );
 
     if (!beatmapId) {
@@ -36,7 +36,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotFound")
+                localization.getTranslation("beatmapNotFound"),
             ),
         });
     }
@@ -49,7 +49,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
                     _id: 0,
                     uid: 1,
                 },
-            }
+            },
         );
 
     if (!bindInfo) {
@@ -58,8 +58,8 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 new ConstantsLocalization(localization.language).getTranslation(
-                    Constants.selfNotBindedReject
-                )
+                    Constants.selfNotBindedReject,
+                ),
             ),
         });
     }
@@ -74,7 +74,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("profileNotFound")
+                localization.getTranslation("profileNotFound"),
             ),
         });
     }
@@ -84,7 +84,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
     if (!beatmapInfo) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("beatmapNotFound")
+                localization.getTranslation("beatmapNotFound"),
             ),
         });
     }
@@ -98,6 +98,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
             "uid",
             "hash",
             "score",
+            "total_score",
             "filename",
             "hash",
             "mods",
@@ -110,27 +111,27 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
             "date",
             "slider_tick_hit",
             "slider_end_hit",
-        ]
+        ],
     );
 
     if (!score) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("scoreNotFound")
+                localization.getTranslation("scoreNotFound"),
             ),
         });
     }
 
     BeatmapManager.setChannelLatestBeatmap(
         interaction.channelId,
-        beatmapInfo.hash
+        beatmapInfo.hash,
     );
 
     const scoreAttribs = await PPProcessorRESTManager.getOnlineScoreAttributes(
         score.uid,
         score.hash,
         Modes.droid,
-        PPCalculationMethod.live
+        PPCalculationMethod.live,
     );
 
     const options: InteractionReplyOptions = {
@@ -138,8 +139,8 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
             localization.getTranslation("comparePlayDisplay"),
             hyperlink(
                 player.username,
-                hideLinkEmbed(ProfileManager.getProfileLink(player.id))
-            )
+                hideLinkEmbed(ProfileManager.getProfileLink(player.id)),
+            ),
         ),
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(
@@ -147,7 +148,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
                 (interaction.member as GuildMember | null)?.displayColor,
                 scoreAttribs?.attributes,
                 undefined,
-                localization.language
+                localization.language,
             ),
         ],
     };
@@ -164,7 +165,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         beatmapInfo.beatmap,
         score,
         player.username,
-        replay
+        replay,
     );
 };
 

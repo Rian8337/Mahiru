@@ -12,7 +12,7 @@ import { DroidHelper } from "@utils/helpers/DroidHelper";
 
 export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const localization = new DailyLocalization(
-        CommandHelper.getLocale(interaction)
+        CommandHelper.getLocale(interaction),
     );
 
     const type =
@@ -20,13 +20,13 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     const challenge =
         await DatabaseManager.aliceDb.collections.challenge.getOngoingChallenge(
-            type
+            type,
         );
 
     if (!challenge) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noOngoingChallenge")
+                localization.getTranslation("noOngoingChallenge"),
             ),
         });
     }
@@ -41,15 +41,15 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     username: 1,
                     clan: 1,
                 },
-            }
+            },
         );
 
     if (!bindInfo) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 new ConstantsLocalization(localization.language).getTranslation(
-                    Constants.selfNotBindedReject
-                )
+                    Constants.selfNotBindedReject,
+                ),
             ),
         });
     }
@@ -61,20 +61,20 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         [
             "id",
             "mods",
-            "score",
+            "total_score",
             "combo",
             "mark",
             "perfect",
             "good",
             "bad",
             "miss",
-        ]
+        ],
     );
 
     if (!score) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("scoreNotFound")
+                localization.getTranslation("scoreNotFound"),
             ),
         });
     }
@@ -84,14 +84,14 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const completionStatus = await challenge.checkScoreCompletion(
         score,
         undefined,
-        localization.language
+        localization.language,
     );
 
     if (!completionStatus.success) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 localization.getTranslation("challengeNotCompleted"),
-                completionStatus.reason!
+                completionStatus.reason!,
             ),
         });
     }
@@ -114,7 +114,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
     if (playerInfo) {
         const challengeData = playerInfo.challenges.get(
-            challenge.challengeid
+            challenge.challengeid,
         ) ?? {
             id: challenge.challengeid,
             highestLevel: bonusLevel,
@@ -131,7 +131,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
             challengeData.highestLevel = Math.max(
                 bonusLevel,
-                challengeData.highestLevel
+                challengeData.highestLevel,
             );
 
             await playerInfoDbManager.updateOne(
@@ -150,7 +150,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     arrayFilters: [
                         { "challengeFilter.id": challenge.challengeid },
                     ],
-                }
+                },
             );
         } else {
             playerInfo.challenges.set(challenge.challengeid, challengeData);
@@ -165,7 +165,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                         coins: pointsGained * 2,
                         points: pointsGained,
                     },
-                }
+                },
             );
         }
     } else {
@@ -187,7 +187,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (bindInfo.clan) {
         const clan =
             (await DatabaseManager.elainaDb.collections.clan.getFromName(
-                bindInfo.clan
+                bindInfo.clan,
             ))!;
 
         clan.incrementPower(pointsGained);
@@ -205,7 +205,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             pointsGained.toLocaleString(BCP47),
             (pointsGained * 2).toLocaleString(BCP47),
             ((playerInfo?.points ?? 0) + pointsGained).toLocaleString(BCP47),
-            ((playerInfo?.coins ?? 0) + pointsGained * 2).toLocaleString(BCP47)
+            ((playerInfo?.coins ?? 0) + pointsGained * 2).toLocaleString(BCP47),
         ),
     });
 };

@@ -30,11 +30,11 @@ import { SlashCommand } from "structures/core/SlashCommand";
 
 export const run: SlashCommand["run"] = async (_, interaction) => {
     const localization = new CompareLocalization(
-        CommandHelper.getLocale(interaction)
+        CommandHelper.getLocale(interaction),
     );
 
     const cachedBeatmapHash = BeatmapManager.getChannelLatestBeatmap(
-        interaction.channelId
+        interaction.channelId,
     );
 
     if (!cachedBeatmapHash) {
@@ -42,7 +42,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("noCachedBeatmap")
+                localization.getTranslation("noCachedBeatmap"),
             ),
         });
     }
@@ -56,7 +56,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("tooManyOptions")
+                localization.getTranslation("tooManyOptions"),
             ),
         });
     }
@@ -78,7 +78,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             if (!StringHelper.isUsernameValid(username)) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
-                        localization.getTranslation("playerNotFound")
+                        localization.getTranslation("playerNotFound"),
                     ),
                 });
             }
@@ -95,19 +95,19 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                         _id: 0,
                         uid: 1,
                     },
-                }
+                },
             );
 
             if (!bindInfo) {
                 return InteractionHelper.reply(interaction, {
                     content: MessageCreator.createReject(
                         new ConstantsLocalization(
-                            localization.language
+                            localization.language,
                         ).getTranslation(
                             discordid
                                 ? Constants.userNotBindedReject
-                                : Constants.selfNotBindedReject
-                        )
+                                : Constants.selfNotBindedReject,
+                        ),
                     ),
                 });
             }
@@ -121,7 +121,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerNotFound")
+                localization.getTranslation("playerNotFound"),
             ),
         });
     }
@@ -139,6 +139,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             "hash",
             "mods",
             "score",
+            "total_score",
             "combo",
             "mark",
             "perfect",
@@ -148,7 +149,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             "date",
             "slider_tick_hit",
             "slider_end_hit",
-        ]
+        ],
     );
 
     if (!score) {
@@ -157,8 +158,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 localization.getTranslation(
                     uid || discordid || username
                         ? "userScoreNotFound"
-                        : "selfScoreNotFound"
-                )
+                        : "selfScoreNotFound",
+                ),
             ),
         });
     }
@@ -167,7 +168,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         score.uid,
         score.hash,
         Modes.droid,
-        PPCalculationMethod.live
+        PPCalculationMethod.live,
     );
 
     const options: InteractionReplyOptions = {
@@ -175,8 +176,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             localization.getTranslation("comparePlayDisplay"),
             hyperlink(
                 player.username,
-                hideLinkEmbed(ProfileManager.getProfileLink(player.id))
-            )
+                hideLinkEmbed(ProfileManager.getProfileLink(player.id)),
+            ),
         ),
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(
@@ -184,7 +185,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 (interaction.member as GuildMember | null)?.displayColor,
                 scoreAttribs?.attributes,
                 undefined,
-                localization.language
+                localization.language,
             ),
         ],
     };
@@ -203,7 +204,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         beatmapInfo?.beatmap,
         score,
         player.username,
-        replay
+        replay,
     );
 };
 

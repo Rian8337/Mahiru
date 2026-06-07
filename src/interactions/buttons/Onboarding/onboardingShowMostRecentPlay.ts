@@ -22,7 +22,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
     }
 
     const localization = new OnboardingShowMostRecentPlayLocalization(
-        CommandHelper.getLocale(interaction)
+        CommandHelper.getLocale(interaction),
     );
 
     await InteractionHelper.deferReply(interaction);
@@ -35,13 +35,13 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
                     _id: 0,
                     uid: 1,
                 },
-            }
+            },
         );
 
     if (!bindInfo) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("userNotBinded")
+                localization.getTranslation("userNotBinded"),
             ),
         });
     }
@@ -54,7 +54,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
     if (!player) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("profileNotFound")
+                localization.getTranslation("profileNotFound"),
             ),
         });
     }
@@ -67,6 +67,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
                   "uid",
                   "hash",
                   "score",
+                  "total_score",
                   "filename",
                   "hash",
                   "mods",
@@ -84,7 +85,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
     if (recentPlays.length === 0) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerHasNoRecentPlays")
+                localization.getTranslation("playerHasNoRecentPlays"),
             ),
         });
     }
@@ -95,7 +96,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
         score.uid,
         score.hash,
         Modes.droid,
-        PPCalculationMethod.live
+        PPCalculationMethod.live,
     );
 
     const options: InteractionReplyOptions = {
@@ -103,8 +104,8 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
             localization.getTranslation("recentPlayDisplay"),
             hyperlink(
                 player.username,
-                hideLinkEmbed(ProfileManager.getProfileLink(player.id))
-            )
+                hideLinkEmbed(ProfileManager.getProfileLink(player.id)),
+            ),
         ),
         embeds: [
             await EmbedCreator.createRecentPlayEmbed(
@@ -112,7 +113,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
                 interaction.member.displayColor,
                 scoreAttribs?.attributes,
                 undefined,
-                localization.language
+                localization.language,
             ),
         ],
         ephemeral: true,
@@ -132,7 +133,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
         beatmapInfo?.beatmap,
         score,
         player.username,
-        replay
+        replay,
     );
 };
 

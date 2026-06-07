@@ -14,15 +14,15 @@ import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabas
 
 export const run: UserContextMenuCommand["run"] = async (_, interaction) => {
     const localization = new ViewRecentPlaysLocalization(
-        CommandHelper.getLocale(interaction)
+        CommandHelper.getLocale(interaction),
     );
 
     if (interaction.targetUser.bot) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
                 new ConstantsLocalization(localization.language).getTranslation(
-                    Constants.userNotBindedReject
-                )
+                    Constants.userNotBindedReject,
+                ),
             ),
         });
     }
@@ -37,7 +37,7 @@ export const run: UserContextMenuCommand["run"] = async (_, interaction) => {
                     _id: 0,
                     uid: 1,
                 },
-            }
+            },
         );
 
     if (!bindInfo) {
@@ -46,8 +46,8 @@ export const run: UserContextMenuCommand["run"] = async (_, interaction) => {
                 new ConstantsLocalization(localization.language).getTranslation(
                     isSelfExecution
                         ? Constants.selfNotBindedReject
-                        : Constants.userNotBindedReject
-                )
+                        : Constants.userNotBindedReject,
+                ),
             ),
         });
     }
@@ -65,8 +65,8 @@ export const run: UserContextMenuCommand["run"] = async (_, interaction) => {
                 localization.getTranslation(
                     isSelfExecution
                         ? "selfProfileNotFound"
-                        : "userProfileNotFound"
-                )
+                        : "userProfileNotFound",
+                ),
             ),
         });
     }
@@ -77,7 +77,7 @@ export const run: UserContextMenuCommand["run"] = async (_, interaction) => {
               | "filename"
               | "mark"
               | "mods"
-              | "score"
+              | "total_score"
               | "combo"
               | "date"
               | "perfect"
@@ -101,7 +101,7 @@ export const run: UserContextMenuCommand["run"] = async (_, interaction) => {
                 "filename",
                 "mark",
                 "mods",
-                "score",
+                "total_score",
                 "combo",
                 "date",
                 "perfect",
@@ -109,14 +109,14 @@ export const run: UserContextMenuCommand["run"] = async (_, interaction) => {
                 "bad",
                 "miss",
                 "pp",
-            ]
+            ],
         );
     }
 
     if (recentPlays.length === 0) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
-                localization.getTranslation("playerHasNoRecentPlays")
+                localization.getTranslation("playerHasNoRecentPlays"),
             ),
         });
     }
@@ -124,7 +124,7 @@ export const run: UserContextMenuCommand["run"] = async (_, interaction) => {
     await ScoreDisplayHelper.showRecentPlays(
         interaction,
         player.username,
-        recentPlays
+        recentPlays,
     );
 };
 
