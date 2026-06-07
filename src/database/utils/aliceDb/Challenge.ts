@@ -232,7 +232,7 @@ export class Challenge extends Manager {
 
     constructor(
         data: DatabaseChallenge = DatabaseManager.aliceDb?.collections.challenge
-            .defaultDocument ?? {}
+            .defaultDocument ?? {},
     ) {
         super();
 
@@ -262,19 +262,19 @@ export class Challenge extends Manager {
         if (this.status !== "scheduled") {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("challengeNotFound")
+                localization.getTranslation("challengeNotFound"),
             );
         }
 
         // Check if any challenges are ongoing
         if (
             await DatabaseManager.aliceDb.collections.challenge.getOngoingChallenge(
-                this.type
+                this.type,
             )
         ) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("challengeOngoing")
+                localization.getTranslation("challengeOngoing"),
             );
         }
 
@@ -290,13 +290,13 @@ export class Challenge extends Manager {
         const challengeEmbedOptions = await EmbedCreator.createChallengeEmbed(
             this,
             this.isWeekly ? "#af46db" : "#e3b32d",
-            language
+            language,
         );
 
         if (!challengeEmbedOptions) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("challengeEmbedGenerationFailed")
+                localization.getTranslation("challengeEmbedGenerationFailed"),
             );
         }
 
@@ -304,7 +304,7 @@ export class Challenge extends Manager {
             content: MessageCreator.createAccept(
                 `Successfully started challenge \`${
                     this.challengeid
-                }\`.\n${roleMention("674918022116278282")}`
+                }\`.\n${roleMention("674918022116278282")}`,
             ),
             ...challengeEmbedOptions,
         });
@@ -316,7 +316,7 @@ export class Challenge extends Manager {
                     status: "ongoing",
                     timelimit: this.timelimit,
                 },
-            }
+            },
         );
     }
 
@@ -329,14 +329,14 @@ export class Challenge extends Manager {
      */
     async end(
         force?: boolean,
-        language: Language = "en"
+        language: Language = "en",
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
 
         if (!this.isOngoing) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("challengeNotOngoing")
+                localization.getTranslation("challengeNotOngoing"),
             );
         }
 
@@ -346,39 +346,39 @@ export class Challenge extends Manager {
         ) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("challengeNotExpired")
+                localization.getTranslation("challengeNotExpired"),
             );
         }
 
         this.status = "finished";
 
         const notificationChannel = (await this.client.channels.fetch(
-            this.challengeChannelID
+            this.challengeChannelID,
         )) as TextChannel;
 
         const challengeEmbedOptions = await EmbedCreator.createChallengeEmbed(
             this,
             this.isWeekly ? "#af46db" : "#e3b32d",
-            language
+            language,
         );
 
         if (!challengeEmbedOptions) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("challengeEmbedGenerationFailed")
+                localization.getTranslation("challengeEmbedGenerationFailed"),
             );
         }
 
         await notificationChannel.send({
             content: MessageCreator.createAccept(
-                `Successfully ended challenge \`${this.challengeid}\`.`
+                `Successfully ended challenge \`${this.challengeid}\`.`,
             ),
             ...challengeEmbedOptions,
         });
 
         await DatabaseManager.aliceDb.collections.challenge.updateOne(
             { challengeid: this.challengeid },
-            { $set: { status: this.status } }
+            { $set: { status: this.status } },
         );
 
         // Award first place in leaderboard
@@ -393,7 +393,7 @@ export class Challenge extends Manager {
                             _id: 0,
                             uid: 1,
                         },
-                    }
+                    },
                 );
 
             if (winnerBindInfo) {
@@ -404,29 +404,29 @@ export class Challenge extends Manager {
                             points: this.isWeekly ? 50 : 25,
                             coins: this.isWeekly ? 100 : 50,
                         },
-                    }
+                    },
                 );
 
                 await DatabaseManager.elainaDb.collections.clan.updateOne(
                     { "member_list.id": winnerBindInfo.discordid },
-                    { $inc: { power: this.isWeekly ? 50 : 25 } }
+                    { $inc: { power: this.isWeekly ? 50 : 25 } },
                 );
 
                 const coinEmoji = this.client.emojis.cache.get(
-                    Constants.mahiruCoinEmote
+                    Constants.mahiruCoinEmote,
                 )!;
 
                 await notificationChannel.send({
                     content: MessageCreator.createAccept(
                         `Congratulations to ${userMention(
-                            winnerBindInfo.discordid
+                            winnerBindInfo.discordid,
                         )} for achieving first place in challenge \`${
                             this.challengeid
                         }\`, earning them \`${
                             this.isWeekly ? "50" : "25"
                         }\` points and ${coinEmoji}\`${
                             this.isWeekly ? "100" : "50"
-                        }\` Mahiru coins!`
+                        }\` Mahiru coins!`,
                     ),
                 });
             }
@@ -448,7 +448,7 @@ export class Challenge extends Manager {
             | Pick<
                   OfficialDatabaseScore,
                   | "id"
-                  | "score"
+                  | "total_score"
                   | "mods"
                   | "combo"
                   | "perfect"
@@ -459,7 +459,7 @@ export class Challenge extends Manager {
               >
             | Score,
         replay?: ReplayAnalyzer,
-        language: Language = "en"
+        language: Language = "en",
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
         const mods =
@@ -470,14 +470,14 @@ export class Challenge extends Manager {
         if (!this.isConstrainFulfilled(mods)) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("constrainNotFulfilled")
+                localization.getTranslation("constrainNotFulfilled"),
             );
         }
 
         if (!this.isModFulfilled(mods)) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("eznfhtUsage")
+                localization.getTranslation("eznfhtUsage"),
             );
         }
 
@@ -489,7 +489,7 @@ export class Challenge extends Manager {
         if (!data?.isReplayV3()) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("replayNotFound")
+                localization.getTranslation("replayNotFound"),
             );
         }
 
@@ -499,7 +499,7 @@ export class Challenge extends Manager {
         ) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("customARSpeedMulUsage")
+                localization.getTranslation("customARSpeedMulUsage"),
             );
         }
 
@@ -510,13 +510,13 @@ export class Challenge extends Manager {
                 this.beatmapid,
                 Modes.droid,
                 PPCalculationMethod.live,
-                calcParams
+                calcParams,
             );
 
         if (!droidAttribs) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("beatmapNotFound")
+                localization.getTranslation("beatmapNotFound"),
             );
         }
 
@@ -525,13 +525,13 @@ export class Challenge extends Manager {
                 this.beatmapid,
                 Modes.osu,
                 PPCalculationMethod.live,
-                calcParams
+                calcParams,
             );
 
         if (!osuAttribs) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("beatmapNotFound")
+                localization.getTranslation("beatmapNotFound"),
             );
         }
 
@@ -539,12 +539,12 @@ export class Challenge extends Manager {
             score,
             droidAttribs.attributes,
             osuAttribs.attributes,
-            replay.calculateHitError()!
+            replay.calculateHitError()!,
         );
 
         return this.createOperationResult(
             pass,
-            localization.getTranslation("passReqNotFulfilled")
+            localization.getTranslation("passReqNotFulfilled"),
         );
     }
 
@@ -557,7 +557,7 @@ export class Challenge extends Manager {
      */
     async checkReplayCompletion(
         replay: ReplayAnalyzer,
-        language: Language = "en"
+        language: Language = "en",
     ): Promise<OperationResult> {
         const localization = this.getLocalization(language);
 
@@ -567,7 +567,7 @@ export class Challenge extends Manager {
             if (!replay.data) {
                 return this.createOperationResult(
                     false,
-                    localization.getTranslation("cannotParseReplay")
+                    localization.getTranslation("cannotParseReplay"),
                 );
             }
         }
@@ -577,21 +577,21 @@ export class Challenge extends Manager {
         if (!data.isReplayV3()) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("constrainNotFulfilled")
+                localization.getTranslation("constrainNotFulfilled"),
             );
         }
 
         if (!this.isConstrainFulfilled(data.convertedMods)) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("constrainNotFulfilled")
+                localization.getTranslation("constrainNotFulfilled"),
             );
         }
 
         if (!this.isModFulfilled(data.convertedMods)) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("eznfhtUsage")
+                localization.getTranslation("eznfhtUsage"),
             );
         }
 
@@ -601,7 +601,7 @@ export class Challenge extends Manager {
         ) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("customARSpeedMulUsage")
+                localization.getTranslation("customARSpeedMulUsage"),
             );
         }
 
@@ -610,7 +610,7 @@ export class Challenge extends Manager {
         if (!attribs) {
             return this.createOperationResult(
                 false,
-                localization.getTranslation("beatmapNotFound")
+                localization.getTranslation("beatmapNotFound"),
             );
         }
 
@@ -618,12 +618,12 @@ export class Challenge extends Manager {
             replay,
             attribs[0],
             attribs[1],
-            replay.calculateHitError()!
+            replay.calculateHitError()!,
         );
 
         return this.createOperationResult(
             pass,
-            localization.getTranslation("passReqNotFulfilled")
+            localization.getTranslation("passReqNotFulfilled"),
         );
     }
 
@@ -646,7 +646,7 @@ export class Challenge extends Manager {
             | Pick<
                   OfficialDatabaseScore,
                   | "id"
-                  | "score"
+                  | "total_score"
                   | "combo"
                   | "perfect"
                   | "good"
@@ -655,7 +655,7 @@ export class Challenge extends Manager {
                   | "mods"
                   | "mark"
               >
-            | Score
+            | Score,
     ): Promise<number>;
 
     async calculateBonusLevel(
@@ -663,7 +663,7 @@ export class Challenge extends Manager {
             | Pick<
                   OfficialDatabaseScore,
                   | "id"
-                  | "score"
+                  | "total_score"
                   | "combo"
                   | "perfect"
                   | "good"
@@ -673,7 +673,7 @@ export class Challenge extends Manager {
                   | "mark"
               >
             | Score
-            | ReplayAnalyzer
+            | ReplayAnalyzer,
     ): Promise<number> {
         const replay = await ReplayHelper.analyzeReplay(scoreOrReplay);
         const { data } = replay;
@@ -694,7 +694,7 @@ export class Challenge extends Manager {
         if (scoreOrReplay instanceof Score) {
             const calcParams =
                 BeatmapDifficultyHelper.getCalculationParamsFromScore(
-                    scoreOrReplay
+                    scoreOrReplay,
                 );
 
             droidAttribs =
@@ -703,7 +703,7 @@ export class Challenge extends Manager {
                         this.beatmapid,
                         Modes.droid,
                         PPCalculationMethod.live,
-                        calcParams
+                        calcParams,
                     )
                 )?.attributes ?? null;
             osuAttribs =
@@ -712,7 +712,7 @@ export class Challenge extends Manager {
                         this.beatmapid,
                         Modes.osu,
                         PPCalculationMethod.live,
-                        calcParams
+                        calcParams,
                     )
                 )?.attributes ?? null;
         } else if (scoreOrReplay instanceof ReplayAnalyzer) {
@@ -725,7 +725,7 @@ export class Challenge extends Manager {
         } else {
             const calcParams =
                 BeatmapDifficultyHelper.getCalculationParamsFromScore(
-                    scoreOrReplay
+                    scoreOrReplay,
                 );
 
             droidAttribs =
@@ -734,7 +734,7 @@ export class Challenge extends Manager {
                         this.beatmapid,
                         Modes.droid,
                         PPCalculationMethod.live,
-                        calcParams
+                        calcParams,
                     )
                 )?.attributes ?? null;
 
@@ -744,7 +744,7 @@ export class Challenge extends Manager {
                         this.beatmapid,
                         Modes.osu,
                         PPCalculationMethod.live,
-                        calcParams
+                        calcParams,
                     )
                 )?.attributes ?? null;
         }
@@ -775,9 +775,11 @@ export class Challenge extends Manager {
                         if (scoreOrReplay instanceof ReplayAnalyzer) {
                             const data = scoreOrReplay.data!;
 
-                            score = data.isReplayV3() ? data.score : 0;
-                        } else {
+                            score = data.isReplayV3() ? data.totalScore : 0;
+                        } else if (scoreOrReplay instanceof Score) {
                             score = scoreOrReplay.score;
+                        } else {
+                            score = scoreOrReplay.total_score;
                         }
 
                         bonusComplete = score >= +tier.value;
@@ -837,11 +839,11 @@ export class Challenge extends Manager {
                             StringHelper.sortAlphabet(
                                 droidAttribs.params.mods.reduce(
                                     (a, v) => a + v.acronym,
-                                    ""
-                                )
+                                    "",
+                                ),
                             ) ===
                             StringHelper.sortAlphabet(
-                                (tier.value as string).toUpperCase()
+                                (tier.value as string).toUpperCase(),
                             );
                         break;
 
@@ -941,7 +943,7 @@ export class Challenge extends Manager {
         return this.getPassOrBonusDescription(
             this.pass.id,
             +this.pass.value,
-            language
+            language,
         );
     }
 
@@ -962,12 +964,12 @@ export class Challenge extends Manager {
                             `${bold(
                                 `${localization.getTranslation("level")} ${
                                     b.level
-                                }`
+                                }`,
                             )}: ${this.getPassOrBonusDescription(
                                 v.id,
                                 b.value,
-                                language
-                            )}`
+                                language,
+                            )}`,
                     )
                     .join("\n"),
             };
@@ -984,7 +986,7 @@ export class Challenge extends Manager {
      */
     async getBeatmapFile(): Promise<string | null> {
         const beatmapFileReq = await RESTManager.request(
-            `https://osu.ppy.sh/osu/${this.beatmapid}`
+            `https://osu.ppy.sh/osu/${this.beatmapid}`,
         );
 
         if (beatmapFileReq.statusCode !== 200) {
@@ -1044,7 +1046,7 @@ export class Challenge extends Manager {
                         $set: {
                             hash: hash,
                         },
-                    }
+                    },
                 );
             }
         }
@@ -1061,7 +1063,7 @@ export class Challenge extends Manager {
         return (
             !this.constrain ||
             StringHelper.sortAlphabet(
-                [...mods.values()].reduce((a, v) => a + v.acronym, "")
+                [...mods.values()].reduce((a, v) => a + v.acronym, ""),
             ) === StringHelper.sortAlphabet(this.constrain.toUpperCase())
         );
     }
@@ -1089,7 +1091,7 @@ export class Challenge extends Manager {
         score:
             | Pick<
                   OfficialDatabaseScore,
-                  | "score"
+                  | "total_score"
                   | "combo"
                   | "perfect"
                   | "good"
@@ -1107,7 +1109,7 @@ export class Challenge extends Manager {
             OsuDifficultyAttributes,
             OsuPerformanceAttributes
         >,
-        hitErrorInformation: HitErrorInformation
+        hitErrorInformation: HitErrorInformation,
     ): Promise<boolean>;
 
     /**
@@ -1127,14 +1129,14 @@ export class Challenge extends Manager {
             OsuDifficultyAttributes,
             OsuPerformanceAttributes
         >,
-        hitErrorInformation: HitErrorInformation
+        hitErrorInformation: HitErrorInformation,
     ): Promise<boolean>;
 
     private async verifyPassCompletion(
         scoreOrReplay:
             | Pick<
                   OfficialDatabaseScore,
-                  | "score"
+                  | "total_score"
                   | "combo"
                   | "perfect"
                   | "good"
@@ -1153,7 +1155,7 @@ export class Challenge extends Manager {
             OsuDifficultyAttributes,
             OsuPerformanceAttributes
         >,
-        hitErrorInformation: HitErrorInformation
+        hitErrorInformation: HitErrorInformation,
     ): Promise<boolean> {
         switch (this.pass.id) {
             case "score": {
@@ -1163,8 +1165,10 @@ export class Challenge extends Manager {
                     const data = scoreOrReplay.data!;
 
                     score = data.isReplayV3() ? data.score : 0;
-                } else {
+                } else if (scoreOrReplay instanceof Score) {
                     score = scoreOrReplay.score;
+                } else {
+                    score = scoreOrReplay.total_score;
                 }
 
                 return score >= +this.pass.value;
@@ -1211,7 +1215,7 @@ export class Challenge extends Manager {
                 const scoreV2 =
                     scoreOrReplay instanceof ReplayAnalyzer
                         ? await this.calculateChallengeScoreV2(
-                              scoreOrReplay.data!
+                              scoreOrReplay.data!,
                           )
                         : await this.calculateChallengeScoreV2(scoreOrReplay);
 
@@ -1317,7 +1321,7 @@ export class Challenge extends Manager {
     private getPassOrBonusDescription(
         id: BonusID,
         value: string | number,
-        language: Language = "en"
+        language: Language = "en",
     ): string {
         const localization = this.getLocalization(language);
         const BCP47 = LocaleHelper.convertToBCP47(localization.language);
@@ -1326,69 +1330,69 @@ export class Challenge extends Manager {
             case "score":
                 return StringHelper.formatString(
                     localization.getTranslation("scoreV1Description"),
-                    bold(value.toLocaleString(BCP47))
+                    bold(value.toLocaleString(BCP47)),
                 );
             case "acc":
                 return StringHelper.formatString(
                     localization.getTranslation("accuracyDescription"),
-                    bold(value.toString())
+                    bold(value.toString()),
                 );
             case "scorev2":
                 return StringHelper.formatString(
                     localization.getTranslation("scoreV2Description"),
-                    bold(value.toLocaleString(BCP47))
+                    bold(value.toLocaleString(BCP47)),
                 );
             case "miss":
                 return value === 0
                     ? localization.getTranslation("noMisses")
                     : StringHelper.formatString(
                           localization.getTranslation("missCountDescription"),
-                          bold(value.toString())
+                          bold(value.toString()),
                       );
             case "mod":
                 return StringHelper.formatString(
                     localization.getTranslation("modsDescription"),
-                    bold((<string>value).toUpperCase())
+                    bold((<string>value).toUpperCase()),
                 );
             case "combo":
                 return StringHelper.formatString(
                     localization.getTranslation("comboDescription"),
-                    bold(value.toString())
+                    bold(value.toString()),
                 );
             case "rank":
                 return StringHelper.formatString(
                     localization.getTranslation("rankDescription"),
-                    bold((<string>value).toUpperCase())
+                    bold((<string>value).toUpperCase()),
                 );
             case "dpp":
                 return StringHelper.formatString(
                     localization.getTranslation("droidPPDescription"),
-                    bold(value.toString())
+                    bold(value.toString()),
                 );
             case "pp":
                 return StringHelper.formatString(
                     localization.getTranslation("pcPPDescription"),
-                    bold(value.toString())
+                    bold(value.toString()),
                 );
             case "m300":
                 return StringHelper.formatString(
                     localization.getTranslation("min300Description"),
-                    bold(value.toString())
+                    bold(value.toString()),
                 );
             case "m100":
                 return StringHelper.formatString(
                     localization.getTranslation("max100Description"),
-                    bold(value.toString())
+                    bold(value.toString()),
                 );
             case "m50":
                 return StringHelper.formatString(
                     localization.getTranslation("max50Description"),
-                    bold(value.toString())
+                    bold(value.toString()),
                 );
             case "ur":
                 return StringHelper.formatString(
                     localization.getTranslation("maxURDescription"),
-                    bold(value.toString())
+                    bold(value.toString()),
                 );
         }
     }
@@ -1429,7 +1433,7 @@ export class Challenge extends Manager {
      * @returns The calculation result.
      */
     private async getReplayCalculationResult(
-        scoreOrReplay: OfficialDatabaseScore | ReplayAnalyzer
+        scoreOrReplay: OfficialDatabaseScore | ReplayAnalyzer,
     ): Promise<
         | [
               CompleteCalculationAttributes<
@@ -1461,7 +1465,7 @@ export class Challenge extends Manager {
         } else {
             calcParams =
                 BeatmapDifficultyHelper.getCalculationParamsFromScore(
-                    scoreOrReplay
+                    scoreOrReplay,
                 );
         }
 
@@ -1470,7 +1474,7 @@ export class Challenge extends Manager {
                 this.beatmapid,
                 Modes.droid,
                 PPCalculationMethod.live,
-                calcParams
+                calcParams,
             );
 
         if (!droidAttribs) {
@@ -1482,7 +1486,7 @@ export class Challenge extends Manager {
                 this.beatmapid,
                 Modes.osu,
                 PPCalculationMethod.live,
-                calcParams
+                calcParams,
             );
 
         if (!osuAttribs) {
@@ -1498,7 +1502,7 @@ export class Challenge extends Manager {
      * @param replay The data of the replay.
      */
     private async calculateChallengeScoreV2(
-        replay: ReplayData
+        replay: ReplayData,
     ): Promise<number>;
 
     /**
@@ -1510,24 +1514,24 @@ export class Challenge extends Manager {
         score:
             | Pick<
                   OfficialDatabaseScore,
-                  "score" | "perfect" | "good" | "bad" | "miss" | "mods"
+                  "total_score" | "perfect" | "good" | "bad" | "miss" | "mods"
               >
-            | Score
+            | Score,
     ): Promise<number>;
 
     private async calculateChallengeScoreV2(
         scoreOrReplay:
             | Pick<
                   OfficialDatabaseScore,
-                  "score" | "perfect" | "good" | "bad" | "miss" | "mods"
+                  "total_score" | "perfect" | "good" | "bad" | "miss" | "mods"
               >
             | Score
-            | ReplayData
+            | ReplayData,
     ): Promise<number> {
         const beatmapInfo = (await BeatmapManager.getBeatmap(this.beatmapid))!;
 
         const maximumScore = beatmapInfo.beatmap.maxDroidScore(
-            ModUtil.pcStringToMods(this.constrain)
+            ModUtil.pcStringToMods(this.constrain),
         );
 
         const accuracy =
@@ -1544,9 +1548,11 @@ export class Challenge extends Manager {
         const scoreV1 =
             scoreOrReplay instanceof ReplayData
                 ? scoreOrReplay.isReplayV3()
-                    ? scoreOrReplay.score
+                    ? scoreOrReplay.totalScore
                     : 0
-                : scoreOrReplay.score;
+                : scoreOrReplay instanceof Score
+                  ? scoreOrReplay.score
+                  : scoreOrReplay.total_score;
 
         const tempScoreV2 =
             (scoreV1 / maximumScore) * 6e5 +

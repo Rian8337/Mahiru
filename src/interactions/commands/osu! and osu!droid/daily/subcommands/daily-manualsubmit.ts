@@ -151,7 +151,7 @@ export const run: SlashSubcommand<true>["run"] = async (
         .setTitle(localization.getTranslation("scoreStatistics"))
         .setDescription(
             `${bold(localization.getTranslation("totalScore"))}: ${
-                data.score
+                data.totalScore
             }\n` +
                 `${bold(localization.getTranslation("maxCombo"))}: ${
                     data.maxCombo

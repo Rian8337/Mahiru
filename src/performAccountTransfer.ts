@@ -11,11 +11,13 @@ import { RowDataPacket } from "mysql2";
 
 function getScores(
     id: number,
-): Promise<Map<string, Pick<OfficialDatabaseScore, "id" | "score" | "hash">>> {
+): Promise<
+    Map<string, Pick<OfficialDatabaseScore, "id" | "total_score" | "hash">>
+> {
     return officialPool
         .query<
             RowDataPacket[]
-        >(`SELECT id, score, hash FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.score)} WHERE uid = ?`, [id])
+        >(`SELECT id, total_score, hash FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.score)} WHERE uid = ?`, [id])
         .then(
             (res) =>
                 new Map(
@@ -25,14 +27,14 @@ function getScores(
                                 score.hash,
                                 {
                                     id: score.id,
-                                    score: score.score,
+                                    total_score: score.total_score,
                                     hash: score.hash,
                                 },
                             ] as [
                                 string,
                                 Pick<
                                     OfficialDatabaseScore,
-                                    "id" | "score" | "hash"
+                                    "id" | "total_score" | "hash"
                                 >,
                             ],
                     ),
@@ -143,7 +145,7 @@ DatabaseManager.init().then(async () => {
                     continue;
                 }
 
-                if (targetScore.score > transferScore.score) {
+                if (targetScore.total_score > transferScore.total_score) {
                     // The target uid's score is better, so we move the transfer score to the archived table.
                     scoreIdsToArchive.push(transferScore.id);
                 } else {
@@ -311,7 +313,7 @@ DatabaseManager.init().then(async () => {
         try {
             await connection.query(
                 `UPDATE ${userTable}
-                SET score = (SELECT SUM(score) FROM ${scoreTable} WHERE uid = ?),
+                SET score = (SELECT SUM(total_score) FROM ${scoreTable} WHERE uid = ?),
                 pp = ${totalPP},
                 accuracy = ${accuracy},
                 playcount = (SELECT COUNT(*) FROM ${scoreTable} WHERE uid = ? AND score > 0),

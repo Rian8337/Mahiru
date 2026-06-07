@@ -5,7 +5,10 @@ import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { ConstantsLocalization } from "@localization/core/constants/ConstantsLocalization";
 import { FetchreplayLocalization } from "@localization/interactions/commands/osu! and osu!droid/fetchreplay/FetchreplayLocalization";
 import { Accuracy, Modes } from "@rian8337/osu-base";
-import { ExportedReplayJSONV3 } from "@rian8337/osu-droid-replay-analyzer";
+import {
+    ExportedReplayJSONV3,
+    ExportedReplayJSONV4,
+} from "@rian8337/osu-droid-replay-analyzer";
 import { Score } from "@rian8337/osu-droid-utilities";
 import { EmbedCreator } from "@utils/creators/EmbedCreator";
 import { MessageCreator } from "@utils/creators/MessageCreator";
@@ -92,6 +95,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         "uid",
         "hash",
         "score",
+        "total_score",
         "combo",
         "mark",
         "mods",
@@ -160,8 +164,10 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                   nmiss: score.miss,
               });
 
-    const json: ExportedReplayJSONV3 = {
-        version: 3,
+    const totalScore = score instanceof Score ? score.score : score.total_score;
+
+    const json: ExportedReplayJSONV4 = {
+        version: 4,
         replaydata: {
             filename: `${data.folderName}\\/${data.fileName}`,
             playername: data.isReplayV3() ? data.playerName : username,
@@ -171,6 +177,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 score instanceof Score
                     ? JSON.stringify(score.mods.serializeMods())
                     : score.mods,
+            // Exported replay version 4 uses raw score instead of total score.
             score: score.score,
             combo: score.combo,
             mark: rank,
@@ -206,7 +213,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             content: MessageCreator.createAccept(
                 localization.getTranslation("fetchReplayNoBeatmapSuccessful"),
                 rank,
-                score.score.toLocaleString(
+                totalScore.toLocaleString(
                     LocaleHelper.convertToBCP47(localization.language),
                 ),
                 score.combo.toString(),
@@ -234,7 +241,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             content: MessageCreator.createAccept(
                 localization.getTranslation("fetchReplayNoBeatmapSuccessful"),
                 rank,
-                score.score.toLocaleString(
+                totalScore.toLocaleString(
                     LocaleHelper.convertToBCP47(localization.language),
                 ),
                 score.combo.toString(),
@@ -260,7 +267,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             content: MessageCreator.createAccept(
                 localization.getTranslation("fetchReplayNoBeatmapSuccessful"),
                 rank,
-                score.score.toLocaleString(
+                totalScore.toLocaleString(
                     LocaleHelper.convertToBCP47(localization.language),
                 ),
                 score.combo.toString(),

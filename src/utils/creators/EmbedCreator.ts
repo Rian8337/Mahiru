@@ -525,7 +525,7 @@ export abstract class EmbedCreator {
                   | "id"
                   | "uid"
                   | "hash"
-                  | "score"
+                  | "total_score"
                   | "combo"
                   | "mark"
                   | "mods"
@@ -562,6 +562,13 @@ export abstract class EmbedCreator {
                 DateTimeFormatHelper.dateToLocaleString(score.date, language),
             ),
         });
+
+        const totalScore =
+            score instanceof Score
+                ? score.score
+                : score instanceof RecentPlay
+                  ? score.totalScore
+                  : score.total_score;
 
         const mods =
             score instanceof Score || score instanceof RecentPlay
@@ -627,7 +634,7 @@ export abstract class EmbedCreator {
         if (!droidAttribs || !osuAttribs) {
             beatmapInformation +=
                 `${(accuracy.value() * 100).toFixed(2)}%\n` +
-                `${arrow} ${score.score.toLocaleString(BCP47)} ${arrow} ${
+                `${arrow} ${totalScore.toLocaleString(BCP47)} ${arrow} ${
                     score.combo
                 }x ${arrow} [${accuracy.n300}/${accuracy.n100}/${
                     accuracy.n50
@@ -704,7 +711,7 @@ export abstract class EmbedCreator {
 
         beatmapInformation +=
             `${arrow} ${(accuracy.value() * 100).toFixed(2)}%\n` +
-            `${arrow} ${score.score.toLocaleString(BCP47)} ${arrow} ${
+            `${arrow} ${totalScore.toLocaleString(BCP47)} ${arrow} ${
                 score.combo
             }x/${maxCombo}x ${arrow} [${accuracy.n300}/${
                 accuracy.n100

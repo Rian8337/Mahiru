@@ -42,7 +42,7 @@ export abstract class DroidHelper {
         hash: string,
         order: BeatmapLeaderboardSortMode = BeatmapLeaderboardSortMode.score,
         page = 1,
-        scoresPerPage = 100
+        scoresPerPage = 100,
     ): Promise<Score[]> {
         if (Config.isDebug) {
             const apiRequestBuilder = new DroidAPIRequestBuilder()
@@ -70,7 +70,7 @@ export abstract class DroidHelper {
 
             try {
                 response = JSON.parse(
-                    result.data.toString("utf-8")
+                    result.data.toString("utf-8"),
                 ) as APIScore[];
             } catch {
                 throw new Error("Failed to parse JSON response");
@@ -85,7 +85,7 @@ export abstract class DroidHelper {
                 score.uid as uid,
                 user.username as username,
                 score.filename as filename,
-                score.score as score,
+                score.total_score as score,
                 score.combo as combo,
                 score.mark as mark,
                 score.mods as mods,
@@ -101,8 +101,8 @@ export abstract class DroidHelper {
                 score.pp as pp,
                 score.pp_multiplier as pp_multiplier
                 FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.score)} score, ${constructOfficialDatabaseTable(OfficialDatabaseTables.user)} user
-                WHERE score.hash = ? AND score.score > 0 AND user.id = score.uid ORDER BY score.score DESC${order === BeatmapLeaderboardSortMode.pp ? ", score.pp DESC" : ""} LIMIT ? OFFSET ?;`,
-            [hash, scoresPerPage, (page - 1) * scoresPerPage]
+                WHERE score.hash = ? AND score.score > 0 AND user.id = score.uid ORDER BY score.total_score DESC${order === BeatmapLeaderboardSortMode.pp ? ", score.pp DESC" : ""} LIMIT ? OFFSET ?;`,
+            [hash, scoresPerPage, (page - 1) * scoresPerPage],
         );
 
         // The query automatically converts TIMESTAMP columns to Date objects, but API returns a seconds
@@ -133,7 +133,7 @@ export abstract class DroidHelper {
      */
     static async getGlobalLeaderboard(
         page = 1,
-        scoresPerPage = 100
+        scoresPerPage = 100,
     ): Promise<OnlinePlayerRank[]> {
         // Page is 1-indexed, but the API is 0-indexed.
         --page;
@@ -153,7 +153,7 @@ export abstract class DroidHelper {
 
             try {
                 response = JSON.parse(
-                    result.data.toString("utf-8")
+                    result.data.toString("utf-8"),
                 ) as OnlinePlayerRank[];
             } catch {
                 throw new Error("Failed to parse JSON response");
@@ -164,9 +164,9 @@ export abstract class DroidHelper {
 
         const leaderboardQuery = await officialPool.query<RowDataPacket[]>(
             `SELECT id, username, pp, playcount, accuracy FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.user
+                OfficialDatabaseTables.user,
             )} WHERE banned = 0 AND restrict_mode = 0 AND archived = 0 ORDER BY pp DESC LIMIT ? OFFSET ?;`,
-            [scoresPerPage, page * scoresPerPage]
+            [scoresPerPage, page * scoresPerPage],
         );
 
         return leaderboardQuery[0] as OnlinePlayerRank[];
@@ -187,7 +187,7 @@ export abstract class DroidHelper {
         uid: number,
         amount = 50,
         offset = 0,
-        databaseColumns?: K[]
+        databaseColumns?: K[],
     ): Promise<Pick<OfficialDatabaseScore, K>[]> {
         if (Config.isDebug) {
             return [];
@@ -199,9 +199,9 @@ export abstract class DroidHelper {
                 // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 databaseColumns?.join() || "*"
             } FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.score
+                OfficialDatabaseTables.score,
             )} WHERE uid = ? AND score > 0 ORDER BY date DESC LIMIT ? OFFSET ?;`,
-            [uid, amount, offset]
+            [uid, amount, offset],
         );
 
         return scoreQuery[0] as OfficialDatabaseScore[];
@@ -235,7 +235,7 @@ export abstract class DroidHelper {
 
             try {
                 response = JSON.parse(
-                    data.data.toString("utf-8")
+                    data.data.toString("utf-8"),
                 ) as APIScore[];
             } catch {
                 throw new Error("Failed to parse JSON response");
@@ -264,7 +264,7 @@ export abstract class DroidHelper {
                 score.pp as pp
                 FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.bestScore)} score, ${constructOfficialDatabaseTable(OfficialDatabaseTables.user)} user
                 WHERE score.uid = ? AND user.id = score.uid ORDER BY score.pp DESC LIMIT ?;`,
-            [uid, amount]
+            [uid, amount],
         );
 
         return (scoreQuery[0] as APIScore[]).map((v) => new Score(v));
@@ -281,7 +281,7 @@ export abstract class DroidHelper {
      */
     static async getPlayer<K extends keyof OfficialDatabaseUser>(
         uidOrUsername: string | number,
-        databaseColumns?: K[]
+        databaseColumns?: K[],
     ): Promise<Pick<OfficialDatabaseUser, K> | Player | null> {
         if (Config.isDebug) {
             return Player.getInformation(uidOrUsername);
@@ -293,11 +293,11 @@ export abstract class DroidHelper {
                 // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 databaseColumns?.join() || "*"
             } FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.user
+                OfficialDatabaseTables.user,
             )} WHERE ${
                 typeof uidOrUsername === "number" ? "id" : "username"
             } = ? AND banned = 0 AND restrict_mode = 0;`,
-            [uidOrUsername]
+            [uidOrUsername],
         );
 
         return (playerQuery[0] as OfficialDatabaseUser[]).at(0) ?? null;
@@ -318,9 +318,9 @@ export abstract class DroidHelper {
 
         const rankQuery = await officialPool.query<RowDataPacket[]>(
             `SELECT COUNT(*) + 1 FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.user
+                OfficialDatabaseTables.user,
             )} WHERE banned = 0 AND restrict_mode = 0 AND archived = 0 AND score > ?;`,
-            [score]
+            [score],
         );
 
         return (
@@ -344,12 +344,12 @@ export abstract class DroidHelper {
         }
 
         const table = constructOfficialDatabaseTable(
-            OfficialDatabaseTables.user
+            OfficialDatabaseTables.user,
         );
 
         const rankQuery = await officialPool.query<RowDataPacket[]>(
             `SELECT COUNT(*) + 1 FROM ${table} WHERE banned = 0 AND restrict_mode = 0 AND archived = 0 AND pp > (SELECT pp FROM ${table} WHERE id = ?);`,
-            [id]
+            [id],
         );
 
         return (
@@ -374,7 +374,7 @@ export abstract class DroidHelper {
         uid: number,
         hash: string,
         retrieveBestPP: false,
-        databaseColumns?: K[]
+        databaseColumns?: K[],
     ): Promise<Pick<OfficialDatabaseScore, K> | Score | null>;
 
     /**
@@ -392,7 +392,7 @@ export abstract class DroidHelper {
         uid: number,
         hash: string,
         retrieveBestPP: true,
-        databaseColumns?: K[]
+        databaseColumns?: K[],
     ): Promise<Pick<OfficialDatabaseBestScore, K> | Score | null>;
 
     /**
@@ -412,7 +412,7 @@ export abstract class DroidHelper {
         uid: number,
         hash: string,
         retrieveBestPP: boolean,
-        databaseColumns?: K[]
+        databaseColumns?: K[],
     ): Promise<
         | Pick<OfficialDatabaseScore | OfficialDatabaseBestScore, K>
         | Score
@@ -425,7 +425,7 @@ export abstract class DroidHelper {
         uid: number,
         hash: string,
         retrieveBestPP: boolean,
-        databaseColumns?: K[]
+        databaseColumns?: K[],
     ): Promise<
         | Pick<OfficialDatabaseScore | OfficialDatabaseBestScore, K>
         | Score
@@ -438,7 +438,7 @@ export abstract class DroidHelper {
         const table = constructOfficialDatabaseTable(
             retrieveBestPP
                 ? OfficialDatabaseTables.bestScore
-                : OfficialDatabaseTables.score
+                : OfficialDatabaseTables.score,
         );
 
         const scoreQuery = await officialPool.query<RowDataPacket[]>(
@@ -447,7 +447,7 @@ export abstract class DroidHelper {
                 // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 databaseColumns?.join() || "*"
             } FROM ${table} WHERE uid = ? AND hash = ? AND score > 0;`,
-            [uid, hash]
+            [uid, hash],
         );
 
         return (
@@ -475,7 +475,7 @@ export abstract class DroidHelper {
         page = 1,
         scoresPerPage = 100,
         order: keyof OfficialDatabaseScore = "id",
-        databaseColumns?: K[]
+        databaseColumns?: K[],
     ): Promise<Pick<OfficialDatabaseScore, K>[] | Score[]> {
         if (Config.isDebug) {
             const apiRequestBuilder = new DroidAPIRequestBuilder()
@@ -493,7 +493,7 @@ export abstract class DroidHelper {
 
             try {
                 response = JSON.parse(
-                    data.data.toString("utf-8")
+                    data.data.toString("utf-8"),
                 ) as APIScore[];
             } catch {
                 throw new Error("Failed to parse JSON response");
@@ -508,9 +508,9 @@ export abstract class DroidHelper {
                 // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 databaseColumns?.join() || "*"
             } FROM ${constructOfficialDatabaseTable(
-                OfficialDatabaseTables.score
+                OfficialDatabaseTables.score,
             )} WHERE uid = ? AND score > 0 ORDER BY ? DESC LIMIT ? OFFSET ?;`,
-            [uid, order, scoresPerPage, (page - 1) * scoresPerPage]
+            [uid, order, scoresPerPage, (page - 1) * scoresPerPage],
         );
 
         return scoreQuery[0] as OfficialDatabaseScore[];
@@ -630,7 +630,7 @@ export abstract class DroidHelper {
      */
     static async searchPlayersForAutocomplete(
         name: string,
-        amount = 25
+        amount = 25,
     ): Promise<ApplicationCommandOptionChoiceData<string>[]> {
         name = name.trim();
 
@@ -648,7 +648,7 @@ export abstract class DroidHelper {
         if (Config.isDebug) {
             return DatabaseManager.elainaDb.collections.userBind.searchPlayersForAutocomplete(
                 name,
-                amount
+                amount,
             );
         }
 

@@ -1,5 +1,11 @@
 import { DatabaseManager } from "@database/DatabaseManager";
-import { Accuracy, ModMap, ModUtil, ScoreRank } from "@rian8337/osu-base";
+import {
+    Accuracy,
+    Modes,
+    ModMap,
+    ModUtil,
+    ScoreRank,
+} from "@rian8337/osu-base";
 import {
     DroidDifficultyAttributes,
     OsuDifficultyAttributes,
@@ -108,9 +114,23 @@ export class RecentPlay extends Manager {
         return `+${ModUtil.modsToOrderedString(this.mods)}`;
     }
 
+    private scoreMultiplier: number | null = null;
+
+    /**
+     * The total score of this play, which is the score after applying the score multiplier.
+     */
+    get totalScore(): number {
+        this.scoreMultiplier ??= ModUtil.calculateScoreMultiplier(
+            this.mods.values(),
+            Modes.droid,
+        );
+
+        return Math.round(this.score * this.scoreMultiplier);
+    }
+
     constructor(
         data: DatabaseRecentPlay = DatabaseManager.aliceDb?.collections
-            .recentPlays.defaultDocument ?? {}
+            .recentPlays.defaultDocument ?? {},
     ) {
         super();
 

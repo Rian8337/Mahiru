@@ -68,7 +68,7 @@ export abstract class ScoreDisplayHelper {
                   | "filename"
                   | "mark"
                   | "mods"
-                  | "score"
+                  | "total_score"
                   | "combo"
                   | "date"
                   | "perfect"
@@ -80,10 +80,10 @@ export abstract class ScoreDisplayHelper {
             | Score
             | RecentPlay
         )[],
-        page = 1
+        page = 1,
     ): Promise<Message> {
         const localization = this.getLocalization(
-            CommandHelper.getLocale(interaction)
+            CommandHelper.getLocale(interaction),
         );
 
         const embed = EmbedCreator.createNormalEmbed({
@@ -96,8 +96,8 @@ export abstract class ScoreDisplayHelper {
         embed.setDescription(
             StringHelper.formatString(
                 localization.getTranslation("recentPlays"),
-                bold(username)
-            )
+                bold(username),
+            ),
         );
 
         const onPageChange: OnButtonPageChange = async (_, page) => {
@@ -107,6 +107,14 @@ export abstract class ScoreDisplayHelper {
                 ++i
             ) {
                 const score = scores[i];
+
+                const totalScore =
+                    score instanceof Score
+                        ? score.score
+                        : score instanceof RecentPlay
+                          ? score.totalScore
+                          : score.total_score;
+
                 const accuracy =
                     score instanceof Score || score instanceof RecentPlay
                         ? score.accuracy
@@ -120,30 +128,30 @@ export abstract class ScoreDisplayHelper {
                 let fieldName = `${i + 1}. ${EmoteManager.getRankEmote(
                     score instanceof Score || score instanceof RecentPlay
                         ? score.rank
-                        : score.mark
+                        : score.mark,
                 )} | `;
 
                 if (score instanceof Score || score instanceof RecentPlay) {
                     fieldName += `${score.title} ${score.completeModString}`;
                 } else {
                     const mods = ModUtil.modsToOrderedString(
-                        ModUtil.deserializeMods(score.mods)
+                        ModUtil.deserializeMods(score.mods),
                     );
 
                     fieldName += `${DroidHelper.cleanupFilename(score.filename)} ${mods ? `+${mods}` : ""}`;
                 }
 
                 let fieldValue =
-                    `${score.score.toLocaleString(
-                        LocaleHelper.convertToBCP47(localization.language)
+                    `${totalScore.toLocaleString(
+                        LocaleHelper.convertToBCP47(localization.language),
                     )} / ${score.combo}x / ${(accuracy.value() * 100).toFixed(
-                        2
+                        2,
                     )}% / [${accuracy.n300}/${
                         accuracy.n100
                     }/${accuracy.n50}/${accuracy.nmiss}]\n` +
                     `\`${DateTimeFormatHelper.dateToLocaleString(
                         score.date,
-                        localization.language
+                        localization.language,
                     )}\``;
 
                 if (score instanceof RecentPlay) {
@@ -178,7 +186,7 @@ export abstract class ScoreDisplayHelper {
             page,
             Math.ceil(scores.length / 5),
             120,
-            onPageChange
+            onPageChange,
         );
     }
 
@@ -222,12 +230,12 @@ export abstract class ScoreDisplayHelper {
         hash: string,
         page = 1,
         order = BeatmapLeaderboardSortMode.score,
-        cacheBeatmapToChannel = true
+        cacheBeatmapToChannel = true,
     ): Promise<void> {
         await InteractionHelper.deferReply(interaction);
 
         const localization = this.getLocalization(
-            CommandHelper.getLocale(interaction)
+            CommandHelper.getLocale(interaction),
         );
 
         const beatmapInfo = await BeatmapManager.getBeatmap(hash, {
@@ -237,7 +245,7 @@ export abstract class ScoreDisplayHelper {
         if (beatmapInfo && cacheBeatmapToChannel) {
             BeatmapManager.setChannelLatestBeatmap(
                 interaction.channelId!,
-                beatmapInfo.hash
+                beatmapInfo.hash,
             );
         }
 
@@ -263,13 +271,13 @@ export abstract class ScoreDisplayHelper {
         // Check first page first for score availability
         const firstPageScores = await DroidHelper.getBeatmapLeaderboard(
             beatmapInfo?.hash ?? hash,
-            order
+            order,
         );
 
         if (!firstPageScores[0]) {
             InteractionHelper.reply(interaction, {
                 content: MessageCreator.createReject(
-                    localization.getTranslation("beatmapHasNoScores")
+                    localization.getTranslation("beatmapHasNoScores"),
                 ),
             });
 
@@ -281,7 +289,7 @@ export abstract class ScoreDisplayHelper {
         const arrow = Symbols.rightArrowSmall;
 
         const getCalculationResult = async (
-            score: Score | OfficialDatabaseScore
+            score: Score | OfficialDatabaseScore,
         ): Promise<
             [
                 CompleteCalculationAttributes<
@@ -301,7 +309,7 @@ export abstract class ScoreDisplayHelper {
                           score.uid,
                           score.hash,
                           Modes.droid,
-                          PPCalculationMethod.live
+                          PPCalculationMethod.live,
                       )
                   )?.attributes ??
                   null)
@@ -314,7 +322,7 @@ export abstract class ScoreDisplayHelper {
                           score.uid,
                           score.hash,
                           Modes.osu,
-                          PPCalculationMethod.live
+                          PPCalculationMethod.live,
                       )
                   )?.attributes ??
                   null)
@@ -339,21 +347,21 @@ export abstract class ScoreDisplayHelper {
                     attribs[0] && attribs[1]
                         ? `${arrow} ${bold(
                               `${attribs[0].performance.total.toFixed(
-                                  2
+                                  2,
                               )}dpp | ${attribs[1].performance.total.toFixed(
-                                  2
-                              )}pp`
+                                  2,
+                              )}pp`,
                           )} `
                         : " "
                 }${arrow} ${(score.accuracy.value() * 100).toFixed(2)}%\n` +
                 `${arrow} ${score.score.toLocaleString(
-                    LocaleHelper.convertToBCP47(localization.language)
+                    LocaleHelper.convertToBCP47(localization.language),
                 )} ${arrow} ${score.combo}x ${arrow} [${score.accuracy.n300}/${
                     score.accuracy.n100
                 }/${score.accuracy.n50}/${score.accuracy.nmiss}]\n` +
                 `\`${DateTimeFormatHelper.dateToLocaleString(
                     score.date,
-                    localization.language
+                    localization.language,
                 )}\``
             );
         };
@@ -362,7 +370,7 @@ export abstract class ScoreDisplayHelper {
             ? await PPProcessorRESTManager.getDifficultyAttributes(
                   beatmapInfo.beatmapId,
                   Modes.droid,
-                  PPCalculationMethod.live
+                  PPCalculationMethod.live,
               )
             : null;
 
@@ -370,7 +378,7 @@ export abstract class ScoreDisplayHelper {
             ? await PPProcessorRESTManager.getDifficultyAttributes(
                   beatmapInfo.beatmapId,
                   Modes.osu,
-                  PPCalculationMethod.live
+                  PPCalculationMethod.live,
               )
             : null;
 
@@ -383,7 +391,7 @@ export abstract class ScoreDisplayHelper {
                 (await DroidHelper.getBeatmapLeaderboard(
                     beatmapInfo?.hash ?? hash,
                     order,
-                    page
+                    page,
                 ));
 
             if (!leaderboardCache.has(actualPage)) {
@@ -394,7 +402,7 @@ export abstract class ScoreDisplayHelper {
                 ? EmbedCreator.createBeatmapEmbed(
                       beatmapInfo,
                       undefined,
-                      localization.language
+                      localization.language,
                   )
                 : { components: [new ContainerBuilder()] };
 
@@ -405,7 +413,7 @@ export abstract class ScoreDisplayHelper {
 
             containerBuilder.spliceComponents(
                 containerBuilder.components.length - 1,
-                1
+                1,
             );
 
             const topScore = leaderboardCache.get(1)![0];
@@ -426,36 +434,36 @@ export abstract class ScoreDisplayHelper {
                             Symbols.star
                         } | ${noModOsuAttribs.attributes.starRating.toFixed(2)}${
                             Symbols.star
-                        }]`
+                        }]`,
                 );
             } else {
                 containerBuilder
                     .addTextDisplayComponents(
                         new TextDisplayBuilder().setContent(
-                            heading(topScore.title, HeadingLevel.Two)
-                        )
+                            heading(topScore.title, HeadingLevel.Two),
+                        ),
                     )
                     .addSeparatorComponents(new SeparatorBuilder());
             }
 
             const displayedScores = scores.slice(
                 5 * pageRemainder,
-                5 + 5 * pageRemainder
+                5 + 5 * pageRemainder,
             );
 
             if (options.components) {
                 const pagingRow = options.components.at(
-                    -1
+                    -1,
                 ) as ActionRowBuilder<ButtonBuilder>;
 
                 const buttons = pagingRow.components;
 
                 buttons[buttons.length - 2].setDisabled(
-                    displayedScores.length < 5
+                    displayedScores.length < 5,
                 );
 
                 buttons[buttons.length - 1].setDisabled(
-                    displayedScores.length < 5
+                    displayedScores.length < 5,
                 );
 
                 // Preserve paging action row buttons
@@ -472,11 +480,11 @@ export abstract class ScoreDisplayHelper {
                                 !score.mods.isEmpty
                                     ? ` (${score.completeModString})`
                                     : ""
-                            }`
+                            }`,
                         ) +
                             "\n" +
-                            (await getScoreDescription(score))
-                    )
+                            (await getScoreDescription(score)),
+                    ),
                 );
             }
 
@@ -492,7 +500,7 @@ export abstract class ScoreDisplayHelper {
             [interaction.user.id],
             page,
             120,
-            onPageChange
+            onPageChange,
         );
     }
 
@@ -502,7 +510,7 @@ export abstract class ScoreDisplayHelper {
      * @param language The language to localize.
      */
     private static getLocalization(
-        language: Language
+        language: Language,
     ): ScoreDisplayHelperLocalization {
         return new ScoreDisplayHelperLocalization(language);
     }

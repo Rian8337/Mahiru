@@ -5,6 +5,7 @@ import { MessageButtonCreatorLocalization } from "@localization/utils/creators/M
 import { Accuracy, Beatmap, ModUtil } from "@rian8337/osu-base";
 import {
     ExportedReplayJSONV3,
+    ExportedReplayJSONV4,
     ReplayAnalyzer,
 } from "@rian8337/osu-droid-replay-analyzer";
 import { Score } from "@rian8337/osu-droid-utilities";
@@ -470,8 +471,16 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                       nmiss: score.miss,
                                   });
 
-                        const json: ExportedReplayJSONV3 = {
-                            version: 3,
+                        // Scores from the API are total scores, but exported replay version 4 expects raw score.
+                        const migrationScoreMultiplier =
+                            score instanceof Score
+                                ? ModUtil.calculateMigrationScoreMultiplier(
+                                      score.mods.values(),
+                                  )
+                                : 1;
+
+                        const json: ExportedReplayJSONV4 = {
+                            version: 4,
                             replaydata: {
                                 filename: `${data.folderName}\\/${data.fileName}`,
                                 playername: data.isReplayV3()
@@ -485,7 +494,11 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                               score.mods.serializeMods(),
                                           )
                                         : score.mods,
-                                score: score.score,
+                                score: Math.round(
+                                    Math.fround(
+                                        score.score / migrationScoreMultiplier,
+                                    ),
+                                ),
                                 combo: score.combo,
                                 mark:
                                     score instanceof Score
