@@ -1,3 +1,20 @@
+allowBuilds:
+  '@discordjs/opus': true
+  '@google/genai': true
+  bufferutil: true
+  canvas: true
+  erlpack: true
+  es5-ext: true
+  protobufjs: true
+  utf-8-validate: true
+  youtube-dl-exec: true
+  zlib-sync: true
+minimumReleaseAgeExclude:
+  - '@rian8337/osu-base@4.0.0-beta.90'
+  - '@rian8337/osu-difficulty-calculator@4.0.0-beta.90'
+  - '@rian8337/osu-droid-replay-analyzer@4.0.0-beta.90'
+  - '@rian8337/osu-droid-utilities@4.0.0-beta.90'
+  - '@rian8337/osu-rebalance-difficulty-calculator@4.0.0-beta.90'
 onlyBuiltDependencies:
   - '@discordjs/opus'
   - bufferutil
