@@ -17,10 +17,10 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
 
-      - name: Install Node.js v22
+      - name: Install Node.js v24
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
 
       - name: Install main dependencies
@@ -28,4 +28,5 @@ jobs:
         run: pnpm i
 
       - name: Type Check
-        run: tsc --noEmit
+        shell: bash
+        run: pnpm type-check
