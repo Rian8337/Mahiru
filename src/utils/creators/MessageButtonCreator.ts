@@ -511,7 +511,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                 h50: accuracy.n50,
                                 misses: accuracy.nmiss,
                                 accuracy: accuracy.value(),
-                                time: Math.round(score.date.getTime() / 1000),
+                                time: score.date.getTime(),
                                 sliderTickHits:
                                     score instanceof Score
                                         ? score.sliderTickHits
