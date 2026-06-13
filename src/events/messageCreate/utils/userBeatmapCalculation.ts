@@ -77,7 +77,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             const droidAttribs =
                 await PPProcessorRESTManager.getPerformanceAttributes(
                     beatmapId,
-                    Modes.droid,
+                    Modes.Droid,
                     PPCalculationMethod.live,
                     calcParams,
                     true
@@ -90,7 +90,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             const osuAttribs =
                 await PPProcessorRESTManager.getPerformanceAttributes(
                     beatmapId,
-                    Modes.osu,
+                    Modes.Osu,
                     PPCalculationMethod.live,
                     calcParams
                 );
@@ -240,7 +240,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                 const droidDiffAttribs =
                     await PPProcessorRESTManager.getDifficultyAttributes(
                         beatmapInfo.hash,
-                        Modes.droid,
+                        Modes.Droid,
                         PPCalculationMethod.live,
                         calcParams
                     );
@@ -248,7 +248,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
                 const osuDiffAttribs =
                     await PPProcessorRESTManager.getDifficultyAttributes(
                         beatmapInfo.hash,
-                        Modes.osu,
+                        Modes.Osu,
                         PPCalculationMethod.live,
                         calcParams
                     );

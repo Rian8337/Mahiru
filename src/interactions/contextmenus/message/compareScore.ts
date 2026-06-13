@@ -130,7 +130,7 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
     const scoreAttribs = await PPProcessorRESTManager.getOnlineScoreAttributes(
         score.uid,
         score.hash,
-        Modes.droid,
+        Modes.Droid,
         PPCalculationMethod.live,
     );
 

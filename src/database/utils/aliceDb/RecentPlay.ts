@@ -122,7 +122,7 @@ export class RecentPlay extends Manager {
     get totalScore(): number {
         this.scoreMultiplier ??= ModUtil.calculateScoreMultiplier(
             this.mods.values(),
-            Modes.droid,
+            Modes.Droid,
         );
 
         return Math.round(this.score * this.scoreMultiplier);

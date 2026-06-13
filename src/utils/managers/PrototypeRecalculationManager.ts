@@ -113,7 +113,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 await PPProcessorRESTManager.getOnlineScoreAttributes(
                     score.uid,
                     score.hash,
-                    Modes.droid,
+                    Modes.Droid,
                     PPCalculationMethod.live,
                     true,
                 );
@@ -126,7 +126,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 await PPProcessorRESTManager.getOnlineScoreAttributes(
                     score.uid,
                     score.hash,
-                    Modes.droid,
+                    Modes.Droid,
                     PPCalculationMethod.rebalance,
                     true,
                 );
@@ -155,7 +155,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
 
             ModUtil.applyModsToBeatmapDifficulty(
                 beatmapDifficulty,
-                Modes.droid,
+                Modes.Droid,
                 score.mods,
                 true,
             );
@@ -230,7 +230,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                     await PPProcessorRESTManager.getOnlineScoreAttributes(
                         score.uid,
                         score.hash,
-                        Modes.droid,
+                        Modes.Droid,
                         PPCalculationMethod.rebalance,
                         true,
                         false,

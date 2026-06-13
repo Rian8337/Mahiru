@@ -169,7 +169,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             droidCalcResult =
                 await PPProcessorRESTManager.getPerformanceAttributes(
                     beatmap.beatmapId,
-                    Modes.droid,
+                    Modes.Droid,
                     PPCalculationMethod.rebalance,
                     calcParams,
                     true,
@@ -179,7 +179,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 osuCalcResult =
                     (await PPProcessorRESTManager.getPerformanceAttributes(
                         beatmap.beatmapId,
-                        Modes.osu,
+                        Modes.Osu,
                         PPCalculationMethod.rebalance,
                         calcParams,
                     )) ?? null;
@@ -190,7 +190,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             droidCalcResult =
                 await PPProcessorRESTManager.getPerformanceAttributes(
                     beatmap.beatmapId,
-                    Modes.droid,
+                    Modes.Droid,
                     PPCalculationMethod.live,
                     calcParams,
                     true,
@@ -200,7 +200,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 osuCalcResult =
                     (await PPProcessorRESTManager.getPerformanceAttributes(
                         beatmap.beatmapId,
-                        Modes.osu,
+                        Modes.Osu,
                         PPCalculationMethod.live,
                         calcParams,
                     )) ?? null;

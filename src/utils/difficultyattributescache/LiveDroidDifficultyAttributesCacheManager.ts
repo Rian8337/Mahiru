@@ -9,5 +9,5 @@ import { DifficultyAttributesCacheManager } from "./DifficultyAttributesCacheMan
 export class LiveDroidDifficultyAttributesCacheManager extends DifficultyAttributesCacheManager<ExtendedDroidDifficultyAttributes> {
     protected override readonly attributeType: PPCalculationMethod =
         PPCalculationMethod.live;
-    protected override readonly mode: Modes = Modes.droid;
+    protected override readonly mode: Modes = Modes.Droid;
 }

@@ -153,7 +153,7 @@ export class MissAnalyzer {
 
             const objectData = this.data.hitObjectData[i];
 
-            if (objectData.result !== HitResult.miss) {
+            if (objectData.result !== HitResult.Miss) {
                 continue;
             }
 
@@ -184,7 +184,7 @@ export class MissAnalyzer {
                         j,
                         i > 0 &&
                             this.data.hitObjectData[i - 1].result ===
-                                HitResult.miss
+                                HitResult.Miss
                     );
 
                 if (cursorOccurrenceInfo === null) {
@@ -279,12 +279,12 @@ export class MissAnalyzer {
 
                 if (
                     occurrence.time > maxAllowableTapTime ||
-                    occurrence.id === MovementType.up
+                    occurrence.id === MovementType.Up
                 ) {
                     break;
                 }
 
-                if (occurrence.id === MovementType.down) {
+                if (occurrence.id === MovementType.Down) {
                     const distanceToObject = object.stackedPosition.getDistance(
                         occurrence.position
                     );
@@ -325,7 +325,7 @@ export class MissAnalyzer {
                                 (nextOccurrence.time - occurrence.time);
 
                             const cursorPosition =
-                                nextOccurrence.id === MovementType.move
+                                nextOccurrence.id === MovementType.Move
                                     ? new Vector2(
                                           Interpolation.lerp(
                                               occurrence.position.x,

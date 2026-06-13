@@ -7,7 +7,6 @@ import {
 } from "@rian8337/osu-difficulty-calculator";
 import {
     ReplayAnalyzer,
-    SliderCheeseInformation,
     ThreeFingerChecker,
 } from "@rian8337/osu-droid-replay-analyzer";
 import { Score } from "@rian8337/osu-droid-utilities";
@@ -105,7 +104,7 @@ export class DroidBeatmapDifficultyHelper extends BeatmapDifficultyHelper<
         score: Score,
         attributes: ExtendedDroidDifficultyAttributes,
         tapPenalty?: number,
-        sliderCheesePenalty?: SliderCheeseInformation,
+        sliderCheesePenalty?: number,
         replay?: ReplayAnalyzer
     ): Promise<PerformanceCalculationResult<DroidPerformanceCalculator>>;
 
@@ -125,7 +124,7 @@ export class DroidBeatmapDifficultyHelper extends BeatmapDifficultyHelper<
         score: Score,
         attributes: RebalanceExtendedDroidDifficultyAttributes,
         tapPenalty?: number,
-        sliderCheesePenalty?: SliderCheeseInformation,
+        sliderCheesePenalty?: number,
         replay?: ReplayAnalyzer
     ): Promise<
         RebalancePerformanceCalculationResult<RebalanceDroidPerformanceCalculator>
@@ -138,7 +137,7 @@ export class DroidBeatmapDifficultyHelper extends BeatmapDifficultyHelper<
             | ExtendedDroidDifficultyAttributes
             | RebalanceExtendedDroidDifficultyAttributes,
         tapPenalty = 1,
-        sliderCheesePenalty?: SliderCheeseInformation,
+        sliderCheesePenalty?: number,
         replay?: ReplayAnalyzer
     ): Promise<
         | PerformanceCalculationResult<DroidPerformanceCalculator>

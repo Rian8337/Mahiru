@@ -113,12 +113,12 @@ export class MissInformation {
 
     // Colors are taken from osu!lazer: https://github.com/ppy/osu/blob/daae560ff731bdf49970a5bc6588c0861fac760f/osu.Game/Graphics/OsuColour.cs#L105-L131
     private readonly hitColors: Record<
-        Exclude<HitResult, HitResult.miss>,
+        Exclude<HitResult, HitResult.Miss>,
         RGBColor
     > = {
-        [HitResult.meh]: new RGBColor(255, 204, 34),
-        [HitResult.good]: new RGBColor(179, 217, 68),
-        [HitResult.great]: new RGBColor(102, 204, 255),
+        [HitResult.Meh]: new RGBColor(255, 204, 34),
+        [HitResult.Good]: new RGBColor(179, 217, 68),
+        [HitResult.Great]: new RGBColor(102, 204, 255),
     };
 
     /**
@@ -339,7 +339,7 @@ export class MissInformation {
 
         this.drawObject(
             this.object,
-            HitResult.miss,
+            HitResult.Miss,
             this.previousObjects.length + 1
         );
     }
@@ -371,22 +371,22 @@ export class MissInformation {
         let sliderPathColor: string;
 
         switch (objectHitResult) {
-            case HitResult.great:
+            case HitResult.Great:
                 fillColor = "#5b88d9";
                 borderColor = "#5473ab";
                 sliderPathColor = "#779de0";
                 break;
-            case HitResult.good:
+            case HitResult.Good:
                 fillColor = "#63ba68";
                 borderColor = "#59a85e";
                 sliderPathColor = "#81eb89";
                 break;
-            case HitResult.meh:
+            case HitResult.Meh:
                 fillColor = "#d9ad6a";
                 borderColor = "#cc9d56";
                 sliderPathColor = "#d9a75d";
                 break;
-            case HitResult.miss:
+            case HitResult.Miss:
                 fillColor = "#de6464";
                 borderColor = "#cc5c5c";
                 sliderPathColor = "#eb7c7c";
@@ -524,7 +524,7 @@ export class MissInformation {
 
         const drawBar = (
             ms: number,
-            hitResult: Exclude<HitResult, HitResult.miss>
+            hitResult: Exclude<HitResult, HitResult.Miss>
         ): void => {
             const drawDistance = calculateDrawDistance(ms);
 
@@ -543,9 +543,9 @@ export class MissInformation {
         };
 
         // Draw from hit 50 -> hit 100 -> hit 300 range.
-        drawBar(this.hitWindow.mehWindow, HitResult.meh);
-        drawBar(this.hitWindow.okWindow, HitResult.good);
-        drawBar(this.hitWindow.greatWindow, HitResult.great);
+        drawBar(this.hitWindow.mehWindow, HitResult.Meh);
+        drawBar(this.hitWindow.okWindow, HitResult.Good);
+        drawBar(this.hitWindow.greatWindow, HitResult.Great);
 
         // Draw middle line.
         context.lineWidth = Playfield.baseSize.x / 100;
@@ -569,7 +569,7 @@ export class MissInformation {
             const prevObject = this.previousObjects[i];
             const objectData = this.previousObjectData[i];
 
-            if (objectData.result === HitResult.miss) {
+            if (objectData.result === HitResult.Miss) {
                 continue;
             }
 
@@ -692,7 +692,7 @@ export class MissInformation {
 
                     if (
                         occurrence.time > maxTime ||
-                        occurrence.id === MovementType.up
+                        occurrence.id === MovementType.Up
                     ) {
                         break;
                     }
@@ -701,7 +701,7 @@ export class MissInformation {
                         occurrence.position
                     );
 
-                    if (occurrence.id === MovementType.down) {
+                    if (occurrence.id === MovementType.Down) {
                         applyHitColor(occurrence.time);
 
                         context.beginPath();

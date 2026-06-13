@@ -308,7 +308,7 @@ export abstract class ScoreDisplayHelper {
                       await PPProcessorRESTManager.getOnlineScoreAttributes(
                           score.uid,
                           score.hash,
-                          Modes.droid,
+                          Modes.Droid,
                           PPCalculationMethod.live,
                       )
                   )?.attributes ??
@@ -321,7 +321,7 @@ export abstract class ScoreDisplayHelper {
                       await PPProcessorRESTManager.getOnlineScoreAttributes(
                           score.uid,
                           score.hash,
-                          Modes.osu,
+                          Modes.Osu,
                           PPCalculationMethod.live,
                       )
                   )?.attributes ??
@@ -369,7 +369,7 @@ export abstract class ScoreDisplayHelper {
         const noModDroidAttribs = beatmapInfo
             ? await PPProcessorRESTManager.getDifficultyAttributes(
                   beatmapInfo.beatmapId,
-                  Modes.droid,
+                  Modes.Droid,
                   PPCalculationMethod.live,
               )
             : null;
@@ -377,7 +377,7 @@ export abstract class ScoreDisplayHelper {
         const noModOsuAttribs = beatmapInfo
             ? await PPProcessorRESTManager.getDifficultyAttributes(
                   beatmapInfo.beatmapId,
-                  Modes.osu,
+                  Modes.Osu,
                   PPCalculationMethod.live,
               )
             : null;

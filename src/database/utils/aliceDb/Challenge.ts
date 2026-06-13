@@ -508,7 +508,7 @@ export class Challenge extends Manager {
         const droidAttribs =
             await PPProcessorRESTManager.getPerformanceAttributes(
                 this.beatmapid,
-                Modes.droid,
+                Modes.Droid,
                 PPCalculationMethod.live,
                 calcParams,
             );
@@ -523,7 +523,7 @@ export class Challenge extends Manager {
         const osuAttribs =
             await PPProcessorRESTManager.getPerformanceAttributes(
                 this.beatmapid,
-                Modes.osu,
+                Modes.Osu,
                 PPCalculationMethod.live,
                 calcParams,
             );
@@ -701,7 +701,7 @@ export class Challenge extends Manager {
                 (
                     await PPProcessorRESTManager.getPerformanceAttributes(
                         this.beatmapid,
-                        Modes.droid,
+                        Modes.Droid,
                         PPCalculationMethod.live,
                         calcParams,
                     )
@@ -710,7 +710,7 @@ export class Challenge extends Manager {
                 (
                     await PPProcessorRESTManager.getPerformanceAttributes(
                         this.beatmapid,
-                        Modes.osu,
+                        Modes.Osu,
                         PPCalculationMethod.live,
                         calcParams,
                     )
@@ -732,7 +732,7 @@ export class Challenge extends Manager {
                 (
                     await PPProcessorRESTManager.getPerformanceAttributes(
                         this.beatmapid,
-                        Modes.droid,
+                        Modes.Droid,
                         PPCalculationMethod.live,
                         calcParams,
                     )
@@ -742,7 +742,7 @@ export class Challenge extends Manager {
                 (
                     await PPProcessorRESTManager.getPerformanceAttributes(
                         this.beatmapid,
-                        Modes.osu,
+                        Modes.Osu,
                         PPCalculationMethod.live,
                         calcParams,
                     )
@@ -1472,7 +1472,7 @@ export class Challenge extends Manager {
         const droidAttribs =
             await PPProcessorRESTManager.getPerformanceAttributes(
                 this.beatmapid,
-                Modes.droid,
+                Modes.Droid,
                 PPCalculationMethod.live,
                 calcParams,
             );
@@ -1484,7 +1484,7 @@ export class Challenge extends Manager {
         const osuAttribs =
             await PPProcessorRESTManager.getPerformanceAttributes(
                 this.beatmapid,
-                Modes.osu,
+                Modes.Osu,
                 PPCalculationMethod.live,
                 calcParams,
             );

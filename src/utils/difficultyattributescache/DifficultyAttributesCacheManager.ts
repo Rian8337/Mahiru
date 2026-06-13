@@ -54,10 +54,10 @@ export abstract class DifficultyAttributesCacheManager<
         }
 
         switch (this.mode) {
-            case Modes.droid:
+            case Modes.Droid:
                 gamemodeFolder = "droid";
                 break;
-            case Modes.osu:
+            case Modes.Osu:
                 gamemodeFolder = "osu";
                 break;
         }

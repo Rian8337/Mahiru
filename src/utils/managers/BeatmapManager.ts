@@ -481,8 +481,8 @@ export abstract class BeatmapManager extends Manager {
                         ? ` ${hyperlink("(no storyboard, no video)", `https://api.nerinyan.moe/d/${beatmapInfo.beatmapSetId}?nsb=1&nv=1`)}`
                         : ""
                 }${
-                    beatmapInfo.approved >= RankedStatus.ranked &&
-                    beatmapInfo.approved !== RankedStatus.qualified
+                    beatmapInfo.approved >= RankedStatus.Ranked &&
+                    beatmapInfo.approved !== RankedStatus.Qualified
                         ? ` - ${hyperlink(
                               "Ripple",
                               `https://storage.ripple.moe/d/${beatmapInfo.beatmapSetId}`,
@@ -518,7 +518,7 @@ export abstract class BeatmapManager extends Manager {
             case 4: {
                 const modifiedDifficulty = this.getDifficultyWithMods(
                     beatmapInfo,
-                    option === 3 ? Modes.droid : Modes.osu,
+                    option === 3 ? Modes.Droid : Modes.Osu,
                     mods,
                 );
 
@@ -702,20 +702,34 @@ export abstract class BeatmapManager extends Manager {
      */
     static getStatusColor(status: RankedStatus): number {
         switch (status) {
-            case RankedStatus.graveyard:
-                return 16711711; // Graveyard: red
-            case RankedStatus.wip:
-                return 9442302; // WIP: purple
-            case RankedStatus.pending:
-                return 16312092; // Pending: yellow
-            case RankedStatus.ranked:
-                return 2483712; // Ranked: green
-            case RankedStatus.approved:
-                return 16741376; // Approved: tosca
-            case RankedStatus.qualified:
-                return 5301186; // Qualified: light blue
-            case RankedStatus.loved:
-                return 16711796; // Loved: pink
+            case RankedStatus.Graveyard:
+                // Graveyard: red
+                return 16711711;
+
+            case RankedStatus.Wip:
+                // WIP: purple
+                return 9442302;
+
+            case RankedStatus.Pending:
+                // Pending: yellow
+                return 16312092;
+
+            case RankedStatus.Ranked:
+                // Ranked: green
+                return 2483712;
+
+            case RankedStatus.Approved:
+                // Approved: tosca
+                return 16741376;
+
+            case RankedStatus.Qualified:
+                // Qualified: light blue
+                return 5301186;
+
+            case RankedStatus.Loved:
+                // Loved: pink
+                return 16711796;
+
             default:
                 return 0;
         }
@@ -734,14 +748,14 @@ export abstract class BeatmapManager extends Manager {
      * Converts the beatmap's status into a string.
      */
     private static convertStatus(status: RankedStatus): string {
-        let s: keyof typeof RankedStatus = "approved";
+        let s: keyof typeof RankedStatus = "Approved";
         for (const stat in RankedStatus) {
             if (RankedStatus[<keyof typeof RankedStatus>stat] === status) {
                 s = <keyof typeof RankedStatus>stat;
                 break;
             }
         }
-        return s !== "wip"
+        return s !== "Wip"
             ? s.charAt(0).toUpperCase() + s.slice(1)
             : s.toUpperCase();
     }

@@ -74,8 +74,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         );
 
     if (
-        beatmap.approved >= RankedStatus.ranked &&
-        beatmap.approved !== RankedStatus.qualified
+        beatmap.approved >= RankedStatus.Ranked &&
+        beatmap.approved !== RankedStatus.Qualified
     ) {
         downloadActionRow.addComponents(
             new ButtonBuilder()

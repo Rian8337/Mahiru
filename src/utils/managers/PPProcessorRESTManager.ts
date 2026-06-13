@@ -44,7 +44,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         THasStrainChart extends boolean = false,
     >(
         beatmapIdOrHash: string | number,
-        mode: Modes.droid,
+        mode: Modes.Droid,
         calculationMethod: PPCalculationMethod.live,
         calculationParams?: DifficultyCalculationParameters,
         generateStrainChart?: THasStrainChart,
@@ -67,7 +67,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         THasStrainChart extends boolean = false,
     >(
         beatmapIdOrHash: string | number,
-        mode: Modes.droid,
+        mode: Modes.Droid,
         calculationMethod: PPCalculationMethod.rebalance,
         calculationParams?: DifficultyCalculationParameters,
         generateStrainChart?: THasStrainChart,
@@ -90,7 +90,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         THasStrainChart extends boolean = false,
     >(
         beatmapIdOrHash: string | number,
-        mode: Modes.osu,
+        mode: Modes.Osu,
         calculationMethod: PPCalculationMethod.live,
         calculationParams?: DifficultyCalculationParameters,
         generateStrainChart?: THasStrainChart,
@@ -113,7 +113,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
         THasStrainChart extends boolean = false,
     >(
         beatmapIdOrHash: string | number,
-        mode: Modes.osu,
+        mode: Modes.Osu,
         calculationMethod: PPCalculationMethod.rebalance,
         calculationParams?: DifficultyCalculationParameters,
         generateStrainChart?: THasStrainChart,
@@ -182,7 +182,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
      */
     static async getPerformanceAttributes<THasStrainChart extends boolean>(
         beatmapIdOrHash: string | number,
-        mode: Modes.droid,
+        mode: Modes.Droid,
         calculationMethod: PPCalculationMethod.live,
         calculationParams?: PerformanceCalculationParameters,
         generateStrainChart?: THasStrainChart,
@@ -206,7 +206,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
      */
     static async getPerformanceAttributes<THasStrainChart extends boolean>(
         beatmapIdOrHash: string | number,
-        mode: Modes.droid,
+        mode: Modes.Droid,
         calculationMethod: PPCalculationMethod.rebalance,
         calculationParams?: PerformanceCalculationParameters,
         generateStrainChart?: THasStrainChart,
@@ -230,7 +230,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
      */
     static async getPerformanceAttributes<THasStrainChart extends boolean>(
         beatmapIdOrHash: string | number,
-        mode: Modes.osu,
+        mode: Modes.Osu,
         calculationMethod: PPCalculationMethod.live,
         calculationParams?: PerformanceCalculationParameters,
         generateStrainChart?: THasStrainChart,
@@ -254,7 +254,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
      */
     static async getPerformanceAttributes<THasStrainChart extends boolean>(
         beatmapIdOrHash: string | number,
-        mode: Modes.osu,
+        mode: Modes.Osu,
         calculationMethod: PPCalculationMethod.rebalance,
         calculationParams?: PerformanceCalculationParameters,
         generateStrainChart?: THasStrainChart,
@@ -365,7 +365,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
     static async getOnlineScoreAttributes<THasStrainChart extends boolean>(
         uid: number,
         hash: string,
-        mode: Modes.droid,
+        mode: Modes.Droid,
         calculationMethod: PPCalculationMethod.live,
         calculateBestPPScore?: boolean,
         generateStrainChart?: THasStrainChart,
@@ -392,7 +392,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
     static async getOnlineScoreAttributes<THasStrainChart extends boolean>(
         uid: number,
         hash: string,
-        mode: Modes.droid,
+        mode: Modes.Droid,
         calculationMethod: PPCalculationMethod.rebalance,
         calculateBestPPScore?: boolean,
         generateStrainChart?: THasStrainChart,
@@ -419,7 +419,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
     static async getOnlineScoreAttributes<THasStrainChart extends boolean>(
         uid: number,
         hash: string,
-        mode: Modes.osu,
+        mode: Modes.Osu,
         calculationMethod: PPCalculationMethod.live,
         calculateBestPPScore?: boolean,
         generateStrainChart?: THasStrainChart,
@@ -446,7 +446,7 @@ export abstract class PPProcessorRESTManager extends RESTManager {
     static async getOnlineScoreAttributes<THasStrainChart extends boolean>(
         uid: number,
         hash: string,
-        mode: Modes.osu,
+        mode: Modes.Osu,
         calculationMethod: PPCalculationMethod.rebalance,
         calculateBestPPScore?: boolean,
         generateStrainChart?: THasStrainChart,

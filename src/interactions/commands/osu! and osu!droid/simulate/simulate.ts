@@ -322,7 +322,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     ModUtil.applyModsToBeatmapDifficulty(
         realDifficulty,
-        Modes.droid,
+        Modes.Droid,
         realMods,
         false,
     );
@@ -339,7 +339,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     ModUtil.applyModsToBeatmapDifficulty(
         simulatedDifficulty,
-        Modes.droid,
+        Modes.Droid,
         simulatedMods,
         false,
     );
@@ -377,15 +377,15 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         let hitWeight = 0;
 
         switch (result) {
-            case HitResult.great:
+            case HitResult.Great:
                 ++simulatedAccuracy.n300;
                 hitWeight = 300;
                 break;
-            case HitResult.good:
+            case HitResult.Good:
                 ++simulatedAccuracy.n100;
                 hitWeight = 100;
                 break;
-            case HitResult.meh:
+            case HitResult.Meh:
                 ++simulatedAccuracy.n50;
                 hitWeight = 50;
                 break;
@@ -418,10 +418,10 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             let wasRounded = false;
 
             switch (objectData.result) {
-                case HitResult.good:
+                case HitResult.Good:
                     wasRounded = hitAccuracy === realHitWindow300;
                     break;
-                case HitResult.meh:
+                case HitResult.Meh:
                     wasRounded = hitAccuracy === realHitWindow100;
                     break;
             }
@@ -432,33 +432,33 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 case wasRounded
                     ? hitAccuracy < simulatedHitWindow300
                     : hitAccuracy <= simulatedHitWindow300:
-                    hitResult = HitResult.great;
+                    hitResult = HitResult.Great;
                     break;
                 case wasRounded
                     ? hitAccuracy < simulatedHitWindow100
                     : hitAccuracy <= simulatedHitWindow100:
-                    hitResult = HitResult.good;
+                    hitResult = HitResult.Good;
                     break;
                 case wasRounded
                     ? hitAccuracy < simulatedHitWindow50
                     : hitAccuracy <= simulatedHitWindow50:
-                    hitResult = HitResult.meh;
+                    hitResult = HitResult.Meh;
                     break;
                 default:
-                    hitResult = HitResult.miss;
+                    hitResult = HitResult.Miss;
                     break;
             }
 
             addHitResult(hitResult);
             objectData.result = hitResult;
         } else if (object instanceof Slider) {
-            if (objectData.result === HitResult.miss) {
+            if (objectData.result === HitResult.Miss) {
                 // Missing a slider means missing everything, so we can ignore nested objects.
                 addHitResult(objectData.result);
                 continue;
             }
 
-            if (objectData.result === HitResult.great) {
+            if (objectData.result === HitResult.Great) {
                 // All nested objects were hit.
                 for (const nestedObject of object.nestedHitObjects.slice(
                     0,
@@ -467,7 +467,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                     addSliderNestedResult(nestedObject);
                 }
 
-                addHitResult(HitResult.great);
+                addHitResult(HitResult.Great);
 
                 continue;
             }
@@ -525,16 +525,16 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
             switch (true) {
                 case percentFill >= 1:
-                    hitResult = HitResult.great;
+                    hitResult = HitResult.Great;
                     break;
                 case percentFill > 0.95:
-                    hitResult = HitResult.good;
+                    hitResult = HitResult.Good;
                     break;
                 case percentFill > 0.9:
-                    hitResult = HitResult.meh;
+                    hitResult = HitResult.Meh;
                     break;
                 default:
-                    hitResult = HitResult.miss;
+                    hitResult = HitResult.Miss;
                     break;
             }
 
@@ -611,14 +611,14 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     const droidAttribs = await PPProcessorRESTManager.getPerformanceAttributes(
         beatmap.beatmapId,
-        Modes.droid,
+        Modes.Droid,
         PPCalculationMethod.live,
         calcParams,
     );
 
     const osuAttribs = await PPProcessorRESTManager.getPerformanceAttributes(
         beatmap.beatmapId,
-        Modes.osu,
+        Modes.Osu,
         PPCalculationMethod.live,
         calcParams,
     );

@@ -230,7 +230,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     const droidAttribs = await PPProcessorRESTManager.getOnlineScoreAttributes(
         score.uid,
         score.hash,
-        Modes.droid,
+        Modes.Droid,
         PPCalculationMethod.live,
         false,
         true,
@@ -258,7 +258,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     const osuAttribs = await PPProcessorRESTManager.getOnlineScoreAttributes(
         score.uid,
         score.hash,
-        Modes.osu,
+        Modes.Osu,
         PPCalculationMethod.live,
     );
 

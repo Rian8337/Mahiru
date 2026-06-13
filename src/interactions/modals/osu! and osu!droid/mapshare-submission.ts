@@ -113,8 +113,8 @@ export const run: ModalCommand["run"] = async (_, interaction) => {
     }
 
     if (
-        beatmapInfo.approved === RankedStatus.wip ||
-        beatmapInfo.approved === RankedStatus.qualified
+        beatmapInfo.approved === RankedStatus.Wip ||
+        beatmapInfo.approved === RankedStatus.Qualified
     ) {
         return InteractionHelper.reply(interaction, {
             content: MessageCreator.createReject(
@@ -123,7 +123,7 @@ export const run: ModalCommand["run"] = async (_, interaction) => {
         });
     }
 
-    if (beatmapInfo.approved !== RankedStatus.ranked) {
+    if (beatmapInfo.approved !== RankedStatus.Ranked) {
         if (
             DateTimeFormatHelper.getTimeDifference(beatmapInfo.submitDate) >
             -86400 * 1000 * 7

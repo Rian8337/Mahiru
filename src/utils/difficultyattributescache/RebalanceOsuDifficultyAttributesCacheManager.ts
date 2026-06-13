@@ -9,5 +9,5 @@ import { DifficultyAttributesCacheManager } from "./DifficultyAttributesCacheMan
 export class RebalanceOsuDifficultyAttributesCacheManager extends DifficultyAttributesCacheManager<OsuDifficultyAttributes> {
     protected override readonly attributeType: PPCalculationMethod =
         PPCalculationMethod.rebalance;
-    protected override readonly mode: Modes = Modes.osu;
+    protected override readonly mode: Modes = Modes.Osu;
 }

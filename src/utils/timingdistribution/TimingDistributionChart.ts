@@ -64,7 +64,7 @@ export class TimingDistributionChart {
         const difficulty = new BeatmapDifficulty();
         difficulty.od = beatmap.difficulty.od;
 
-        ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, mods);
+        ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.Droid, mods);
 
         this.hitWindow = mods.has(ModPrecise)
             ? new PreciseDroidHitWindow(difficulty.od)
@@ -126,7 +126,7 @@ export class TimingDistributionChart {
             const object = this.beatmap.hitObjects.objects[i];
             const objectData = this.hitObjectData[i];
 
-            if (objectData.result === HitResult.miss) {
+            if (objectData.result === HitResult.Miss) {
                 continue;
             }
 

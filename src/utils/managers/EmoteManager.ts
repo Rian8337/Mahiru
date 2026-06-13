@@ -93,25 +93,25 @@ export abstract class EmoteManager extends Manager {
         let id: string;
 
         switch (result) {
-            case HitResult.miss:
+            case HitResult.Miss:
                 id = Config.isDebug
                     ? "1431657671626588201"
                     : "1431661054672371774";
                 break;
 
-            case HitResult.meh:
+            case HitResult.Meh:
                 id = Config.isDebug
                     ? "1431657706774724730"
                     : "1431661069713014864";
                 break;
 
-            case HitResult.good:
+            case HitResult.Good:
                 id = Config.isDebug
                     ? "1431657726588489768"
                     : "1431661086498623619";
                 break;
 
-            case HitResult.great:
+            case HitResult.Great:
                 id = Config.isDebug
                     ? "1431657753000284201"
                     : "1431661101015367861";

@@ -152,13 +152,13 @@ export abstract class EmbedCreator {
 
         const droidBeatmapDifficulty = BeatmapManager.getDifficultyWithMods(
             beatmap,
-            Modes.droid,
+            Modes.Droid,
             mods,
         );
 
         const osuBeatmapDifficulty = BeatmapManager.getDifficultyWithMods(
             beatmap,
-            Modes.osu,
+            Modes.Osu,
             mods,
         );
 
@@ -595,7 +595,7 @@ export abstract class EmbedCreator {
                           await PPProcessorRESTManager.getOnlineScoreAttributes(
                               score.uid,
                               score.hash,
-                              Modes.droid,
+                              Modes.Droid,
                               PPCalculationMethod.live,
                           )
                       )?.attributes;
@@ -609,7 +609,7 @@ export abstract class EmbedCreator {
                           await PPProcessorRESTManager.getOnlineScoreAttributes(
                               score.uid,
                               score.hash,
-                              Modes.osu,
+                              Modes.Osu,
                               PPCalculationMethod.live,
                           )
                       )?.attributes;
@@ -684,7 +684,7 @@ export abstract class EmbedCreator {
             const droidFcAttribs =
                 await PPProcessorRESTManager.getPerformanceAttributes(
                     score.hash,
-                    Modes.droid,
+                    Modes.Droid,
                     PPCalculationMethod.live,
                     calcParams,
                 );
@@ -692,7 +692,7 @@ export abstract class EmbedCreator {
             const osuFcAttribs =
                 await PPProcessorRESTManager.getPerformanceAttributes(
                     score.hash,
-                    Modes.osu,
+                    Modes.Osu,
                     PPCalculationMethod.live,
                     calcParams,
                 );
@@ -736,13 +736,13 @@ export abstract class EmbedCreator {
 
         ModUtil.applyModsToBeatmapDifficulty(
             nonRateModifiedDifficulty,
-            Modes.droid,
+            Modes.Droid,
             mods,
         );
 
         ModUtil.applyModsToBeatmapDifficulty(
             rateModifiedDifficulty,
-            Modes.droid,
+            Modes.Droid,
             mods,
             true,
         );
@@ -799,10 +799,10 @@ export abstract class EmbedCreator {
             ? new PreciseDroidHitWindow(nonRateModifiedDifficulty.od)
             : new DroidHitWindow(nonRateModifiedDifficulty.od);
 
-        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.great)} ${inlineCode(`±${NumberHelper.round(hitWindow.greatWindow / rate, 2).toString()}ms`)} `;
-        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.good)} ${inlineCode(`±${NumberHelper.round(hitWindow.okWindow / rate, 2).toString()}ms`)} `;
-        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.meh)} ${inlineCode(`±${NumberHelper.round(hitWindow.mehWindow / rate, 2).toString()}ms`)} `;
-        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.miss)} ${inlineCode(`±${NumberHelper.round(HitWindow.missWindow / rate, 2).toString()}ms`)}`;
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.Great)} ${inlineCode(`±${NumberHelper.round(hitWindow.greatWindow / rate, 2).toString()}ms`)} `;
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.Good)} ${inlineCode(`±${NumberHelper.round(hitWindow.okWindow / rate, 2).toString()}ms`)} `;
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.Meh)} ${inlineCode(`±${NumberHelper.round(hitWindow.mehWindow / rate, 2).toString()}ms`)} `;
+        beatmapInformation += `${EmoteManager.getHitResultEmote(HitResult.Miss)} ${inlineCode(`±${NumberHelper.round(HitWindow.missWindow / rate, 2).toString()}ms`)}`;
 
         let hitError: HitErrorInformation | null | undefined;
 
@@ -941,7 +941,7 @@ export abstract class EmbedCreator {
         const droidDiffAttribs =
             await PPProcessorRESTManager.getDifficultyAttributes(
                 challenge.beatmapid,
-                Modes.droid,
+                Modes.Droid,
                 PPCalculationMethod.live,
                 calcParams,
             );
@@ -953,7 +953,7 @@ export abstract class EmbedCreator {
         const osuDiffAttribs =
             await PPProcessorRESTManager.getDifficultyAttributes(
                 challenge.beatmapid,
-                Modes.osu,
+                Modes.Osu,
                 PPCalculationMethod.live,
                 calcParams,
             );
@@ -1230,7 +1230,7 @@ export abstract class EmbedCreator {
         const droidDiffAttribs =
             await PPProcessorRESTManager.getDifficultyAttributes(
                 submission.beatmap_id,
-                Modes.droid,
+                Modes.Droid,
                 PPCalculationMethod.live,
                 calcParams,
             );
@@ -1238,7 +1238,7 @@ export abstract class EmbedCreator {
         const osuDiffAttribs =
             await PPProcessorRESTManager.getDifficultyAttributes(
                 submission.beatmap_id,
-                Modes.osu,
+                Modes.Osu,
                 PPCalculationMethod.live,
                 calcParams,
             );

@@ -177,8 +177,8 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
             }
 
             if (
-                beatmapInfo.approved !== RankedStatus.ranked &&
-                beatmapInfo.approved !== RankedStatus.approved
+                beatmapInfo.approved !== RankedStatus.Ranked &&
+                beatmapInfo.approved !== RankedStatus.Approved
             ) {
                 return InteractionHelper.update(interaction, {
                     content: MessageCreator.createReject(
@@ -210,7 +210,7 @@ export const run: SlashSubcommand<false>["run"] = async (_, interaction) => {
                 await PPProcessorRESTManager.getOnlineScoreAttributes(
                     score.uid,
                     score.hash,
-                    Modes.osu,
+                    Modes.Osu,
                     PPCalculationMethod.live
                 );
 

@@ -1,5 +1,4 @@
 import { Accuracy, ModMap, ModUtil } from "@rian8337/osu-base";
-import { SliderCheeseInformation } from "@rian8337/osu-droid-replay-analyzer";
 import {
     CacheableDifficultyAttributes,
     PerformanceCalculationOptions,
@@ -53,9 +52,9 @@ export interface PerformanceCalculationParametersInit {
     tapPenalty?: number;
 
     /**
-     * The slider cheese penalties to apply for penalized scores. Each of them defaults to 1.
+     * The slider cheese penalties to apply for penalized scores. Defaults to 1.
      */
-    sliderCheesePenalty?: SliderCheeseInformation;
+    sliderCheesePenalty?: number;
 }
 
 /**
@@ -113,9 +112,9 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
     tapPenalty?: number;
 
     /**
-     * The slider cheese penalties to apply for penalized scores. Each of them defaults to 1.
+     * The slider cheese penalties to apply for penalized scores. Defaults to 1.
      */
-    sliderCheesePenalty?: SliderCheeseInformation;
+    sliderCheesePenalty?: number;
 
     constructor(values: PerformanceCalculationParametersInit) {
         super(values.mods);
@@ -196,9 +195,10 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
             combo: this.combo,
             accPercent: this.accuracy,
             tapPenalty: this.tapPenalty,
-            aimSliderCheesePenalty: this.sliderCheesePenalty?.aimPenalty ?? 1,
-            flashlightSliderCheesePenalty:
-                this.sliderCheesePenalty?.flashlightPenalty ?? 1,
+            sliderCheesePenalty: this.sliderCheesePenalty,
+            sliderTicksMissed: this.sliderTicksMissed,
+            sliderEndsDropped: this.sliderEndsDropped,
+            totalScore: this.totalScore,
         };
     }
 
@@ -214,6 +214,9 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
             combo: this.combo,
             tapPenalty: this.tapPenalty,
             sliderCheesePenalty: this.sliderCheesePenalty,
+            sliderTicksMissed: this.sliderTicksMissed,
+            sliderEndsDropped: this.sliderEndsDropped,
+            totalScore: this.totalScore,
         };
     }
 }

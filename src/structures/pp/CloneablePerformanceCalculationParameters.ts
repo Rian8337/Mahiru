@@ -1,7 +1,6 @@
-import { SliderCheeseInformation } from "@rian8337/osu-droid-replay-analyzer";
-import { CloneableDifficultyCalculationParameters } from "./CloneableDifficultyCalculationParameters";
 import { Optional } from "@structures/utils/Optional";
 import { CloneableAccuracy } from "./CloneableAccuracy";
+import { CloneableDifficultyCalculationParameters } from "./CloneableDifficultyCalculationParameters";
 
 /**
  * Represents a parameter to alter performance calculation result that can be cloned
@@ -28,5 +27,20 @@ export interface CloneablePerformanceCalculationParameters<
     /**
      * The slider cheese penalties to apply for penalized scores.
      */
-    sliderCheesePenalty: Optional<TFromCalculation, SliderCheeseInformation>;
+    sliderCheesePenalty: Optional<TFromCalculation, number>;
+
+    /**
+     * The amount of slider ticks that were missed.
+     */
+    sliderTicksMissed: Optional<TFromCalculation, number>;
+
+    /**
+     * The amount of slider ends that were dropped.
+     */
+    sliderEndsDropped: Optional<TFromCalculation, number>;
+
+    /**
+     * The total score achieved.
+     */
+    totalScore: Optional<TFromCalculation, number>;
 }

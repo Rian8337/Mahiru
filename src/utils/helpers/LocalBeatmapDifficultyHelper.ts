@@ -37,7 +37,7 @@ export abstract class LocalBeatmapDifficultyHelper {
      */
     static calculateDifficulty(
         beatmap: Beatmap,
-        mode: Modes.droid,
+        mode: Modes.Droid,
         method: PPCalculationMethod.live,
         calculationParams?: DifficultyCalculationParameters
     ): ExtendedDroidDifficultyAttributes;
@@ -53,7 +53,7 @@ export abstract class LocalBeatmapDifficultyHelper {
      */
     static calculateDifficulty(
         beatmap: Beatmap,
-        mode: Modes.osu,
+        mode: Modes.Osu,
         method: PPCalculationMethod.live,
         calculationParams?: DifficultyCalculationParameters
     ): OsuDifficultyAttributes;
@@ -69,7 +69,7 @@ export abstract class LocalBeatmapDifficultyHelper {
      */
     static calculateDifficulty(
         beatmap: Beatmap,
-        mode: Modes.droid,
+        mode: Modes.Droid,
         method: PPCalculationMethod.rebalance,
         calculationParams?: DifficultyCalculationParameters
     ): RebalanceExtendedDroidDifficultyAttributes;
@@ -85,7 +85,7 @@ export abstract class LocalBeatmapDifficultyHelper {
      */
     static calculateDifficulty(
         beatmap: Beatmap,
-        mode: Modes.osu,
+        mode: Modes.Osu,
         method: PPCalculationMethod.rebalance,
         calculationParams?: DifficultyCalculationParameters
     ): RebalanceOsuDifficultyAttributes;
@@ -100,7 +100,7 @@ export abstract class LocalBeatmapDifficultyHelper {
         | OsuDifficultyAttributes
         | RebalanceExtendedDroidDifficultyAttributes
         | RebalanceOsuDifficultyAttributes {
-        if (mode === Modes.droid) {
+        if (mode === Modes.Droid) {
             switch (method) {
                 case PPCalculationMethod.live:
                     return new DroidDifficultyCalculator().calculate(

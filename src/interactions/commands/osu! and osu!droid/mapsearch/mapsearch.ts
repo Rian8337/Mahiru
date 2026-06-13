@@ -150,8 +150,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                     "Beatconnect",
                     `https://beatconnect.io/b/${d.sid}/`,
                 )} - ${hyperlink("Nerina", `https://nerina.pw/d/${d.sid}`)}${
-                    d.approved >= RankedStatus.ranked &&
-                    d.approved !== RankedStatus.qualified
+                    d.approved >= RankedStatus.Ranked &&
+                    d.approved !== RankedStatus.Qualified
                         ? ` - ${hyperlink(
                               "Ripple",
                               `https://storage.ripple.moe/d/${d.sid}`,
