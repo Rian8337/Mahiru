@@ -3,8 +3,7 @@ import { PerformanceAttributes } from "./PerformanceAttributes";
 /**
  * A structure containing information about a performance calculation result.
  */
-export interface RebalanceDroidPerformanceAttributes
-    extends PerformanceAttributes {
+export interface RebalanceDroidPerformanceAttributes extends PerformanceAttributes {
     /**
      * The tap performance points.
      */
@@ -33,12 +32,7 @@ export interface RebalanceDroidPerformanceAttributes
     /**
      * The penalty used to penalize the aim performance value.
      */
-    aimSliderCheesePenalty: number;
-
-    /**
-     * The penalty used to penalize the flashlight performance value.
-     */
-    flashlightSliderCheesePenalty: number;
+    sliderCheesePenalty: number;
 
     /**
      * The estimated unstable rate of the score.

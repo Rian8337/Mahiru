@@ -878,17 +878,8 @@ export abstract class EmbedCreator {
             }
         }
 
-        const {
-            tapPenalty,
-            aimSliderCheesePenalty,
-            flashlightSliderCheesePenalty,
-        } = droidAttribs.performance;
-
-        const isThreeFinger = tapPenalty !== 1;
-        const isSliderCheese = [
-            aimSliderCheesePenalty,
-            flashlightSliderCheesePenalty,
-        ].some((v) => v !== 1);
+        const isThreeFinger = droidAttribs.performance.tapPenalty !== 1;
+        const isSliderCheese = droidAttribs.performance.sliderCheesePenalty !== 1;
 
         if (isThreeFinger || isSliderCheese) {
             const str: string[] = [];
@@ -896,6 +887,7 @@ export abstract class EmbedCreator {
             if (isThreeFinger) {
                 str.push(localization.getTranslation("threeFinger"));
             }
+
             if (isSliderCheese) {
                 str.push(localization.getTranslation("sliderCheese"));
             }
