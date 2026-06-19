@@ -35,6 +35,7 @@ import { AnniversaryTriviaQuestionCollectionManager } from "./managers/aliceDb/A
 import { PrototypePPTypeCollectionManager } from "./managers/aliceDb/PrototypePPTypeCollectionManager";
 import { AccountTransferCollectionManager } from "./managers/aliceDb/AccountTransferCollectionManager";
 import { IndefiniteTimeoutCollectionManager } from "./managers/aliceDb/IndefiniteTimeoutCollectionManager";
+import { BoosterRoleCollectionManager } from "./managers/aliceDb/BoosterRoleCollectionManager";
 
 /**
  * Contains collections from Alice DB.
@@ -44,6 +45,11 @@ export class AliceDBCollection {
      * The database collection manager for information about how many times a user has asked the bot via 8ball.
      */
     readonly askCount: AskCountCollectionManager;
+
+    /**
+     * The database collection for booster roles.
+     */
+    readonly boosterRole: BoosterRoleCollectionManager;
 
     /**
      * The database collection for clan auctions.
@@ -228,114 +234,117 @@ export class AliceDBCollection {
      */
     constructor(aliceDb: Db) {
         this.askCount = new AskCountCollectionManager(
-            aliceDb.collection("askcount")
+            aliceDb.collection("askcount"),
+        );
+        this.boosterRole = new BoosterRoleCollectionManager(
+            aliceDb.collection("boosterrole"),
         );
         this.clanAuction = new ClanAuctionCollectionManager(
-            aliceDb.collection("auction")
+            aliceDb.collection("auction"),
         );
         this.birthday = new BirthdayCollectionManager(
-            aliceDb.collection("birthday")
+            aliceDb.collection("birthday"),
         );
         this.channelActivity = new ChannelActivityCollectionManager(
-            aliceDb.collection("channelactivity")
+            aliceDb.collection("channelactivity"),
         );
         this.challenge = new ChallengeCollectionManager(
-            aliceDb.collection("challenge")
+            aliceDb.collection("challenge"),
         );
         this.guildSettings = new GuildSettingsCollectionManager(
-            aliceDb.collection("guildsettings")
+            aliceDb.collection("guildsettings"),
         );
         this.emojiStatistics = new EmojiStatisticsCollectionManager(
-            aliceDb.collection("emojistatistics")
+            aliceDb.collection("emojistatistics"),
         );
         this.loungeLock = new LoungeLockCollectionManager(
-            aliceDb.collection("loungelock")
+            aliceDb.collection("loungelock"),
         );
         this.mapShare = new MapShareCollectionManager(
-            aliceDb.collection("mapshare")
+            aliceDb.collection("mapshare"),
         );
         this.musicCollection = new MusicCollectionManager(
-            aliceDb.collection("musiccollection")
+            aliceDb.collection("musiccollection"),
         );
         this.nameChange = new NameChangeCollectionManager(
-            aliceDb.collection("namechange")
+            aliceDb.collection("namechange"),
         );
         this.playerInfo = new PlayerInfoCollectionManager(
-            aliceDb.collection("playerpoints")
+            aliceDb.collection("playerpoints"),
         );
         this.playerSkins = new PlayerSkinCollectionManager(
-            aliceDb.collection("playerskins")
+            aliceDb.collection("playerskins"),
         );
         this.dppAPIKey = new DPPAPIKeyCollectionManager(
-            aliceDb.collection("ppapikey")
+            aliceDb.collection("ppapikey"),
         );
         this.profileBackgrounds = new ProfileBackgroundCollectionManager(
-            aliceDb.collection("profilebackgrounds")
+            aliceDb.collection("profilebackgrounds"),
         );
         this.profileBadges = new ProfileBadgeCollectionManager(
-            aliceDb.collection("profilebadges")
+            aliceDb.collection("profilebadges"),
         );
         this.prototypePP = new PrototypePPCollectionManager(
-            aliceDb.collection("prototypepp")
+            aliceDb.collection("prototypepp"),
         );
         this.prototypePPType = new PrototypePPTypeCollectionManager(
-            aliceDb.collection("prototypepptype")
+            aliceDb.collection("prototypepptype"),
         );
         this.guildPunishmentConfig = new GuildPunishmentConfigCollectionManager(
-            aliceDb.collection("punishmentconfig")
+            aliceDb.collection("punishmentconfig"),
         );
         this.eightBallFilter = new EightBallFilterCollectionManager(
-            aliceDb.collection("responsefilter")
+            aliceDb.collection("responsefilter"),
         );
         this.guildTags = new GuildTagCollectionManager(
-            aliceDb.collection("tags")
+            aliceDb.collection("tags"),
         );
         this.voting = new VotingCollectionManager(aliceDb.collection("voting"));
         this.illegalMap = new IllegalMapCollectionManager(
-            aliceDb.collection("illegalmap")
+            aliceDb.collection("illegalmap"),
         );
         this.userLocale = new UserLocaleCollectionManager(
-            aliceDb.collection("userlocale")
+            aliceDb.collection("userlocale"),
         );
         this.userWarning = new WarningCollectionManager(
-            aliceDb.collection("userwarning")
+            aliceDb.collection("userwarning"),
         );
         this.restoredPlayerCredentials =
             new RestoredPlayerCredentialsCollectionManager(
-                aliceDb.collection("restoredplayercredentials")
+                aliceDb.collection("restoredplayercredentials"),
             );
         this.danCourses = new DanCourseCollectionManager(
-            aliceDb.collection("dancoursemaps")
+            aliceDb.collection("dancoursemaps"),
         );
         this.danCourseLeaderboardScores =
             new DanCourseLeaderboardScoreCollectionManager(
-                aliceDb.collection("dancourseleaderboard")
+                aliceDb.collection("dancourseleaderboard"),
             );
         this.danCourseScores = new DanCourseScoreCollectionManager(
-            aliceDb.collection("dancoursescore")
+            aliceDb.collection("dancoursescore"),
         );
         this.recentPlays = new RecentPlaysCollectionManager(
-            aliceDb.collection("recentplays")
+            aliceDb.collection("recentplays"),
         );
         this.supportTicket = new SupportTicketCollectionManager(
-            aliceDb.collection("supportticket")
+            aliceDb.collection("supportticket"),
         );
         this.supportTicketPreset = new SupportTicketPresetCollectionManager(
-            aliceDb.collection("supportticketpreset")
+            aliceDb.collection("supportticketpreset"),
         );
         this.anniversaryTriviaQuestion =
             new AnniversaryTriviaQuestionCollectionManager(
-                aliceDb.collection("anniversarytriviaquestion")
+                aliceDb.collection("anniversarytriviaquestion"),
             );
         this.anniversaryTriviaPlayer =
             new AnniversaryTriviaPlayerCollectionManager(
-                aliceDb.collection("anniversarytriviaplayer")
+                aliceDb.collection("anniversarytriviaplayer"),
             );
         this.accountTransfer = new AccountTransferCollectionManager(
-            aliceDb.collection("accounttransfer")
+            aliceDb.collection("accounttransfer"),
         );
         this.indefiniteTimeout = new IndefiniteTimeoutCollectionManager(
-            aliceDb.collection("indefinitetimeout")
+            aliceDb.collection("indefinitetimeout"),
         );
     }
 }
