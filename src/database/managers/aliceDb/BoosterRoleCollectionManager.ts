@@ -22,6 +22,15 @@ export class BoosterRoleCollectionManager extends DatabaseCollectionManager<
     }
 
     /**
+     * Gets the count of booster roles in the collection.
+     *
+     * @returns The count of booster roles.
+     */
+    getCount(): Promise<number> {
+        return this.collection.countDocuments();
+    }
+
+    /**
      * Gets a booster role from a user's Discord ID.
      *
      * @param discordId The Discord ID of the user.

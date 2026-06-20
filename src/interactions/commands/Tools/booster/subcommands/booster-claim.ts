@@ -49,6 +49,19 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         return;
     }
 
+    const boosterRoleCount =
+        await DatabaseManager.aliceDb.collections.boosterRole.getCount();
+
+    if (boosterRoleCount >= 20) {
+        await InteractionHelper.reply(interaction, {
+            content: MessageCreator.createReject(
+                "I'm sorry, the maximum number of booster roles have already been claimed!",
+            ),
+        });
+
+        return;
+    }
+
     // Put the new role on top of the nitro booster role so that it takes color/icon precedence over the nitro booster role.
     const role = await interaction.guild.roles.create({
         name: `${interaction.user.username}'s Booster Role`,

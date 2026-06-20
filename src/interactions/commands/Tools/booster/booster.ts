@@ -19,7 +19,8 @@ export const config: SlashCommand["config"] = {
     options: [
         {
             name: "claim",
-            description: "Claim your booster role.",
+            description:
+                "Claim your booster role. As of now, only 20 boosters can claim their booster role.",
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
