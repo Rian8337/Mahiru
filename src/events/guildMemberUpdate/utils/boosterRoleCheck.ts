@@ -1,7 +1,12 @@
 import { Constants } from "@core/Constants";
 import { DatabaseManager } from "@database/DatabaseManager";
 import { EventUtil } from "@structures/core/EventUtil";
-import { chatInputApplicationCommandMention, GuildMember } from "discord.js";
+import { MessageCreator } from "@utils/creators/MessageCreator";
+import {
+    chatInputApplicationCommandMention,
+    formatEmoji,
+    GuildMember,
+} from "discord.js";
 
 export const run: EventUtil["run"] = async (
     _,
@@ -26,7 +31,10 @@ export const run: EventUtil["run"] = async (
         }
 
         await generalChannel.send({
-            content: `Thank you for boosting the server, ${newMember}! You can claim your booster role by using the ${chatInputApplicationCommandMention("booster", "claim", "1517880635702907021")} command.`,
+            content: MessageCreator.createPrefixedMessage(
+                `Thank you for boosting the server, ${newMember}! You can claim your booster role by using the ${chatInputApplicationCommandMention("booster", "claim", "1517880635702907021")} command.`,
+                formatEmoji("1299903296542212206"),
+            ),
         });
     } else if (oldMember.premiumSince && !newMember.premiumSince) {
         // User has stopped boosting the server, proceed with booster role removal.
