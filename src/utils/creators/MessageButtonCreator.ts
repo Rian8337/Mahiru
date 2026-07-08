@@ -319,15 +319,23 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
             .add(exportReplayButtonId)
             .add(breakdownChartButtonId);
 
+        const buttons = [
+            missAnalyzerButton,
+            timingDistributionButton,
+            exportReplayButton,
+            breakdownChartButton,
+        ];
+
+        if (buttons.every((b) => b.data.disabled)) {
+            return interaction.isMessageComponent()
+                ? InteractionHelper.update(interaction, options)
+                : InteractionHelper.reply(interaction, options);
+        }
+
         return this.createLimitedTimeButtons(
             interaction,
             options,
-            [
-                missAnalyzerButton,
-                timingDistributionButton,
-                exportReplayButton,
-                breakdownChartButton,
-            ],
+            buttons,
             [interaction.user.id],
             60,
             async (c, i) => {
@@ -651,7 +659,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                 const index = (<ActionRowBuilder<ButtonBuilder>[]>(
                     options.components
                 )).findIndex((v) => {
-                    if (v.components.length !== 3) {
+                    if (v.components.length !== 4) {
                         return;
                     }
 
