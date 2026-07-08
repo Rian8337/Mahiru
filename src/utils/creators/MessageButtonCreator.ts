@@ -41,6 +41,7 @@ import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
 import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
 import { DroidPerformanceBreakdownChart } from "@utils/pp/DroidPerformanceBreakdownChart";
+import { RecentPlay } from "@database/utils/aliceDb/RecentPlay";
 
 /**
  * A utility to create message buttons.
@@ -258,6 +259,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
         beatmap: Beatmap | null | undefined,
         score:
             | Score
+            | RecentPlay
             | Pick<
                   OfficialDatabaseScore,
                   | "id"
@@ -472,7 +474,11 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                     }
 
                     case exportReplayButtonId: {
-                        if (!replay?.data || !replay.originalODR) {
+                        if (
+                            !replay?.data ||
+                            !replay.originalODR ||
+                            score instanceof RecentPlay
+                        ) {
                             return;
                         }
 
@@ -572,13 +578,19 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                             new PerformanceCalculationParameters({
                                 accuracy: new Accuracy({
                                     n300:
-                                        score.perfect +
-                                        score.good +
-                                        score.bad +
-                                        score.miss,
+                                        score instanceof RecentPlay
+                                            ? score.accuracy.n300 +
+                                              score.accuracy.n100 +
+                                              score.accuracy.n50 +
+                                              score.accuracy.nmiss
+                                            : score.perfect +
+                                              score.good +
+                                              score.bad +
+                                              score.miss,
                                 }),
                                 mods:
-                                    score instanceof Score
+                                    score instanceof Score ||
+                                    score instanceof RecentPlay
                                         ? score.mods
                                         : ModUtil.deserializeMods(score.mods),
                             });

@@ -243,13 +243,11 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         ],
     };
 
-    if (score instanceof RecentPlay) {
-        return InteractionHelper.reply(interaction, options);
-    }
+    const replay = !(score instanceof RecentPlay)
+        ? await ReplayHelper.analyzeReplay(score)
+        : undefined;
 
-    const replay = await ReplayHelper.analyzeReplay(score);
-
-    const beatmapInfo = replay.data
+    const beatmapInfo = replay?.data
         ? await BeatmapManager.getBeatmap(score.hash)
         : null;
 
