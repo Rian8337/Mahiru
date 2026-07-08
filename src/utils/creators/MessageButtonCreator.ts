@@ -658,12 +658,9 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                 // Remove the row
                 const index = (<ActionRowBuilder<ButtonBuilder>[]>(
                     options.components
-                )).findIndex((v) => {
-                    if (v.components.length !== 4) {
-                        return;
-                    }
-
-                    return (
+                )).findIndex(
+                    (v) =>
+                        v.components.length === buttons.length &&
                         (<APIButtonComponentWithCustomId>v.components[0].data)
                             .custom_id ===
                             (<APIButtonComponentWithCustomId>(
@@ -683,9 +680,8 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                             .custom_id ===
                             (<APIButtonComponentWithCustomId>(
                                 breakdownChartButton.data
-                            )).custom_id
-                    );
-                });
+                            )).custom_id,
+                );
 
                 if (index !== -1) {
                     const newComponents = options.components?.slice() ?? [];
@@ -932,8 +928,8 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
             async (c) => {
                 const index = (<ActionRowBuilder<ButtonBuilder>[]>(
                     options.components
-                )).findIndex((v) => {
-                    return (
+                )).findIndex(
+                    (v) =>
                         v.components.length === buttons.length &&
                         v.components.every(
                             (c, i) =>
@@ -942,9 +938,8 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                 (<APIButtonComponentWithCustomId>(
                                     buttons[i].data
                                 )).custom_id,
-                        )
-                    );
-                });
+                        ),
+                );
 
                 if (index !== -1) {
                     const newComponents = options.components?.slice() ?? [];
@@ -983,11 +978,12 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
         currentPage: number,
         maxPage: number,
     ): ButtonBuilder[] {
-        CacheManager.exemptedButtonCustomIds.add("pagingBackward");
-        CacheManager.exemptedButtonCustomIds.add("pagingBack");
-        CacheManager.exemptedButtonCustomIds.add("pagingNone");
-        CacheManager.exemptedButtonCustomIds.add("pagingNext");
-        CacheManager.exemptedButtonCustomIds.add("pagingForward");
+        CacheManager.exemptedButtonCustomIds
+            .add("pagingBackward")
+            .add("pagingBack")
+            .add("pagingNone")
+            .add("pagingNext")
+            .add("pagingForward");
 
         return [
             new ButtonBuilder()
@@ -1032,8 +1028,9 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
      * ID order: `[confirmationYes, confirmationNo]`
      */
     private static createConfirmationButtons(): ButtonBuilder[] {
-        CacheManager.exemptedButtonCustomIds.add("confirmationYes");
-        CacheManager.exemptedButtonCustomIds.add("confirmationNo");
+        CacheManager.exemptedButtonCustomIds
+            .add("confirmationYes")
+            .add("confirmationNo");
 
         return [
             new ButtonBuilder()
