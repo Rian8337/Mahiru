@@ -2,7 +2,7 @@ import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabas
 import { Symbols } from "@enums/utils/Symbols";
 import { Language } from "@localization/base/Language";
 import { MessageButtonCreatorLocalization } from "@localization/utils/creators/MessageButtonCreator/MessageButtonCreatorLocalization";
-import { Accuracy, Beatmap, ModUtil } from "@rian8337/osu-base";
+import { Accuracy, Beatmap, Modes, ModUtil } from "@rian8337/osu-base";
 import {
     ExportedReplayJSONV3,
     ExportedReplayJSONV4,
@@ -36,6 +36,11 @@ import {
     Snowflake,
 } from "discord.js";
 import { MessageCreator } from "./MessageCreator";
+import { DroidPerformanceAttributes } from "@structures/difficultyattributes/DroidPerformanceAttributes";
+import { PPProcessorRESTManager } from "@utils/managers/PPProcessorRESTManager";
+import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
+import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
+import { DroidPerformanceBreakdownChart } from "@utils/pp/DroidPerformanceBreakdownChart";
 
 /**
  * A utility to create message buttons.
@@ -271,6 +276,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                   | "slider_end_hit"
               >,
         username: string,
+        droidAttributes?: DroidPerformanceAttributes,
         replay?: ReplayAnalyzer,
     ): Promise<Message> {
         const missAnalyzerButtonId = "analyzeMissesFromRecent";
@@ -297,14 +303,29 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
             .setStyle(ButtonStyle.Primary)
             .setEmoji(Symbols.outboxTray);
 
-        CacheManager.exemptedButtonCustomIds.add(missAnalyzerButtonId);
-        CacheManager.exemptedButtonCustomIds.add(timingDistributionButtonId);
-        CacheManager.exemptedButtonCustomIds.add(exportReplayButtonId);
+        const breakdownChartButtonId = "performanceBreakdownChart";
+        const breakdownChartButton = new ButtonBuilder()
+            .setDisabled(!droidAttributes)
+            .setCustomId(breakdownChartButtonId)
+            .setLabel("Performance Breakdown")
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji(Symbols.barChart);
+
+        CacheManager.exemptedButtonCustomIds
+            .add(missAnalyzerButtonId)
+            .add(timingDistributionButtonId)
+            .add(exportReplayButtonId)
+            .add(breakdownChartButtonId);
 
         return this.createLimitedTimeButtons(
             interaction,
             options,
-            [missAnalyzerButton, timingDistributionButton, exportReplayButton],
+            [
+                missAnalyzerButton,
+                timingDistributionButton,
+                exportReplayButton,
+                breakdownChartButton,
+            ],
             [interaction.user.id],
             60,
             async (c, i) => {
@@ -541,6 +562,60 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         exportReplayButton.setDisabled(true);
                         break;
                     }
+
+                    case breakdownChartButtonId: {
+                        if (!droidAttributes) {
+                            return;
+                        }
+
+                        const calculationParams =
+                            new PerformanceCalculationParameters({
+                                accuracy: new Accuracy({
+                                    n300:
+                                        score.perfect +
+                                        score.good +
+                                        score.bad +
+                                        score.miss,
+                                }),
+                                mods:
+                                    score instanceof Score
+                                        ? score.mods
+                                        : ModUtil.deserializeMods(score.mods),
+                            });
+
+                        const maxAttributes =
+                            await PPProcessorRESTManager.getPerformanceAttributes(
+                                score.hash,
+                                Modes.Droid,
+                                PPCalculationMethod.live,
+                                calculationParams,
+                            );
+
+                        if (!maxAttributes) {
+                            await i.editReply({
+                                content: MessageCreator.createReject(
+                                    "I'm sorry, I couldn't retrieve the performance for the score!",
+                                ),
+                            });
+
+                            return;
+                        }
+
+                        const chart = new DroidPerformanceBreakdownChart(
+                            droidAttributes,
+                            maxAttributes.attributes.performance,
+                        ).generate();
+
+                        const attachment = new AttachmentBuilder(chart, {
+                            name: "performanceBreakdown.png",
+                        });
+
+                        await i.editReply({ files: [attachment] });
+
+                        // Disable the button
+                        breakdownChartButton.setDisabled(true);
+                        break;
+                    }
                 }
 
                 try {
@@ -553,7 +628,8 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                 if (
                     missAnalyzerButton.data.disabled &&
                     timingDistributionButton.data.disabled &&
-                    exportReplayButton.data.disabled
+                    exportReplayButton.data.disabled &&
+                    breakdownChartButton.data.disabled
                 ) {
                     c.stop();
                 }
@@ -582,6 +658,11 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                             .custom_id ===
                             (<APIButtonComponentWithCustomId>(
                                 exportReplayButton.data
+                            )).custom_id &&
+                        (<APIButtonComponentWithCustomId>v.components[3].data)
+                            .custom_id ===
+                            (<APIButtonComponentWithCustomId>(
+                                breakdownChartButton.data
                             )).custom_id
                     );
                 });

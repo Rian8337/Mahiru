@@ -121,11 +121,9 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
 
     const replay = await ReplayHelper.analyzeReplay(score);
 
-    if (!replay.data) {
-        return InteractionHelper.reply(interaction, options);
-    }
-
-    const beatmapInfo = await BeatmapManager.getBeatmap(score.hash);
+    const beatmapInfo = replay.data
+        ? await BeatmapManager.getBeatmap(score.hash)
+        : null;
 
     void MessageButtonCreator.createRecentScoreButton(
         interaction,
@@ -133,6 +131,7 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
         beatmapInfo?.beatmap,
         score,
         player.username,
+        scoreAttribs?.attributes.performance,
         replay,
     );
 };

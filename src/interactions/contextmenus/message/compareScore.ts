@@ -153,19 +153,14 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         ],
     };
 
-    const replay = await ReplayHelper.analyzeReplay(score);
-
-    if (!replay.data) {
-        return InteractionHelper.reply(interaction, options);
-    }
-
     void MessageButtonCreator.createRecentScoreButton(
         interaction,
         options,
         beatmapInfo.beatmap,
         score,
         player.username,
-        replay,
+        scoreAttribs?.attributes.performance,
+        await ReplayHelper.analyzeReplay(score),
     );
 };
 

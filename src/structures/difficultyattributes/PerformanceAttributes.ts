@@ -21,4 +21,9 @@ export interface PerformanceAttributes {
      * The flashlight performance points.
      */
     flashlight: number;
+
+    /**
+     * The reading performance points.
+     */
+    reading: number;
 }
