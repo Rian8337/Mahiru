@@ -51,7 +51,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     let uid = interaction.options.getInteger("uid");
     const username = interaction.options.getString("username");
 
-    if ([discordid, uid, username].filter((v) => v !== null).length > 1) {
+    if ([discordid, uid, username].filter(Boolean).length > 1) {
         interaction.ephemeral = true;
 
         return InteractionHelper.reply(interaction, {
