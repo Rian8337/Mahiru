@@ -173,12 +173,22 @@ export abstract class PerformanceBreakdownChart<
                 ctx.fill();
             }
 
-            ctx.font = "16px bold Torus";
-            ctx.fillStyle = "#ffffff";
+            const valueX = this.canvas.width - margin;
+
+            ctx.font = "11px bold Torus";
+            ctx.fillStyle = "#999999";
             ctx.textAlign = "right";
             ctx.fillText(
+                `${Math.round(attribute.value).toString()}/${Math.round(attribute.perfectValue).toString()}`,
+                valueX,
+                rowCenterY - 17,
+            );
+
+            ctx.font = "16px bold Torus";
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(
                 `${Math.round(ratio * 100).toString()}%`,
-                this.canvas.width - margin,
+                valueX,
                 rowCenterY,
             );
         });
