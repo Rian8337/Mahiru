@@ -35,9 +35,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     await InteractionHelper.deferReply(interaction);
 
     let player:
-        | Pick<OfficialDatabaseUser, "id" | "username" | "pp">
-        | Player
-        | null = null;
+        Pick<OfficialDatabaseUser, "id" | "username" | "pp"> | Player | null =
+        null;
 
     switch (true) {
         case !!uid:
@@ -144,7 +143,9 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             perfect: 0,
             pp: ppValue,
             ppMultiplier: 1,
+            sliderHeadHit: null,
             sliderTickHit: null,
+            sliderRepeatHit: null,
             sliderEndHit: null,
             score: 0,
             uid: 0,

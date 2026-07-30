@@ -138,7 +138,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
               | "bad"
               | "mark"
               | "date"
+              | "slider_head_hit"
               | "slider_tick_hit"
+              | "slider_repeat_hit"
               | "slider_end_hit"
           >
         | Score
@@ -179,7 +181,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 "bad",
                 "mark",
                 "date",
+                "slider_head_hit",
                 "slider_tick_hit",
+                "slider_repeat_hit",
                 "slider_end_hit",
             ],
         ).then((res) =>

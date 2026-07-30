@@ -20,7 +20,9 @@ export interface OfficialDatabaseScore {
     miss: number;
     readonly date: Date;
     accuracy: number;
+    readonly slider_head_hit: number | null;
     readonly slider_tick_hit: number | null;
+    readonly slider_repeat_hit: number | null;
     readonly slider_end_hit: number | null;
     readonly pp: number | null;
     readonly pp_multiplier: number | null;

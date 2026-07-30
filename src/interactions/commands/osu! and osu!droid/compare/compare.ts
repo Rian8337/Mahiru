@@ -147,7 +147,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             "bad",
             "miss",
             "date",
+            "slider_head_hit",
             "slider_tick_hit",
+            "slider_repeat_hit",
             "slider_end_hit",
         ],
     );

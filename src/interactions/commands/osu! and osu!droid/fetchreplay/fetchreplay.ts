@@ -104,7 +104,9 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         "bad",
         "miss",
         "date",
+        "slider_head_hit",
         "slider_tick_hit",
+        "slider_repeat_hit",
         "slider_end_hit",
     ]);
 
@@ -189,10 +191,18 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             misses: accuracy.nmiss,
             accuracy: accuracy.value(),
             time: score.date.getTime(),
+            sliderHeadHits:
+                score instanceof Score
+                    ? score.sliderHeadHits
+                    : score.slider_head_hit,
             sliderTickHits:
                 score instanceof Score
                     ? score.sliderTickHits
                     : score.slider_tick_hit,
+            sliderRepeatHits:
+                score instanceof Score
+                    ? score.sliderRepeatHits
+                    : score.slider_repeat_hit,
             sliderEndHits:
                 score instanceof Score
                     ? score.sliderEndHits

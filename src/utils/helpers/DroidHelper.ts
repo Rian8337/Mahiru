@@ -96,7 +96,9 @@ export abstract class DroidHelper {
                 score.miss as miss,
                 score.date as date,
                 score.hash as hash,
+                score.slider_head_hit as slider_head_hit,
                 score.slider_tick_hit as slider_tick_hit,
+                score.slider_repeat_hit as slider_repeat_hit,
                 score.slider_end_hit as slider_end_hit,
                 score.pp as pp,
                 score.pp_multiplier as pp_multiplier
@@ -115,7 +117,9 @@ export abstract class DroidHelper {
                 ...v,
                 date: Math.floor(v.date.getTime() / 1000),
                 mods: JSON.parse(v.mods) as SerializedMod[],
+                sliderHeadHit: v.slider_head_hit,
                 sliderTickHit: v.slider_tick_hit,
+                sliderRepeatHit: v.slider_repeat_hit,
                 sliderEndHit: v.slider_end_hit,
                 ppMultiplier: v.pp_multiplier,
             });
@@ -453,8 +457,7 @@ export abstract class DroidHelper {
         return (
             (
                 scoreQuery[0] as (
-                    | OfficialDatabaseScore
-                    | OfficialDatabaseBestScore
+                    OfficialDatabaseScore | OfficialDatabaseBestScore
                 )[]
             ).at(0) ?? null
         );
@@ -653,9 +656,10 @@ export abstract class DroidHelper {
         }
 
         const playerQuery = await officialPool
-            .query<
-                RowDataPacket[]
-            >(`SELECT username FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.user)} WHERE username LIKE ? LIMIT ${amount.toString()};`, [`${name}%`])
+            .query<RowDataPacket[]>(
+                `SELECT username FROM ${constructOfficialDatabaseTable(OfficialDatabaseTables.user)} WHERE username LIKE ? LIMIT ${amount.toString()};`,
+                [`${name}%`],
+            )
             .then((res) => res[0] as Pick<OfficialDatabaseUser, "username">[]);
 
         return playerQuery.map((v) => {
