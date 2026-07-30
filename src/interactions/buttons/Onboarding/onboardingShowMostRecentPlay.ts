@@ -92,12 +92,22 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
 
     const score = recentPlays[0];
 
-    const scoreAttribs = await PPProcessorRESTManager.getOnlineScoreAttributes(
-        score.uid,
-        score.hash,
-        Modes.Droid,
-        PPCalculationMethod.live,
-    );
+    const droidScoreAttributes =
+        await PPProcessorRESTManager.getOnlineScoreAttributes(
+            score.uid,
+            score.hash,
+            Modes.Droid,
+            PPCalculationMethod.live,
+        );
+
+    const osuScoreAttributes = droidScoreAttributes
+        ? await PPProcessorRESTManager.getOnlineScoreAttributes(
+              score.uid,
+              score.hash,
+              Modes.Osu,
+              PPCalculationMethod.live,
+          )
+        : undefined;
 
     const options: InteractionReplyOptions = {
         content: MessageCreator.createAccept(
@@ -111,8 +121,8 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
             await EmbedCreator.createRecentPlayEmbed(
                 score,
                 interaction.member.displayColor,
-                scoreAttribs?.attributes,
-                undefined,
+                droidScoreAttributes?.attributes,
+                osuScoreAttributes?.attributes,
                 localization.language,
             ),
         ],
@@ -131,7 +141,8 @@ export const run: ButtonCommand["run"] = async (_, interaction) => {
         beatmapInfo?.beatmap,
         score,
         player.username,
-        scoreAttribs?.attributes.performance,
+        droidScoreAttributes?.attributes.performance,
+        osuScoreAttributes?.attributes.performance,
         replay,
     );
 };

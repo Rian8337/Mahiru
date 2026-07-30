@@ -42,6 +42,8 @@ import { PPCalculationMethod } from "@enums/utils/PPCalculationMethod";
 import { PerformanceCalculationParameters } from "@utils/pp/PerformanceCalculationParameters";
 import { DroidPerformanceBreakdownChart } from "@utils/pp/DroidPerformanceBreakdownChart";
 import { RecentPlay } from "@database/utils/aliceDb/RecentPlay";
+import { OsuPerformanceAttributes } from "@structures/difficultyattributes/OsuPerformanceAttributes";
+import { OsuPerformanceBreakdownChart } from "@utils/pp/OsuPerformanceBreakdownChart";
 
 /**
  * A utility to create message buttons.
@@ -279,6 +281,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
               >,
         username: string,
         droidAttributes?: DroidPerformanceAttributes,
+        osuAttributes?: OsuPerformanceAttributes,
         replay?: ReplayAnalyzer,
     ): Promise<Message> {
         const missAnalyzerButtonId = "analyzeMissesFromRecent";
@@ -305,11 +308,19 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
             .setStyle(ButtonStyle.Primary)
             .setEmoji(Symbols.outboxTray);
 
-        const breakdownChartButtonId = "performanceBreakdownChart";
-        const breakdownChartButton = new ButtonBuilder()
+        const droidBreakdownChartButtonId = "performanceBreakdownChart";
+        const droidBreakdownChartButton = new ButtonBuilder()
             .setDisabled(!droidAttributes)
-            .setCustomId(breakdownChartButtonId)
-            .setLabel("Performance Breakdown")
+            .setCustomId(droidBreakdownChartButtonId)
+            .setLabel("DPP Breakdown")
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji(Symbols.barChart);
+
+        const osuBreakdownChartButtonId = "osuPerformanceBreakdownChart";
+        const osuBreakdownChartButton = new ButtonBuilder()
+            .setDisabled(!osuAttributes)
+            .setCustomId(osuBreakdownChartButtonId)
+            .setLabel("PP Breakdown")
             .setStyle(ButtonStyle.Primary)
             .setEmoji(Symbols.barChart);
 
@@ -317,13 +328,15 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
             .add(missAnalyzerButtonId)
             .add(timingDistributionButtonId)
             .add(exportReplayButtonId)
-            .add(breakdownChartButtonId);
+            .add(droidBreakdownChartButtonId)
+            .add(osuBreakdownChartButtonId);
 
         const buttons = [
             missAnalyzerButton,
             timingDistributionButton,
             exportReplayButton,
-            breakdownChartButton,
+            droidBreakdownChartButton,
+            osuBreakdownChartButton,
         ];
 
         if (buttons.every((b) => b.data.disabled)) {
@@ -577,7 +590,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         break;
                     }
 
-                    case breakdownChartButtonId: {
+                    case droidBreakdownChartButtonId: {
                         if (!droidAttributes) {
                             return;
                         }
@@ -633,7 +646,67 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         await i.editReply({ files: [attachment] });
 
                         // Disable the button
-                        breakdownChartButton.setDisabled(true);
+                        droidBreakdownChartButton.setDisabled(true);
+                        break;
+                    }
+
+                    case osuBreakdownChartButtonId: {
+                        if (!osuAttributes) {
+                            return;
+                        }
+
+                        const calculationParams =
+                            new PerformanceCalculationParameters({
+                                accuracy: new Accuracy({
+                                    n300:
+                                        score instanceof RecentPlay
+                                            ? score.accuracy.n300 +
+                                              score.accuracy.n100 +
+                                              score.accuracy.n50 +
+                                              score.accuracy.nmiss
+                                            : score.perfect +
+                                              score.good +
+                                              score.bad +
+                                              score.miss,
+                                }),
+                                mods:
+                                    score instanceof Score ||
+                                    score instanceof RecentPlay
+                                        ? score.mods
+                                        : ModUtil.deserializeMods(score.mods),
+                            });
+
+                        const maxAttributes =
+                            await PPProcessorRESTManager.getPerformanceAttributes(
+                                score.hash,
+                                Modes.Osu,
+                                PPCalculationMethod.live,
+                                calculationParams,
+                            );
+
+                        if (!maxAttributes) {
+                            await i.editReply({
+                                content: MessageCreator.createReject(
+                                    "I'm sorry, I couldn't retrieve the performance for the score!",
+                                ),
+                            });
+
+                            return;
+                        }
+
+                        const chart = new OsuPerformanceBreakdownChart(
+                            osuAttributes,
+                            maxAttributes.attributes.performance,
+                        ).generate();
+
+                        const attachment = new AttachmentBuilder(chart, {
+                            name: "performanceBreakdown.png",
+                        });
+
+                        await i.editReply({ files: [attachment] });
+
+                        // Disable the button
+                        droidBreakdownChartButton.setDisabled(true);
                         break;
                     }
                 }
@@ -649,7 +722,8 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                     missAnalyzerButton.data.disabled &&
                     timingDistributionButton.data.disabled &&
                     exportReplayButton.data.disabled &&
-                    breakdownChartButton.data.disabled
+                    droidBreakdownChartButton.data.disabled &&
+                    osuBreakdownChartButton.data.disabled
                 ) {
                     c.stop();
                 }
@@ -679,7 +753,12 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         (<APIButtonComponentWithCustomId>v.components[3].data)
                             .custom_id ===
                             (<APIButtonComponentWithCustomId>(
-                                breakdownChartButton.data
+                                droidBreakdownChartButton.data
+                            )).custom_id &&
+                        (<APIButtonComponentWithCustomId>v.components[4].data)
+                            .custom_id ===
+                            (<APIButtonComponentWithCustomId>(
+                                osuBreakdownChartButton.data
                             )).custom_id,
                 );
 

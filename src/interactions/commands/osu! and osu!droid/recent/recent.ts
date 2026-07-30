@@ -210,7 +210,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     BeatmapManager.setChannelLatestBeatmap(interaction.channelId, score.hash);
 
-    const scoreAttribs =
+    const droidScoreAttributes =
         score instanceof RecentPlay
             ? (score.droidAttribs ?? null)
             : (
@@ -221,6 +221,20 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                       PPCalculationMethod.live,
                   )
               )?.attributes;
+
+    const osuScoreAttributes =
+        score instanceof RecentPlay
+            ? (score.osuAttribs ?? null)
+            : droidScoreAttributes
+              ? (
+                    await PPProcessorRESTManager.getOnlineScoreAttributes(
+                        score.uid,
+                        score.hash,
+                        Modes.Osu,
+                        PPCalculationMethod.live,
+                    )
+                )?.attributes
+              : undefined;
 
     const options: InteractionReplyOptions = {
         content: MessageCreator.createAccept(
@@ -234,10 +248,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             await EmbedCreator.createRecentPlayEmbed(
                 score,
                 (interaction.member as GuildMember | null)?.displayColor,
-                scoreAttribs,
-                score instanceof RecentPlay
-                    ? (score.osuAttribs ?? null)
-                    : undefined,
+                droidScoreAttributes,
+                osuScoreAttributes,
                 localization.language,
             ),
         ],
@@ -257,7 +269,8 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         beatmapInfo?.beatmap,
         score,
         player.username,
-        scoreAttribs?.performance,
+        droidScoreAttributes?.performance,
+        osuScoreAttributes?.performance,
         replay,
     );
 };

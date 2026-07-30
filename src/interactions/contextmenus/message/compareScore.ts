@@ -127,12 +127,22 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         beatmapInfo.hash,
     );
 
-    const scoreAttribs = await PPProcessorRESTManager.getOnlineScoreAttributes(
-        score.uid,
-        score.hash,
-        Modes.Droid,
-        PPCalculationMethod.live,
-    );
+    const droidScoreAttributes =
+        await PPProcessorRESTManager.getOnlineScoreAttributes(
+            score.uid,
+            score.hash,
+            Modes.Droid,
+            PPCalculationMethod.live,
+        );
+
+    const osuScoreAttributes = droidScoreAttributes
+        ? await PPProcessorRESTManager.getOnlineScoreAttributes(
+              score.uid,
+              score.hash,
+              Modes.Osu,
+              PPCalculationMethod.live,
+          )
+        : undefined;
 
     const options: InteractionReplyOptions = {
         content: MessageCreator.createAccept(
@@ -146,8 +156,8 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
             await EmbedCreator.createRecentPlayEmbed(
                 score,
                 (interaction.member as GuildMember | null)?.displayColor,
-                scoreAttribs?.attributes,
-                undefined,
+                droidScoreAttributes?.attributes,
+                osuScoreAttributes?.attributes,
                 localization.language,
             ),
         ],
@@ -159,7 +169,8 @@ export const run: MessageContextMenuCommand["run"] = async (_, interaction) => {
         beatmapInfo.beatmap,
         score,
         player.username,
-        scoreAttribs?.attributes.performance,
+        droidScoreAttributes?.attributes.performance,
+        osuScoreAttributes?.attributes.performance,
         await ReplayHelper.analyzeReplay(score),
     );
 };
