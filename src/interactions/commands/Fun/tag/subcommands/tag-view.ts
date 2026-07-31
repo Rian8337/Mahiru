@@ -1,28 +1,30 @@
 import { DatabaseManager } from "@database/DatabaseManager";
-import { GuildTag } from "@database/utils/aliceDb/GuildTag";
 import { SlashSubcommand } from "structures/core/SlashSubcommand";
 import { TagLocalization } from "@localization/interactions/commands/Fun/tag/TagLocalization";
 import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { InteractionHelper } from "@utils/helpers/InteractionHelper";
 import { BaseMessageOptions } from "discord.js";
+import { Constants } from "@core/Constants";
 
-export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
+export const run: SlashSubcommand<true>["run"] = async (
+    client,
+    interaction,
+) => {
     if (!interaction.inGuild()) {
         return;
     }
 
-    const localization: TagLocalization = new TagLocalization(
+    const localization = new TagLocalization(
         CommandHelper.getLocale(interaction),
     );
 
-    const name: string = interaction.options.getString("name", true);
+    const name = interaction.options.getString("name", true);
 
-    const tag: GuildTag | null =
-        await DatabaseManager.aliceDb.collections.guildTags.getByName(
-            interaction.guildId,
-            name,
-        );
+    const tag = await DatabaseManager.aliceDb.collections.guildTags.getByName(
+        interaction.guildId,
+        name,
+    );
 
     if (!tag) {
         return InteractionHelper.reply(interaction, {
@@ -42,6 +44,19 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         });
     }
 
+    // Discord implemented a time gate for attachments. Fetch the message to get a fresh link.
+    const testingServer = await client.guilds.fetch(Constants.testingServer);
+
+    const tagChannel = await testingServer.channels.fetch(
+        Constants.tagAttachmentChannel,
+    );
+
+    if (!tagChannel?.isTextBased()) {
+        return;
+    }
+
+    const tagMessage = await tagChannel.messages.fetch(tag.attachment_message);
+
     const options: BaseMessageOptions = {
         allowedMentions: {
             parse: [],
@@ -52,8 +67,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         options.content = tag.content;
     }
 
-    if (tag.attachments) {
-        options.files = tag.attachments;
+    if (tagMessage.attachments.size > 0) {
+        options.files = [...tagMessage.attachments.values()];
     }
 
     InteractionHelper.reply(interaction, options);
