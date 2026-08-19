@@ -160,11 +160,11 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
         score instanceof Score
             ? score.accuracy
             : new Accuracy({
-                  n300: score.perfect,
-                  n100: score.good,
-                  n50: score.bad,
-                  nmiss: score.miss,
-              });
+                n300: score.perfect,
+                n100: score.good,
+                n50: score.bad,
+                nmiss: score.miss,
+            });
 
     const totalScore = score instanceof Score ? score.score : score.total_score;
 
@@ -189,7 +189,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
             h100: accuracy.n100,
             h50: accuracy.n50,
             misses: accuracy.nmiss,
-            accuracy: accuracy.value(),
+            accuracy: accuracy.value,
             time: score.date.getTime(),
             sliderHeadHits:
                 score instanceof Score
@@ -227,7 +227,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                     LocaleHelper.convertToBCP47(localization.language),
                 ),
                 score.combo.toString(),
-                (accuracy.value() * 100).toFixed(2),
+                (accuracy.value * 100).toFixed(2),
                 accuracy.n300.toString(),
                 accuracy.n100.toString(),
                 accuracy.n50.toString(),
@@ -255,7 +255,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                     LocaleHelper.convertToBCP47(localization.language),
                 ),
                 score.combo.toString(),
-                (accuracy.value() * 100).toFixed(2),
+                (accuracy.value * 100).toFixed(2),
                 accuracy.n300.toString(),
                 accuracy.n100.toString(),
                 accuracy.n50.toString(),
@@ -281,7 +281,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                     LocaleHelper.convertToBCP47(localization.language),
                 ),
                 score.combo.toString(),
-                (accuracy.value() * 100).toFixed(2),
+                (accuracy.value * 100).toFixed(2),
                 accuracy.n300.toString(),
                 accuracy.n100.toString(),
                 accuracy.n50.toString(),
@@ -330,14 +330,14 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                         localization.getTranslation("hitErrorInfo"),
                         HeadingLevel.Three,
                     ) +
-                        "\n" +
-                        `${hitErrorInformation.negativeAvg.toFixed(
-                            2,
-                        )}ms - ${hitErrorInformation.positiveAvg.toFixed(
-                            2,
-                        )}ms ${localization.getTranslation(
-                            "hitErrorAvg",
-                        )} | ${hitErrorInformation.unstableRate.toFixed(2)} UR`,
+                    "\n" +
+                    `${hitErrorInformation.negativeAvg.toFixed(
+                        2,
+                    )}ms - ${hitErrorInformation.positiveAvg.toFixed(
+                        2,
+                    )}ms ${localization.getTranslation(
+                        "hitErrorAvg",
+                    )} | ${hitErrorInformation.unstableRate.toFixed(2)} UR`,
                 ),
             );
     }

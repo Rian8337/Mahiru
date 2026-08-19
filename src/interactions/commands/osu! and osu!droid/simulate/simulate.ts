@@ -11,6 +11,7 @@ import {
     BeatmapDifficulty,
     Circle,
     DroidHitWindow,
+    DroidLegacyScoreMultiplierCalculator,
     HitResult,
     MapInfo,
     ModCustomSpeed,
@@ -289,16 +290,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     // Simulate replay given the mods input.
     // For the moment, we're not gonna check for cursor position in sliders as the operation will be too expensive.
-    let simulatedScoreMultiplier = 1;
-    for (const mod of simulatedMods.values()) {
-        if (mod.isApplicableToDroid()) {
-            if (mod.requiresBeatmapDifficulty()) {
-                mod.applyFromBeatmapDifficulty(beatmap.beatmap!.difficulty);
-            }
-
-            simulatedScoreMultiplier *= mod.droidScoreMultiplier;
-        }
-    }
+    const simulatedScoreMultiplier = new DroidLegacyScoreMultiplierCalculator(beatmap.beatmap!.difficulty).calculateFor(simulatedMods.values());
 
     const difficultyMultiplier =
         1 + beatmap.od / 10 + beatmap.hp / 10 + (beatmap.cs - 3) / 4;
@@ -481,7 +473,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
                 addSliderNestedResult(
                     object.nestedHitObjects[0],
                     -simulatedHitWindow50 <= hitAccuracy &&
-                        hitAccuracy <= simulatedHitWindow50,
+                    hitAccuracy <= simulatedHitWindow50,
                 );
             } else if (hitAccuracy <= object.duration) {
                 // In replays older than version 6, when the 50 hit window is longer than the duration
@@ -554,7 +546,7 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     const hit300Ratio = simulatedAccuracy.n300 / beatmap.objects;
 
     switch (true) {
-        case simulatedAccuracy.value() === 1:
+        case simulatedAccuracy.value === 1:
             newRank = isHidden ? "XH" : "X";
             break;
         case hit300Ratio > 0.9 &&

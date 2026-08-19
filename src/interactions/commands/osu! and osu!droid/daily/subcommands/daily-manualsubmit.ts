@@ -150,39 +150,33 @@ export const run: SlashSubcommand<true>["run"] = async (
     embed
         .setTitle(localization.getTranslation("scoreStatistics"))
         .setDescription(
-            `${bold(localization.getTranslation("totalScore"))}: ${
-                data.totalScore
+            `${bold(localization.getTranslation("totalScore"))}: ${data.getTotalScore()
             }\n` +
-                `${bold(localization.getTranslation("maxCombo"))}: ${
-                    data.maxCombo
-                }x\n` +
-                `${bold(localization.getTranslation("accuracy"))}: ${(
-                    data.accuracy.value() * 100
-                ).toFixed(2)}%\n` +
-                `${bold(localization.getTranslation("rank"))}: ${data.rank}\n` +
-                `${bold(
-                    localization.getTranslation("time"),
-                )}: ${DateTimeFormatHelper.dateToLocaleString(
-                    data.time,
-                    localization.language,
-                )}\n\n` +
-                `${bold(localization.getTranslation("hitGreat"))}: ${
-                    data.accuracy.n300
-                } (${data.hit300k} ${localization.getTranslation(
-                    "geki",
-                )} + ${localization.getTranslation("katu")})\n` +
-                `${bold(localization.getTranslation("hitGood"))}: ${
-                    data.accuracy.n100
-                } (${data.hit100k} ${localization.getTranslation("katu")})\n` +
-                `${bold(localization.getTranslation("hitMeh"))}: ${
-                    data.accuracy.n50
-                }\n` +
-                `${bold(localization.getTranslation("misses"))}: ${
-                    data.accuracy.nmiss
-                }\n\n` +
-                `${bold(
-                    localization.getTranslation("bonusLevelReached"),
-                )}: ${bonusLevel}`,
+            `${bold(localization.getTranslation("maxCombo"))}: ${data.maxCombo
+            }x\n` +
+            `${bold(localization.getTranslation("accuracy"))}: ${(
+                data.accuracy.value * 100
+            ).toFixed(2)}%\n` +
+            `${bold(localization.getTranslation("rank"))}: ${data.rank}\n` +
+            `${bold(
+                localization.getTranslation("time"),
+            )}: ${DateTimeFormatHelper.dateToLocaleString(
+                data.time,
+                localization.language,
+            )}\n\n` +
+            `${bold(localization.getTranslation("hitGreat"))}: ${data.accuracy.n300
+            } (${data.hit300k} ${localization.getTranslation(
+                "geki",
+            )} + ${localization.getTranslation("katu")})\n` +
+            `${bold(localization.getTranslation("hitGood"))}: ${data.accuracy.n100
+            } (${data.hit100k} ${localization.getTranslation("katu")})\n` +
+            `${bold(localization.getTranslation("hitMeh"))}: ${data.accuracy.n50
+            }\n` +
+            `${bold(localization.getTranslation("misses"))}: ${data.accuracy.nmiss
+            }\n\n` +
+            `${bold(
+                localization.getTranslation("bonusLevelReached"),
+            )}: ${bonusLevel}`,
         );
 
     const confirmation = await MessageButtonCreator.createConfirmation(
@@ -220,7 +214,7 @@ export const run: SlashSubcommand<true>["run"] = async (
                 challenge.points +
                 (challengeData.highestLevel -
                     Math.max(0, bonusLevel - challengeData.highestLevel)) *
-                    2;
+                2;
 
             challengeData.highestLevel = Math.max(
                 bonusLevel,

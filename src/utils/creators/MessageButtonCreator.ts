@@ -2,7 +2,7 @@ import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabas
 import { Symbols } from "@enums/utils/Symbols";
 import { Language } from "@localization/base/Language";
 import { MessageButtonCreatorLocalization } from "@localization/utils/creators/MessageButtonCreator/MessageButtonCreatorLocalization";
-import { Accuracy, Beatmap, Modes, ModUtil } from "@rian8337/osu-base";
+import { Accuracy, Beatmap, DroidLegacyScoreMultiplierCalculator, Modes, ModUtil } from "@rian8337/osu-base";
 import {
     ExportedReplayJSONV3,
     ExportedReplayJSONV4,
@@ -158,39 +158,39 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         if (pressed.customId === "confirmationYes") {
                             interaction.isMessageComponent()
                                 ? await InteractionHelper.update(interaction, {
-                                      content:
-                                          MessageCreator.createPrefixedMessage(
-                                              localization.getTranslation(
-                                                  "pleaseWait",
-                                              ),
-                                              Symbols.timer,
-                                          ),
-                                  })
+                                    content:
+                                        MessageCreator.createPrefixedMessage(
+                                            localization.getTranslation(
+                                                "pleaseWait",
+                                            ),
+                                            Symbols.timer,
+                                        ),
+                                })
                                 : await InteractionHelper.reply(interaction, {
-                                      content:
-                                          MessageCreator.createPrefixedMessage(
-                                              localization.getTranslation(
-                                                  "pleaseWait",
-                                              ),
-                                              Symbols.timer,
-                                          ),
-                                  });
+                                    content:
+                                        MessageCreator.createPrefixedMessage(
+                                            localization.getTranslation(
+                                                "pleaseWait",
+                                            ),
+                                            Symbols.timer,
+                                        ),
+                                });
                         } else {
                             interaction.isMessageComponent()
                                 ? await InteractionHelper.update(interaction, {
-                                      content: MessageCreator.createReject(
-                                          localization.getTranslation(
-                                              "actionCancelled",
-                                          ),
-                                      ),
-                                  })
+                                    content: MessageCreator.createReject(
+                                        localization.getTranslation(
+                                            "actionCancelled",
+                                        ),
+                                    ),
+                                })
                                 : await InteractionHelper.reply(interaction, {
-                                      content: MessageCreator.createReject(
-                                          localization.getTranslation(
-                                              "actionCancelled",
-                                          ),
-                                      ),
-                                  });
+                                    content: MessageCreator.createReject(
+                                        localization.getTranslation(
+                                            "actionCancelled",
+                                        ),
+                                    ),
+                                });
 
                             if (!interaction.ephemeral) {
                                 setTimeout(() => {
@@ -263,24 +263,24 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
             | Score
             | RecentPlay
             | Pick<
-                  OfficialDatabaseScore,
-                  | "id"
-                  | "uid"
-                  | "hash"
-                  | "score"
-                  | "combo"
-                  | "mark"
-                  | "mods"
-                  | "perfect"
-                  | "good"
-                  | "bad"
-                  | "miss"
-                  | "date"
-                  | "slider_head_hit"
-                  | "slider_tick_hit"
-                  | "slider_repeat_hit"
-                  | "slider_end_hit"
-              >,
+                OfficialDatabaseScore,
+                | "id"
+                | "uid"
+                | "hash"
+                | "score"
+                | "combo"
+                | "mark"
+                | "mods"
+                | "perfect"
+                | "good"
+                | "bad"
+                | "miss"
+                | "date"
+                | "slider_head_hit"
+                | "slider_tick_hit"
+                | "slider_repeat_hit"
+                | "slider_end_hit"
+            >,
         username: string,
         droidAttributes?: DroidPerformanceAttributes,
         osuAttributes?: OsuPerformanceAttributes,
@@ -438,8 +438,8 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                             missInformations[i].isGenerated
                                                 ? ButtonStyle.Secondary
                                                 : i === pressedIndex - 1
-                                                  ? ButtonStyle.Success
-                                                  : ButtonStyle.Primary,
+                                                    ? ButtonStyle.Success
+                                                    : ButtonStyle.Primary,
                                         );
                                 }
 
@@ -460,7 +460,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                         components: [],
                                     });
                                     // eslint-disable-next-line no-empty
-                                } catch {}
+                                } catch { }
                             },
                         );
 
@@ -515,18 +515,16 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                             score instanceof Score
                                 ? score.accuracy
                                 : new Accuracy({
-                                      n300: score.perfect,
-                                      n100: score.good,
-                                      n50: score.bad,
-                                      nmiss: score.miss,
-                                  });
+                                    n300: score.perfect,
+                                    n100: score.good,
+                                    n50: score.bad,
+                                    nmiss: score.miss,
+                                });
 
                         // Scores from the API are total scores, but exported replay version 4 expects raw score.
                         const migrationScoreMultiplier =
                             score instanceof Score
-                                ? ModUtil.calculateMigrationScoreMultiplier(
-                                      score.mods.values(),
-                                  )
+                                ? new DroidLegacyScoreMultiplierCalculator(null).calculateFor(score.mods.values())
                                 : 1;
 
                         const json: ExportedReplayJSONV4 = {
@@ -541,8 +539,8 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                 mods:
                                     score instanceof Score
                                         ? JSON.stringify(
-                                              score.mods.serializeMods(),
-                                          )
+                                            score.mods.serializeMods(),
+                                        )
                                         : score.mods,
                                 score: Math.round(
                                     Math.fround(
@@ -560,7 +558,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                 h100: accuracy.n100,
                                 h50: accuracy.n50,
                                 misses: accuracy.nmiss,
-                                accuracy: accuracy.value(),
+                                accuracy: accuracy.value,
                                 time: score.date.getTime(),
                                 sliderHeadHits:
                                     score instanceof Score
@@ -611,17 +609,17 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                     n300:
                                         score instanceof RecentPlay
                                             ? score.accuracy.n300 +
-                                              score.accuracy.n100 +
-                                              score.accuracy.n50 +
-                                              score.accuracy.nmiss
+                                            score.accuracy.n100 +
+                                            score.accuracy.n50 +
+                                            score.accuracy.nmiss
                                             : score.perfect +
-                                              score.good +
-                                              score.bad +
-                                              score.miss,
+                                            score.good +
+                                            score.bad +
+                                            score.miss,
                                 }),
                                 mods:
                                     score instanceof Score ||
-                                    score instanceof RecentPlay
+                                        score instanceof RecentPlay
                                         ? score.mods
                                         : ModUtil.deserializeMods(score.mods),
                             });
@@ -671,17 +669,17 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                     n300:
                                         score instanceof RecentPlay
                                             ? score.accuracy.n300 +
-                                              score.accuracy.n100 +
-                                              score.accuracy.n50 +
-                                              score.accuracy.nmiss
+                                            score.accuracy.n100 +
+                                            score.accuracy.n50 +
+                                            score.accuracy.nmiss
                                             : score.perfect +
-                                              score.good +
-                                              score.bad +
-                                              score.miss,
+                                            score.good +
+                                            score.bad +
+                                            score.miss,
                                 }),
                                 mods:
                                     score instanceof Score ||
-                                    score instanceof RecentPlay
+                                        score instanceof RecentPlay
                                         ? score.mods
                                         : ModUtil.deserializeMods(score.mods),
                             });
@@ -726,7 +724,7 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         ? await InteractionHelper.update(interaction, options)
                         : await InteractionHelper.reply(interaction, options);
                     // eslint-disable-next-line no-empty
-                } catch {}
+                } catch { }
 
                 if (
                     missAnalyzerButton.data.disabled &&
@@ -747,29 +745,29 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                         v.components.length === buttons.length &&
                         (<APIButtonComponentWithCustomId>v.components[0].data)
                             .custom_id ===
-                            (<APIButtonComponentWithCustomId>(
-                                missAnalyzerButton.data
-                            )).custom_id &&
+                        (<APIButtonComponentWithCustomId>(
+                            missAnalyzerButton.data
+                        )).custom_id &&
                         (<APIButtonComponentWithCustomId>v.components[1].data)
                             .custom_id ===
-                            (<APIButtonComponentWithCustomId>(
-                                timingDistributionButton.data
-                            )).custom_id &&
+                        (<APIButtonComponentWithCustomId>(
+                            timingDistributionButton.data
+                        )).custom_id &&
                         (<APIButtonComponentWithCustomId>v.components[2].data)
                             .custom_id ===
-                            (<APIButtonComponentWithCustomId>(
-                                exportReplayButton.data
-                            )).custom_id &&
+                        (<APIButtonComponentWithCustomId>(
+                            exportReplayButton.data
+                        )).custom_id &&
                         (<APIButtonComponentWithCustomId>v.components[3].data)
                             .custom_id ===
-                            (<APIButtonComponentWithCustomId>(
-                                droidBreakdownChartButton.data
-                            )).custom_id &&
+                        (<APIButtonComponentWithCustomId>(
+                            droidBreakdownChartButton.data
+                        )).custom_id &&
                         (<APIButtonComponentWithCustomId>v.components[4].data)
                             .custom_id ===
-                            (<APIButtonComponentWithCustomId>(
-                                osuBreakdownChartButton.data
-                            )).custom_id,
+                        (<APIButtonComponentWithCustomId>(
+                            osuBreakdownChartButton.data
+                        )).custom_id,
                 );
 
                 if (index !== -1) {
@@ -783,15 +781,15 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                     try {
                         interaction.isMessageComponent()
                             ? await InteractionHelper.update(
-                                  interaction,
-                                  options,
-                              )
+                                interaction,
+                                options,
+                            )
                             : await InteractionHelper.reply(
-                                  interaction,
-                                  options,
-                              );
+                                interaction,
+                                options,
+                            );
                         // eslint-disable-next-line no-empty
-                    } catch {}
+                    } catch { }
                 }
             },
         );
@@ -872,9 +870,9 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                 (c, i) =>
                                     c instanceof ButtonComponent &&
                                     c.customId ===
-                                        (<APIButtonComponentWithCustomId>(
-                                            buttons[i].data
-                                        )).custom_id,
+                                    (<APIButtonComponentWithCustomId>(
+                                        buttons[i].data
+                                    )).custom_id,
                             )
                         ) {
                             isFulfilled = true;
@@ -976,9 +974,9 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                                     b instanceof ButtonBuilder &&
                                     (<APIButtonComponentWithCustomId>b.data)
                                         .custom_id ===
-                                        (<APIButtonComponentWithCustomId>(
-                                            buttons[i].data
-                                        )).custom_id,
+                                    (<APIButtonComponentWithCustomId>(
+                                        buttons[i].data
+                                    )).custom_id,
                             )
                         );
                     })
@@ -1041,15 +1039,15 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                     try {
                         interaction.isMessageComponent()
                             ? await InteractionHelper.update(
-                                  interaction,
-                                  options,
-                              )
+                                interaction,
+                                options,
+                            )
                             : await InteractionHelper.reply(
-                                  interaction,
-                                  options,
-                              );
+                                interaction,
+                                options,
+                            );
                         // eslint-disable-next-line no-empty
-                    } catch {}
+                    } catch { }
                 }
             },
         );
@@ -1086,8 +1084,8 @@ export abstract class MessageButtonCreator extends InteractionCollectorCreator {
                 .setStyle(ButtonStyle.Success)
                 .setDisabled(
                     maxPage === 1 ||
-                        (maxPage === Number.POSITIVE_INFINITY &&
-                            currentPage === 1),
+                    (maxPage === Number.POSITIVE_INFINITY &&
+                        currentPage === 1),
                 ),
             new ButtonBuilder()
                 .setCustomId("pagingNone")

@@ -64,19 +64,19 @@ export abstract class ScoreDisplayHelper {
         username: string,
         scores: (
             | Pick<
-                  OfficialDatabaseScore,
-                  | "filename"
-                  | "mark"
-                  | "mods"
-                  | "total_score"
-                  | "combo"
-                  | "date"
-                  | "perfect"
-                  | "good"
-                  | "bad"
-                  | "miss"
-                  | "pp"
-              >
+                OfficialDatabaseScore,
+                | "filename"
+                | "mark"
+                | "mods"
+                | "total_score"
+                | "combo"
+                | "date"
+                | "perfect"
+                | "good"
+                | "bad"
+                | "miss"
+                | "pp"
+            >
             | Score
             | RecentPlay
         )[],
@@ -112,18 +112,18 @@ export abstract class ScoreDisplayHelper {
                     score instanceof Score
                         ? score.score
                         : score instanceof RecentPlay
-                          ? score.totalScore
-                          : score.total_score;
+                            ? score.totalScore
+                            : score.total_score;
 
                 const accuracy =
                     score instanceof Score || score instanceof RecentPlay
                         ? score.accuracy
                         : new Accuracy({
-                              n300: score.perfect,
-                              n100: score.good,
-                              n50: score.bad,
-                              nmiss: score.miss,
-                          });
+                            n300: score.perfect,
+                            n100: score.good,
+                            n50: score.bad,
+                            nmiss: score.miss,
+                        });
 
                 let fieldName = `${i + 1}. ${EmoteManager.getRankEmote(
                     score instanceof Score || score instanceof RecentPlay
@@ -144,10 +144,9 @@ export abstract class ScoreDisplayHelper {
                 let fieldValue =
                     `${totalScore.toLocaleString(
                         LocaleHelper.convertToBCP47(localization.language),
-                    )} / ${score.combo}x / ${(accuracy.value() * 100).toFixed(
+                    )} / ${score.combo}x / ${(accuracy.value * 100).toFixed(
                         2,
-                    )}% / [${accuracy.n300}/${
-                        accuracy.n100
+                    )}% / [${accuracy.n300}/${accuracy.n100
                     }/${accuracy.n50}/${accuracy.nmiss}]\n` +
                     `\`${DateTimeFormatHelper.dateToLocaleString(
                         score.date,
@@ -304,28 +303,28 @@ export abstract class ScoreDisplayHelper {
         > => {
             const droidAttribs = beatmapInfo
                 ? (droidAttribsCache.get(score.id) ??
-                  (
-                      await PPProcessorRESTManager.getOnlineScoreAttributes(
-                          score.uid,
-                          score.hash,
-                          Modes.Droid,
-                          PPCalculationMethod.live,
-                      )
-                  )?.attributes ??
-                  null)
+                    (
+                        await PPProcessorRESTManager.getOnlineScoreAttributes(
+                            score.uid,
+                            score.hash,
+                            Modes.Droid,
+                            PPCalculationMethod.live,
+                        )
+                    )?.attributes ??
+                    null)
                 : null;
 
             const osuAttribs = beatmapInfo
                 ? (osuAttribsCache.get(score.id) ??
-                  (
-                      await PPProcessorRESTManager.getOnlineScoreAttributes(
-                          score.uid,
-                          score.hash,
-                          Modes.Osu,
-                          PPCalculationMethod.live,
-                      )
-                  )?.attributes ??
-                  null)
+                    (
+                        await PPProcessorRESTManager.getOnlineScoreAttributes(
+                            score.uid,
+                            score.hash,
+                            Modes.Osu,
+                            PPCalculationMethod.live,
+                        )
+                    )?.attributes ??
+                    null)
                 : null;
 
             if (!droidAttribsCache.has(score.id)) {
@@ -343,21 +342,19 @@ export abstract class ScoreDisplayHelper {
             const attribs = await getCalculationResult(score);
 
             return (
-                `${arrow} ${EmoteManager.getRankEmote(score.rank)} ${
-                    attribs[0] && attribs[1]
-                        ? `${arrow} ${bold(
-                              `${attribs[0].performance.total.toFixed(
-                                  2,
-                              )}dpp | ${attribs[1].performance.total.toFixed(
-                                  2,
-                              )}pp`,
-                          )} `
-                        : " "
-                }${arrow} ${(score.accuracy.value() * 100).toFixed(2)}%\n` +
+                `${arrow} ${EmoteManager.getRankEmote(score.rank)} ${attribs[0] && attribs[1]
+                    ? `${arrow} ${bold(
+                        `${attribs[0].performance.total.toFixed(
+                            2,
+                        )}dpp | ${attribs[1].performance.total.toFixed(
+                            2,
+                        )}pp`,
+                    )} `
+                    : " "
+                }${arrow} ${(score.accuracy.value * 100).toFixed(2)}%\n` +
                 `${arrow} ${score.score.toLocaleString(
                     LocaleHelper.convertToBCP47(localization.language),
-                )} ${arrow} ${score.combo}x ${arrow} [${score.accuracy.n300}/${
-                    score.accuracy.n100
+                )} ${arrow} ${score.combo}x ${arrow} [${score.accuracy.n300}/${score.accuracy.n100
                 }/${score.accuracy.n50}/${score.accuracy.nmiss}]\n` +
                 `\`${DateTimeFormatHelper.dateToLocaleString(
                     score.date,
@@ -368,18 +365,18 @@ export abstract class ScoreDisplayHelper {
 
         const noModDroidAttribs = beatmapInfo
             ? await PPProcessorRESTManager.getDifficultyAttributes(
-                  beatmapInfo.beatmapId,
-                  Modes.Droid,
-                  PPCalculationMethod.live,
-              )
+                beatmapInfo.beatmapId,
+                Modes.Droid,
+                PPCalculationMethod.live,
+            )
             : null;
 
         const noModOsuAttribs = beatmapInfo
             ? await PPProcessorRESTManager.getDifficultyAttributes(
-                  beatmapInfo.beatmapId,
-                  Modes.Osu,
-                  PPCalculationMethod.live,
-              )
+                beatmapInfo.beatmapId,
+                Modes.Osu,
+                PPCalculationMethod.live,
+            )
             : null;
 
         const onPageChange: OnButtonPageChange = async (options, page) => {
@@ -400,10 +397,10 @@ export abstract class ScoreDisplayHelper {
 
             const newOptions: BaseMessageOptions = beatmapInfo
                 ? EmbedCreator.createBeatmapEmbed(
-                      beatmapInfo,
-                      undefined,
-                      localization.language,
-                  )
+                    beatmapInfo,
+                    undefined,
+                    localization.language,
+                )
                 : { components: [new ContainerBuilder()] };
 
             const newComponents = newOptions.components!.slice();
@@ -430,11 +427,9 @@ export abstract class ScoreDisplayHelper {
 
                 titleBuilder.setContent(
                     titleBuilder.data.content! +
-                        ` [${noModDroidAttribs.attributes.starRating.toFixed(2)}${
-                            Symbols.star
-                        } | ${noModOsuAttribs.attributes.starRating.toFixed(2)}${
-                            Symbols.star
-                        }]`,
+                    ` [${noModDroidAttribs.attributes.starRating.toFixed(2)}${Symbols.star
+                    } | ${noModOsuAttribs.attributes.starRating.toFixed(2)}${Symbols.star
+                    }]`,
                 );
             } else {
                 containerBuilder
@@ -476,14 +471,13 @@ export abstract class ScoreDisplayHelper {
                 containerBuilder.addTextDisplayComponents(
                     new TextDisplayBuilder().setContent(
                         bold(
-                            `#${++i} ${score.username}${
-                                !score.mods.isEmpty
-                                    ? ` (${score.completeModString})`
-                                    : ""
+                            `#${++i} ${score.username}${!score.mods.isEmpty
+                                ? ` (${score.completeModString})`
+                                : ""
                             }`,
                         ) +
-                            "\n" +
-                            (await getScoreDescription(score)),
+                        "\n" +
+                        (await getScoreDescription(score)),
                     ),
                 );
             }

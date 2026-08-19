@@ -64,7 +64,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                     n100: score.good,
                     n50: score.bad,
                     nmiss: score.miss,
-                }).value() * 100,
+                }).value * 100,
                 2
             ).toString()}%\n` +
             `${arrow} ${bold(

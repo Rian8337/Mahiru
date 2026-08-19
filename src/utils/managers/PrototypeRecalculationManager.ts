@@ -169,7 +169,7 @@ export abstract class PrototypeRecalculationManager extends Manager {
                 circleSize: beatmapDifficulty.cs,
                 approachRate: beatmapDifficulty.ar,
                 overallDifficulty: beatmapDifficulty.od,
-                accuracy: accuracy.value() * 100,
+                accuracy: accuracy.value * 100,
                 combo: liveParams.combo,
                 maxCombo: liveDiffResult.maxCombo,
                 mods: liveDiffResult.mods,
@@ -294,8 +294,8 @@ export abstract class PrototypeRecalculationManager extends Manager {
 
         const masterTotal = hasMaster
             ? PPHelper.calculateFinalPerformancePoints(
-                  entries.map((e) => (e.master ?? e.live).performance.total),
-              )
+                entries.map((e) => (e.master ?? e.live).performance.total),
+            )
             : undefined;
 
         if (Config.isDebug) {

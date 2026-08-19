@@ -71,7 +71,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         return (
             `${arrow} ${EmoteManager.getRankEmote(
                 score.score.rank
-            )} ${arrow} ${(score.score.accuracy.value() * 100).toFixed(2)}%\n` +
+            )} ${arrow} ${(score.score.accuracy.value * 100).toFixed(2)}%\n` +
             `${arrow} ${bold(
                 score.scoreV2.toLocaleString(BCP47)
             )} ScoreV2 (${bold(
@@ -87,7 +87,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
                 pool
                     .calculateAccuracyPortionScoreV2(
                         pick,
-                        score.score.accuracy.value(),
+                        score.score.accuracy.value,
                         score.score.accuracy.nmiss,
                         score.score.mods
                     )
@@ -95,10 +95,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             )} accuracy)\n` +
             `${arrow} ${score.score.score.toLocaleString(
                 BCP47
-            )} ScoreV1 ${arrow} ${score.score.combo}x ${arrow} [${
-                score.score.accuracy.n300
-            }/${score.score.accuracy.n100}/${score.score.accuracy.n50}/${
-                score.score.accuracy.nmiss
+            )} ScoreV1 ${arrow} ${score.score.combo}x ${arrow} [${score.score.accuracy.n300
+            }/${score.score.accuracy.n100}/${score.score.accuracy.n50}/${score.score.accuracy.nmiss
             }]\n` +
             `\`${DateTimeFormatHelper.dateToLocaleString(
                 score.score.date,
@@ -128,9 +126,8 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
 
         for (const score of displayedScores) {
             embed.addFields({
-                name: `**#${++i} ${score.score.username} ${
-                    score.score.completeModString
-                }**`,
+                name: `**#${++i} ${score.score.username} ${score.score.completeModString
+                    }**`,
                 value: getScoreDescription(score),
             });
         }

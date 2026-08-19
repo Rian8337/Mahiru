@@ -54,25 +54,23 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         'UID,Username,ScoreV2,"Score Portion","Accuracy Portion",ScoreV1,Mods,Combo,Accuracy,300,100,50,Misses,Date\n';
 
     for (const score of scores) {
-        csvString += `${score.score.uid},${score.score.username},${
-            score.scoreV2
-        },${pool.calculateScorePortionScoreV2(
-            pick,
-            score.score.score,
-            score.score.accuracy.nmiss,
-            score.score.mods
-        )},${pool.calculateAccuracyPortionScoreV2(
-            pick,
-            score.score.accuracy.value(),
-            score.score.accuracy.nmiss,
-            score.score.mods
-        )},${score.score.score},'${ModUtil.modsToOrderedString(score.score.mods)}',${score.score.combo},${(
-            score.score.accuracy.value() * 100
-        ).toFixed(
-            2
-        )},${score.score.accuracy.n300},${score.score.accuracy.n100},${
-            score.score.accuracy.n50
-        },${score.score.accuracy.nmiss},"${score.score.date.toUTCString()}"\n`;
+        csvString += `${score.score.uid},${score.score.username},${score.scoreV2
+            },${pool.calculateScorePortionScoreV2(
+                pick,
+                score.score.score,
+                score.score.accuracy.nmiss,
+                score.score.mods
+            )},${pool.calculateAccuracyPortionScoreV2(
+                pick,
+                score.score.accuracy.value,
+                score.score.accuracy.nmiss,
+                score.score.mods
+            )},${score.score.score},'${ModUtil.modsToOrderedString(score.score.mods)}',${score.score.combo},${(
+                score.score.accuracy.value * 100
+            ).toFixed(
+                2
+            )},${score.score.accuracy.n300},${score.score.accuracy.n100},${score.score.accuracy.n50
+            },${score.score.accuracy.nmiss},"${score.score.date.toUTCString()}"\n`;
     }
 
     const attachment: AttachmentBuilder = new AttachmentBuilder(

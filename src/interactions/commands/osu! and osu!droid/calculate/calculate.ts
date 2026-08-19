@@ -112,20 +112,19 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     const calcParams = new PerformanceCalculationParameters({
         mods: mods,
-        accuracy: new Accuracy({
+        accuracy: Accuracy.fromHitCounts({
             n100: Math.max(0, interaction.options.getInteger("x100") ?? 0),
             n50: Math.max(0, interaction.options.getInteger("x50") ?? 0),
             nmiss: Math.max(0, interaction.options.getInteger("misses") ?? 0),
-            nobjects: beatmap.objects,
-        }),
+        }, beatmap.objects),
         inputAccuracy: interaction.options.getNumber("accuracy") ?? 100,
         combo:
             interaction.options.getInteger("combo") && beatmap.maxCombo !== null
                 ? MathUtils.clamp(
-                      0,
-                      interaction.options.getInteger("combo", true),
-                      beatmap.maxCombo,
-                  )
+                    0,
+                    interaction.options.getInteger("combo", true),
+                    beatmap.maxCombo,
+                )
                 : (beatmap.maxCombo ?? undefined),
         sliderTicksMissed:
             sliderTicksMissed !== null
@@ -142,19 +141,19 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
 
     let droidCalcResult:
         | PPProcessorCalculationResponse<
-              CompleteCalculationAttributes<
-                  IDroidDifficultyAttributes,
-                  DroidPerformanceAttributes
-              >,
-              true
-          >
+            CompleteCalculationAttributes<
+                IDroidDifficultyAttributes,
+                DroidPerformanceAttributes
+            >,
+            true
+        >
         | PPProcessorCalculationResponse<
-              CompleteCalculationAttributes<
-                  IRebalanceDroidDifficultyAttributes,
-                  RebalanceDroidPerformanceAttributes
-              >,
-              true
-          >
+            CompleteCalculationAttributes<
+                IRebalanceDroidDifficultyAttributes,
+                RebalanceDroidPerformanceAttributes
+            >,
+            true
+        >
         | null;
 
     let osuCalcResult: PPProcessorCalculationResponse<
@@ -230,48 +229,45 @@ export const run: SlashCommand["run"] = async (_, interaction) => {
     let string = "";
 
     if (interaction.options.getBoolean("showdroiddetail")) {
-        string += `${localization.getTranslation("rawDroidSr")}: ${
-            interaction.options.getInteger("calculationmethod") ===
-            PPCalculationMethod.rebalance
+        string += `${localization.getTranslation("rawDroidSr")}: ${interaction.options.getInteger("calculationmethod") ===
+                PPCalculationMethod.rebalance
                 ? PPHelper.getRebalanceDroidDifficultyAttributesInfo(
-                      droidCalcResult.attributes
-                          .difficulty as CacheableDifficultyAttributes<IRebalanceDroidDifficultyAttributes>,
-                  )
+                    droidCalcResult.attributes
+                        .difficulty as CacheableDifficultyAttributes<IRebalanceDroidDifficultyAttributes>,
+                )
                 : PPHelper.getDroidDifficultyAttributesInfo(
-                      droidCalcResult.attributes
-                          .difficulty as CacheableDifficultyAttributes<IDroidDifficultyAttributes>,
-                  )
-        }`;
-        string += `\n${localization.getTranslation("rawDroidPp")}: ${
-            interaction.options.getInteger("calculationmethod") ===
-            PPCalculationMethod.rebalance
+                    droidCalcResult.attributes
+                        .difficulty as CacheableDifficultyAttributes<IDroidDifficultyAttributes>,
+                )
+            }`;
+        string += `\n${localization.getTranslation("rawDroidPp")}: ${interaction.options.getInteger("calculationmethod") ===
+                PPCalculationMethod.rebalance
                 ? PPHelper.getRebalanceDroidPerformanceAttributesInfo(
-                      droidCalcResult.attributes
-                          .performance as RebalanceDroidPerformanceAttributes,
-                  )
+                    droidCalcResult.attributes
+                        .performance as RebalanceDroidPerformanceAttributes,
+                )
                 : PPHelper.getDroidPerformanceAttributesInfo(
-                      droidCalcResult.attributes
-                          .performance as DroidPerformanceAttributes,
-                  )
-        }\n`;
+                    droidCalcResult.attributes
+                        .performance as DroidPerformanceAttributes,
+                )
+            }\n`;
     }
 
     if (interaction.options.getBoolean("showosudetail")) {
-        string += `${localization.getTranslation("rawPcSr")}: ${
-            interaction.options.getInteger("calculationmethod") ===
-            PPCalculationMethod.rebalance
+        string += `${localization.getTranslation("rawPcSr")}: ${interaction.options.getInteger("calculationmethod") ===
+                PPCalculationMethod.rebalance
                 ? PPHelper.getRebalanceOsuDifficultyAttributesInfo(
-                      osuCalcResult.attributes
-                          .difficulty as CacheableDifficultyAttributes<IRebalanceOsuDifficultyAttributes>,
-                  )
+                    osuCalcResult.attributes
+                        .difficulty as CacheableDifficultyAttributes<IRebalanceOsuDifficultyAttributes>,
+                )
                 : PPHelper.getOsuDifficultyAttributesInfo(
-                      osuCalcResult.attributes.difficulty,
-                  )
-        }\n${localization.getTranslation(
-            "rawPcPp",
-        )}: ${PPHelper.getOsuPerformanceAttributesInfo(
-            osuCalcResult.attributes.performance,
-        )}`;
+                    osuCalcResult.attributes.difficulty,
+                )
+            }\n${localization.getTranslation(
+                "rawPcPp",
+            )}: ${PPHelper.getOsuPerformanceAttributesInfo(
+                osuCalcResult.attributes.performance,
+            )}`;
     }
 
     if (string) {

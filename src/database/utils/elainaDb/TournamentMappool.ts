@@ -185,7 +185,7 @@ export class TournamentMappool extends Manager {
                         scoreV2: this.calculateScoreV2(
                             pick,
                             v.score,
-                            v.accuracy.value(),
+                            v.accuracy.value,
                             v.accuracy.nmiss,
                             v.mods,
                         ),

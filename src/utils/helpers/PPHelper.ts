@@ -62,13 +62,12 @@ export abstract class PPHelper {
                 if (score) {
                     embed.addFields({
                         name: `${i + 1}. ${score.title} ${score.completeModString}`,
-                        value: `${score.combo}x | ${(score.accuracy.value() * 100).toFixed(2)}% | ${
-                            score.miss
-                        } ${Symbols.missIcon} | ${underscore(
-                            `${(score.pp ?? 0).toFixed(2)} pp`,
-                        )} (Net pp: ${(
-                            (score.pp ?? 0) * Math.pow(0.95, i)
-                        ).toFixed(2)} pp)`,
+                        value: `${score.combo}x | ${(score.accuracy.value * 100).toFixed(2)}% | ${score.miss
+                            } ${Symbols.missIcon} | ${underscore(
+                                `${(score.pp ?? 0).toFixed(2)} pp`,
+                            )} (Net pp: ${(
+                                (score.pp ?? 0) * Math.pow(0.95, i)
+                            ).toFixed(2)} pp)`,
                     });
                 } else {
                     embed.addFields({ name: `${i + 1}. -`, value: "-" });
@@ -139,7 +138,7 @@ export abstract class PPHelper {
             title: beatmapTitle,
             pp: NumberHelper.round(performance.total, 2),
             mods: difficulty.mods,
-            accuracy: NumberHelper.round(accuracy.value() * 100, 2),
+            accuracy: NumberHelper.round(accuracy.value * 100, 2),
             combo: params.combo,
             miss: accuracy.nmiss,
         };

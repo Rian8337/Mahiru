@@ -2,6 +2,7 @@ import { DatabaseManager } from "@database/DatabaseManager";
 import { OfficialDatabaseScore } from "@database/official/schema/OfficialDatabaseScore";
 import { RecentPlay } from "@database/utils/aliceDb/RecentPlay";
 import {
+    DroidLegacyScoreMultiplierCalculator,
     Mod,
     ModDoubleTime,
     ModHardRock,
@@ -74,7 +75,7 @@ export abstract class ScoreHelper {
             Math.sqrt(
                 (this.removeScoreMultiplier(score, mods.values()) *
                     (mods.has(ModNoFail) ? 2 : 1)) /
-                    maxScore
+                maxScore
             ) *
             1e6 *
             scorePortion;
@@ -125,11 +126,11 @@ export abstract class ScoreHelper {
             return Math.round(
                 level <= 100
                     ? ((5000 / 3) *
-                          (4 * Math.pow(level, 3) -
-                              3 * Math.pow(level, 2) -
-                              level) +
-                          1.25 * Math.pow(1.8, level - 60)) /
-                          1.128
+                        (4 * Math.pow(level, 3) -
+                            3 * Math.pow(level, 2) -
+                            level) +
+                        1.25 * Math.pow(1.8, level - 60)) /
+                    1.128
                     : 23875169174 + 15000000000 * (level - 100)
             );
         };
@@ -169,6 +170,10 @@ export abstract class ScoreHelper {
      * @param mods The mods to apply.
      */
     static applyScoreMultiplier(score: number, mods: ModMap): number {
+        const scoreMultiplierCalculator = new DroidLegacyScoreMultiplierCalculator(null);
+
+        score *= scoreMultiplierCalculator.calculateFor(mods.values());
+
         for (const mod of mods.values()) {
             if (mod instanceof ModHardRock) {
                 score *= 1.1;
@@ -176,12 +181,16 @@ export abstract class ScoreHelper {
             }
 
             if (mod.isApplicableToDroid()) {
-                score *= mod.droidScoreMultiplier;
+
             }
         }
 
+        if (mods.has(ModHardRock)) {
+            score *= 1.1 / scoreMultiplierCalculator.calculateFor([new ModHardRock()]);
+        }
+
         if (mods.has(ModHidden) && mods.has(ModDoubleTime)) {
-            score /= mods.get(ModHidden)!.droidScoreMultiplier;
+            score /= scoreMultiplierCalculator.calculateFor([new ModHidden()]);
         }
 
         return Math.round(score);
@@ -194,15 +203,7 @@ export abstract class ScoreHelper {
      * @param mods The mods to remove.
      */
     static removeScoreMultiplier(score: number, mods: Iterable<Mod>): number {
-        for (const mod of mods) {
-            if (!mod.isApplicableToDroid()) {
-                continue;
-            }
-
-            score /= mod.droidScoreMultiplier;
-        }
-
-        return Math.round(score);
+        return Math.round(score / new DroidLegacyScoreMultiplierCalculator(null).calculateFor(mods));
     }
 
     /**
@@ -221,14 +222,14 @@ export abstract class ScoreHelper {
         uid: number,
         existingScores: (
             | (Pick<OfficialDatabaseScore, K> &
-                  Pick<OfficialDatabaseScore, "id">)
+                Pick<OfficialDatabaseScore, "id">)
             | Score
             | RecentPlay
         )[] = []
     ): Promise<
         (
             | (Pick<OfficialDatabaseScore, K> &
-                  Pick<OfficialDatabaseScore, "id">)
+                Pick<OfficialDatabaseScore, "id">)
             | Score
             | RecentPlay
         )[]

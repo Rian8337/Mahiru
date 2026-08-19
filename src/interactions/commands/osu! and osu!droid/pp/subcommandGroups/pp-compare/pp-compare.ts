@@ -329,7 +329,7 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
             `${localization.getTranslation("player")}: ${bold(
                 firstPlayer.username,
             )} vs ${bold(secondPlayer.username)}\n` +
-                `${localization.getTranslation("totalPP")}: ${ppDescription}`,
+            `${localization.getTranslation("totalPP")}: ${ppDescription}`,
         );
 
     const onPageChange: OnButtonPageChange = async (_, page) => {
@@ -343,26 +343,20 @@ export const run: SlashSubcommandGroup["run"] = async (_, interaction) => {
             const firstScore = firstTopScores.get(key)!;
             const secondScore = secondTopScores.get(key)!;
 
-            let firstPlayerDescription = `${
-                firstScore.combo
-            }x | ${(firstScore.accuracy.value() * 100).toFixed(2)}% | ${firstScore.miss} ${
-                Symbols.missIcon
-            } | ${firstScore.pp}pp (${firstScore.completeModString})`;
+            let firstPlayerDescription = `${firstScore.combo
+                }x | ${(firstScore.accuracy.value * 100).toFixed(2)}% | ${firstScore.miss} ${Symbols.missIcon
+                } | ${firstScore.pp}pp (${firstScore.completeModString})`;
 
-            let secondPlayerDescription = `${
-                secondScore.combo
-            }x | ${(secondScore.accuracy.value() * 100).toFixed(2)}% | ${secondScore.miss} ${
-                Symbols.missIcon
-            } | ${secondScore.pp}pp (${secondScore.completeModString})`;
+            let secondPlayerDescription = `${secondScore.combo
+                }x | ${(secondScore.accuracy.value * 100).toFixed(2)}% | ${secondScore.miss} ${Symbols.missIcon
+                } | ${secondScore.pp}pp (${secondScore.completeModString})`;
 
             if ((firstScore.pp ?? 0) < (secondScore.pp ?? 0)) {
-                secondPlayerDescription = `${bold(secondPlayerDescription)} ${
-                    Symbols.crown
-                }`;
+                secondPlayerDescription = `${bold(secondPlayerDescription)} ${Symbols.crown
+                    }`;
             } else if ((firstScore.pp ?? 0) > (secondScore.pp ?? 0)) {
-                firstPlayerDescription = `${bold(firstPlayerDescription)} ${
-                    Symbols.crown
-                }`;
+                firstPlayerDescription = `${bold(firstPlayerDescription)} ${Symbols.crown
+                    }`;
             }
 
             embed.addFields({

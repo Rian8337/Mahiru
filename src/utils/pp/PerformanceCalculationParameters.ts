@@ -153,9 +153,9 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
                 nmiss: Math.max(
                     0,
                     objectCount -
-                        this.accuracy.n300 -
-                        this.accuracy.n100 -
-                        this.accuracy.n50
+                    this.accuracy.n300 -
+                    this.accuracy.n100 -
+                    this.accuracy.n50
                 ),
             });
         }
@@ -179,11 +179,7 @@ export class PerformanceCalculationParameters extends DifficultyCalculationParam
                 nmiss: this.accuracy.nmiss,
             });
         } else {
-            this.accuracy = new Accuracy({
-                percent: this.inputAccuracy,
-                nmiss: this.accuracy.nmiss,
-                nobjects: objectCount,
-            });
+            this.accuracy = Accuracy.fromPercent(this.inputAccuracy, objectCount, this.accuracy.nmiss);
         }
     }
 

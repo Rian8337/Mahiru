@@ -26,22 +26,22 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     const match = id
         ? await DatabaseManager.elainaDb.collections.tournamentMatch.getById(id)
         : await DatabaseManager.elainaDb.collections.tournamentMatch.getByChannel(
-              interaction.channelId
-          );
+            interaction.channelId
+        );
 
     // Need to make cross-compatibility since this command is also called from match-start
     if (!match) {
         interaction.replied
             ? interaction.channel.send({
-                  content: MessageCreator.createReject(
-                      localization.getTranslation("matchDoesntExist")
-                  ),
-              })
+                content: MessageCreator.createReject(
+                    localization.getTranslation("matchDoesntExist")
+                ),
+            })
             : InteractionHelper.reply(interaction, {
-                  content: MessageCreator.createReject(
-                      localization.getTranslation("matchDoesntExist")
-                  ),
-              });
+                content: MessageCreator.createReject(
+                    localization.getTranslation("matchDoesntExist")
+                ),
+            });
 
         return;
     }
@@ -56,15 +56,15 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!pool) {
         interaction.replied
             ? interaction.channel!.send({
-                  content: MessageCreator.createReject(
-                      localization.getTranslation("mappoolNotFound")
-                  ),
-              })
+                content: MessageCreator.createReject(
+                    localization.getTranslation("mappoolNotFound")
+                ),
+            })
             : InteractionHelper.reply(interaction, {
-                  content: MessageCreator.createReject(
-                      localization.getTranslation("mappoolNotFound")
-                  ),
-              });
+                content: MessageCreator.createReject(
+                    localization.getTranslation("mappoolNotFound")
+                ),
+            });
 
         return;
     }
@@ -78,17 +78,17 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
         if (!player) {
             interaction.replied
                 ? interaction.channel!.send({
-                      content: MessageCreator.createReject(
-                          localization.getTranslation("playerNotFound"),
-                          p[1]
-                      ),
-                  })
+                    content: MessageCreator.createReject(
+                        localization.getTranslation("playerNotFound"),
+                        p[1]
+                    ),
+                })
                 : InteractionHelper.reply(interaction, {
-                      content: MessageCreator.createReject(
-                          localization.getTranslation("playerNotFound"),
-                          p[1]
-                      ),
-                  });
+                    content: MessageCreator.createReject(
+                        localization.getTranslation("playerNotFound"),
+                        p[1]
+                    ),
+                });
 
             return;
         }
@@ -106,15 +106,15 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
     if (!map) {
         interaction.replied
             ? interaction.channel!.send({
-                  content: MessageCreator.createReject(
-                      localization.getTranslation("mapNotFound")
-                  ),
-              })
+                content: MessageCreator.createReject(
+                    localization.getTranslation("mapNotFound")
+                ),
+            })
             : InteractionHelper.reply(interaction, {
-                  content: MessageCreator.createReject(
-                      localization.getTranslation("mapNotFound")
-                  ),
-              });
+                content: MessageCreator.createReject(
+                    localization.getTranslation("mapNotFound")
+                ),
+            });
 
         return;
     }
@@ -162,7 +162,7 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             const scorev2 = pool.calculateScoreV2(
                 map.pickId,
                 score.score,
-                score.accuracy.value(),
+                score.accuracy.value,
                 score.accuracy.nmiss,
                 score.mods
             );
@@ -172,13 +172,12 @@ export const run: SlashSubcommand<true>["run"] = async (_, interaction) => {
             scoreV2List.push(0);
         }
 
-        const scoreString = `${match.player[i][0]} - (${
-            [...score.mods.values()].map((v) => v.name).join(", ") || "NoMod"
-        }): ${bold(
-            scoreV2List.at(-1)!.toString()
-        )} - ${EmoteManager.getRankEmote(score.rank)} - ${(
-            score.accuracy.value() * 100
-        ).toFixed(2)}% - ${score.accuracy.nmiss} ${Symbols.missIcon}\n`;
+        const scoreString = `${match.player[i][0]} - (${[...score.mods.values()].map((v) => v.name).join(", ") || "NoMod"
+            }): ${bold(
+                scoreV2List.at(-1)!.toString()
+            )} - ${EmoteManager.getRankEmote(score.rank)} - ${(
+                score.accuracy.value * 100
+            ).toFixed(2)}% - ${score.accuracy.nmiss} ${Symbols.missIcon}\n`;
         const failString = `${match.player[i][0]} - (N/A): ${bold(
             "0"
         )} - ${bold(

@@ -1,6 +1,7 @@
 import { DatabaseManager } from "@database/DatabaseManager";
 import {
     Accuracy,
+    DroidLegacyScoreMultiplierCalculator,
     Modes,
     ModMap,
     ModUtil,
@@ -120,10 +121,7 @@ export class RecentPlay extends Manager {
      * The total score of this play, which is the score after applying the score multiplier.
      */
     get totalScore(): number {
-        this.scoreMultiplier ??= ModUtil.calculateScoreMultiplier(
-            this.mods.values(),
-            Modes.Droid,
-        );
+        this.scoreMultiplier ??= new DroidLegacyScoreMultiplierCalculator(null).calculateFor(this.mods.values());
 
         return Math.round(this.score * this.scoreMultiplier);
     }

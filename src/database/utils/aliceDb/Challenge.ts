@@ -302,8 +302,7 @@ export class Challenge extends Manager {
 
         await notificationChannel.send({
             content: MessageCreator.createAccept(
-                `Successfully started challenge \`${
-                    this.challengeid
+                `Successfully started challenge \`${this.challengeid
                 }\`.\n${roleMention("674918022116278282")}`,
             ),
             ...challengeEmbedOptions,
@@ -420,12 +419,9 @@ export class Challenge extends Manager {
                     content: MessageCreator.createAccept(
                         `Congratulations to ${userMention(
                             winnerBindInfo.discordid,
-                        )} for achieving first place in challenge \`${
-                            this.challengeid
-                        }\`, earning them \`${
-                            this.isWeekly ? "50" : "25"
-                        }\` points and ${coinEmoji}\`${
-                            this.isWeekly ? "100" : "50"
+                        )} for achieving first place in challenge \`${this.challengeid
+                        }\`, earning them \`${this.isWeekly ? "50" : "25"
+                        }\` points and ${coinEmoji}\`${this.isWeekly ? "100" : "50"
                         }\` Mahiru coins!`,
                     ),
                 });
@@ -446,17 +442,17 @@ export class Challenge extends Manager {
     async checkScoreCompletion(
         score:
             | Pick<
-                  OfficialDatabaseScore,
-                  | "id"
-                  | "total_score"
-                  | "mods"
-                  | "combo"
-                  | "perfect"
-                  | "good"
-                  | "bad"
-                  | "miss"
-                  | "mark"
-              >
+                OfficialDatabaseScore,
+                | "id"
+                | "total_score"
+                | "mods"
+                | "combo"
+                | "perfect"
+                | "good"
+                | "bad"
+                | "miss"
+                | "mark"
+            >
             | Score,
         replay?: ReplayAnalyzer,
         language: Language = "en",
@@ -644,34 +640,34 @@ export class Challenge extends Manager {
     async calculateBonusLevel(
         score:
             | Pick<
-                  OfficialDatabaseScore,
-                  | "id"
-                  | "total_score"
-                  | "combo"
-                  | "perfect"
-                  | "good"
-                  | "bad"
-                  | "miss"
-                  | "mods"
-                  | "mark"
-              >
+                OfficialDatabaseScore,
+                | "id"
+                | "total_score"
+                | "combo"
+                | "perfect"
+                | "good"
+                | "bad"
+                | "miss"
+                | "mods"
+                | "mark"
+            >
             | Score,
     ): Promise<number>;
 
     async calculateBonusLevel(
         scoreOrReplay:
             | Pick<
-                  OfficialDatabaseScore,
-                  | "id"
-                  | "total_score"
-                  | "combo"
-                  | "perfect"
-                  | "good"
-                  | "bad"
-                  | "miss"
-                  | "mods"
-                  | "mark"
-              >
+                OfficialDatabaseScore,
+                | "id"
+                | "total_score"
+                | "combo"
+                | "perfect"
+                | "good"
+                | "bad"
+                | "miss"
+                | "mods"
+                | "mark"
+            >
             | Score
             | ReplayAnalyzer,
     ): Promise<number> {
@@ -775,7 +771,7 @@ export class Challenge extends Manager {
                         if (scoreOrReplay instanceof ReplayAnalyzer) {
                             const data = scoreOrReplay.data!;
 
-                            score = data.isReplayV3() ? data.totalScore : 0;
+                            score = data.isReplayV3() ? data.getTotalScore() : 0;
                         } else if (scoreOrReplay instanceof Score) {
                             score = scoreOrReplay.score;
                         } else {
@@ -791,15 +787,15 @@ export class Challenge extends Manager {
                             scoreOrReplay instanceof Score
                                 ? scoreOrReplay.accuracy
                                 : scoreOrReplay instanceof ReplayAnalyzer
-                                  ? scoreOrReplay.data!.accuracy
-                                  : new Accuracy({
+                                    ? scoreOrReplay.data!.accuracy
+                                    : new Accuracy({
                                         n300: scoreOrReplay.perfect,
                                         n100: scoreOrReplay.good,
                                         n50: scoreOrReplay.bad,
                                         nmiss: scoreOrReplay.miss,
                                     });
 
-                        bonusComplete = accuracy.value() * 100 >= +tier.value;
+                        bonusComplete = accuracy.value * 100 >= +tier.value;
                         break;
                     }
 
@@ -808,8 +804,8 @@ export class Challenge extends Manager {
                             scoreOrReplay instanceof Score
                                 ? scoreOrReplay.accuracy.nmiss
                                 : scoreOrReplay instanceof ReplayAnalyzer
-                                  ? scoreOrReplay.data!.accuracy.nmiss
-                                  : scoreOrReplay.miss;
+                                    ? scoreOrReplay.data!.accuracy.nmiss
+                                    : scoreOrReplay.miss;
 
                         bonusComplete = miss < +tier.value || !miss;
                         break;
@@ -852,8 +848,8 @@ export class Challenge extends Manager {
                             scoreOrReplay instanceof Score
                                 ? scoreOrReplay.rank
                                 : scoreOrReplay instanceof ReplayAnalyzer
-                                  ? scoreOrReplay.data!.rank
-                                  : scoreOrReplay.mark;
+                                    ? scoreOrReplay.data!.rank
+                                    : scoreOrReplay.mark;
 
                         bonusComplete =
                             this.getRankTier(rank) >=
@@ -876,8 +872,8 @@ export class Challenge extends Manager {
                             scoreOrReplay instanceof Score
                                 ? scoreOrReplay.accuracy.n300
                                 : scoreOrReplay instanceof ReplayAnalyzer
-                                  ? scoreOrReplay.data!.accuracy.n300
-                                  : scoreOrReplay.perfect;
+                                    ? scoreOrReplay.data!.accuracy.n300
+                                    : scoreOrReplay.perfect;
 
                         bonusComplete = n300 >= +tier.value;
                         break;
@@ -888,8 +884,8 @@ export class Challenge extends Manager {
                             scoreOrReplay instanceof Score
                                 ? scoreOrReplay.accuracy.n100
                                 : scoreOrReplay instanceof ReplayAnalyzer
-                                  ? scoreOrReplay.data!.accuracy.n100
-                                  : scoreOrReplay.good;
+                                    ? scoreOrReplay.data!.accuracy.n100
+                                    : scoreOrReplay.good;
 
                         bonusComplete = n100 <= +tier.value;
                         break;
@@ -900,8 +896,8 @@ export class Challenge extends Manager {
                             scoreOrReplay instanceof Score
                                 ? scoreOrReplay.accuracy.n50
                                 : scoreOrReplay instanceof ReplayAnalyzer
-                                  ? scoreOrReplay.data!.accuracy.n50
-                                  : scoreOrReplay.bad;
+                                    ? scoreOrReplay.data!.accuracy.n50
+                                    : scoreOrReplay.bad;
 
                         bonusComplete = n50 <= +tier.value;
                         break;
@@ -962,8 +958,7 @@ export class Challenge extends Manager {
                     .map(
                         (b) =>
                             `${bold(
-                                `${localization.getTranslation("level")} ${
-                                    b.level
+                                `${localization.getTranslation("level")} ${b.level
                                 }`,
                             )}: ${this.getPassOrBonusDescription(
                                 v.id,
@@ -1090,16 +1085,16 @@ export class Challenge extends Manager {
     private async verifyPassCompletion(
         score:
             | Pick<
-                  OfficialDatabaseScore,
-                  | "total_score"
-                  | "combo"
-                  | "perfect"
-                  | "good"
-                  | "bad"
-                  | "miss"
-                  | "mods"
-                  | "mark"
-              >
+                OfficialDatabaseScore,
+                | "total_score"
+                | "combo"
+                | "perfect"
+                | "good"
+                | "bad"
+                | "miss"
+                | "mods"
+                | "mark"
+            >
             | Score,
         droidAttribs: CompleteCalculationAttributes<
             DroidDifficultyAttributes,
@@ -1135,16 +1130,16 @@ export class Challenge extends Manager {
     private async verifyPassCompletion(
         scoreOrReplay:
             | Pick<
-                  OfficialDatabaseScore,
-                  | "total_score"
-                  | "combo"
-                  | "perfect"
-                  | "good"
-                  | "bad"
-                  | "miss"
-                  | "mods"
-                  | "mark"
-              >
+                OfficialDatabaseScore,
+                | "total_score"
+                | "combo"
+                | "perfect"
+                | "good"
+                | "bad"
+                | "miss"
+                | "mods"
+                | "mark"
+            >
             | Score
             | ReplayAnalyzer,
         droidAttribs: CompleteCalculationAttributes<
@@ -1178,23 +1173,23 @@ export class Challenge extends Manager {
                     scoreOrReplay instanceof Score
                         ? scoreOrReplay.accuracy
                         : scoreOrReplay instanceof ReplayAnalyzer
-                          ? scoreOrReplay.data!.accuracy
-                          : new Accuracy({
+                            ? scoreOrReplay.data!.accuracy
+                            : new Accuracy({
                                 n300: scoreOrReplay.perfect,
                                 n100: scoreOrReplay.good,
                                 n50: scoreOrReplay.bad,
                                 nmiss: scoreOrReplay.miss,
                             });
 
-                return accuracy.value() * 100 >= +this.pass.value;
+                return accuracy.value * 100 >= +this.pass.value;
             }
             case "miss": {
                 const miss =
                     scoreOrReplay instanceof Score
                         ? scoreOrReplay.accuracy.nmiss
                         : scoreOrReplay instanceof ReplayAnalyzer
-                          ? scoreOrReplay.data!.accuracy.nmiss
-                          : scoreOrReplay.miss;
+                            ? scoreOrReplay.data!.accuracy.nmiss
+                            : scoreOrReplay.miss;
 
                 return miss < +this.pass.value || !miss;
             }
@@ -1215,8 +1210,8 @@ export class Challenge extends Manager {
                 const scoreV2 =
                     scoreOrReplay instanceof ReplayAnalyzer
                         ? await this.calculateChallengeScoreV2(
-                              scoreOrReplay.data!,
-                          )
+                            scoreOrReplay.data!,
+                        )
                         : await this.calculateChallengeScoreV2(scoreOrReplay);
 
                 return scoreV2 >= +this.pass.value;
@@ -1226,8 +1221,8 @@ export class Challenge extends Manager {
                     scoreOrReplay instanceof Score
                         ? scoreOrReplay.rank
                         : scoreOrReplay instanceof ReplayAnalyzer
-                          ? scoreOrReplay.data!.rank
-                          : scoreOrReplay.mark;
+                            ? scoreOrReplay.data!.rank
+                            : scoreOrReplay.mark;
 
                 return (
                     this.getRankTier(rank) >=
@@ -1243,8 +1238,8 @@ export class Challenge extends Manager {
                     scoreOrReplay instanceof Score
                         ? scoreOrReplay.accuracy.n300
                         : scoreOrReplay instanceof ReplayAnalyzer
-                          ? scoreOrReplay.data!.accuracy.n300
-                          : scoreOrReplay.perfect;
+                            ? scoreOrReplay.data!.accuracy.n300
+                            : scoreOrReplay.perfect;
 
                 return n300 >= +this.pass.value;
             }
@@ -1253,8 +1248,8 @@ export class Challenge extends Manager {
                     scoreOrReplay instanceof Score
                         ? scoreOrReplay.accuracy.n100
                         : scoreOrReplay instanceof ReplayAnalyzer
-                          ? scoreOrReplay.data!.accuracy.n100
-                          : scoreOrReplay.good;
+                            ? scoreOrReplay.data!.accuracy.n100
+                            : scoreOrReplay.good;
 
                 return n100 <= +this.pass.value;
             }
@@ -1263,8 +1258,8 @@ export class Challenge extends Manager {
                     scoreOrReplay instanceof Score
                         ? scoreOrReplay.accuracy.n50
                         : scoreOrReplay instanceof ReplayAnalyzer
-                          ? scoreOrReplay.data!.accuracy.n50
-                          : scoreOrReplay.bad;
+                            ? scoreOrReplay.data!.accuracy.n50
+                            : scoreOrReplay.bad;
 
                 return n50 <= +this.pass.value;
             }
@@ -1346,9 +1341,9 @@ export class Challenge extends Manager {
                 return value === 0
                     ? localization.getTranslation("noMisses")
                     : StringHelper.formatString(
-                          localization.getTranslation("missCountDescription"),
-                          bold(value.toString()),
-                      );
+                        localization.getTranslation("missCountDescription"),
+                        bold(value.toString()),
+                    );
             case "mod":
                 return StringHelper.formatString(
                     localization.getTranslation("modsDescription"),
@@ -1436,15 +1431,15 @@ export class Challenge extends Manager {
         scoreOrReplay: OfficialDatabaseScore | ReplayAnalyzer,
     ): Promise<
         | [
-              CompleteCalculationAttributes<
-                  DroidDifficultyAttributes,
-                  DroidPerformanceAttributes
-              >,
-              CompleteCalculationAttributes<
-                  OsuDifficultyAttributes,
-                  OsuPerformanceAttributes
-              >,
-          ]
+            CompleteCalculationAttributes<
+                DroidDifficultyAttributes,
+                DroidPerformanceAttributes
+            >,
+            CompleteCalculationAttributes<
+                OsuDifficultyAttributes,
+                OsuPerformanceAttributes
+            >,
+        ]
         | null
     > {
         let calcParams: PerformanceCalculationParameters;
@@ -1458,7 +1453,7 @@ export class Challenge extends Manager {
 
             calcParams = new PerformanceCalculationParameters({
                 accuracy: data.accuracy,
-                inputAccuracy: data.accuracy.value() * 100,
+                inputAccuracy: data.accuracy.value * 100,
                 combo: data.maxCombo,
                 mods: data.convertedMods,
             });
@@ -1513,18 +1508,18 @@ export class Challenge extends Manager {
     private async calculateChallengeScoreV2(
         score:
             | Pick<
-                  OfficialDatabaseScore,
-                  "total_score" | "perfect" | "good" | "bad" | "miss" | "mods"
-              >
+                OfficialDatabaseScore,
+                "total_score" | "perfect" | "good" | "bad" | "miss" | "mods"
+            >
             | Score,
     ): Promise<number>;
 
     private async calculateChallengeScoreV2(
         scoreOrReplay:
             | Pick<
-                  OfficialDatabaseScore,
-                  "total_score" | "perfect" | "good" | "bad" | "miss" | "mods"
-              >
+                OfficialDatabaseScore,
+                "total_score" | "perfect" | "good" | "bad" | "miss" | "mods"
+            >
             | Score
             | ReplayData,
     ): Promise<number> {
@@ -1536,27 +1531,27 @@ export class Challenge extends Manager {
 
         const accuracy =
             scoreOrReplay instanceof Score ||
-            scoreOrReplay instanceof ReplayData
+                scoreOrReplay instanceof ReplayData
                 ? scoreOrReplay.accuracy
                 : new Accuracy({
-                      n300: scoreOrReplay.perfect,
-                      n100: scoreOrReplay.good,
-                      n50: scoreOrReplay.bad,
-                      nmiss: scoreOrReplay.miss,
-                  });
+                    n300: scoreOrReplay.perfect,
+                    n100: scoreOrReplay.good,
+                    n50: scoreOrReplay.bad,
+                    nmiss: scoreOrReplay.miss,
+                });
 
         const scoreV1 =
             scoreOrReplay instanceof ReplayData
                 ? scoreOrReplay.isReplayV3()
-                    ? scoreOrReplay.totalScore
+                    ? scoreOrReplay.getTotalScore()
                     : 0
                 : scoreOrReplay instanceof Score
-                  ? scoreOrReplay.score
-                  : scoreOrReplay.total_score;
+                    ? scoreOrReplay.score
+                    : scoreOrReplay.total_score;
 
         const tempScoreV2 =
             (scoreV1 / maximumScore) * 6e5 +
-            Math.pow(accuracy.value(), 4) * 4e5;
+            Math.pow(accuracy.value, 4) * 4e5;
 
         return tempScoreV2 - accuracy.nmiss * 0.003 * tempScoreV2;
     }

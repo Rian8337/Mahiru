@@ -187,9 +187,8 @@ export abstract class EmbedCreator {
                             ),
                         ),
                         (builder) => {
-                            const str = `🖼️ ${
-                                beatmap.storyboardAvailable ? "✅" : "❎"
-                            } ${bold("|")} 🎞️ ${beatmap.videoAvailable ? "✅" : "❎"}\n`;
+                            const str = `🖼️ ${beatmap.storyboardAvailable ? "✅" : "❎"
+                                } ${bold("|")} 🎞️ ${beatmap.videoAvailable ? "✅" : "❎"}\n`;
 
                             const secondPart: string[] = [];
 
@@ -210,13 +209,13 @@ export abstract class EmbedCreator {
 
                             builder.setContent(
                                 str +
-                                    secondPart.join(" - ") +
-                                    "\n" +
-                                    BeatmapManager.showStatistics(
-                                        beatmap,
-                                        2,
-                                        mods,
-                                    ),
+                                secondPart.join(" - ") +
+                                "\n" +
+                                BeatmapManager.showStatistics(
+                                    beatmap,
+                                    2,
+                                    mods,
+                                ),
                             );
 
                             return builder;
@@ -238,33 +237,33 @@ export abstract class EmbedCreator {
                         osuBeatmapDifficulty.cs,
                         1e-2,
                     ) &&
-                    Precision.almostEquals(
-                        droidBeatmapDifficulty.ar,
-                        osuBeatmapDifficulty.ar,
-                        1e-2,
-                    ) &&
-                    Precision.almostEquals(
-                        droidBeatmapDifficulty.od,
-                        osuBeatmapDifficulty.od,
-                        1e-2,
-                    ) &&
-                    Precision.almostEquals(
-                        droidBeatmapDifficulty.hp,
-                        osuBeatmapDifficulty.hp,
-                        1e-2,
-                    )
+                        Precision.almostEquals(
+                            droidBeatmapDifficulty.ar,
+                            osuBeatmapDifficulty.ar,
+                            1e-2,
+                        ) &&
+                        Precision.almostEquals(
+                            droidBeatmapDifficulty.od,
+                            osuBeatmapDifficulty.od,
+                            1e-2,
+                        ) &&
+                        Precision.almostEquals(
+                            droidBeatmapDifficulty.hp,
+                            osuBeatmapDifficulty.hp,
+                            1e-2,
+                        )
                         ? BeatmapManager.showStatistics(beatmap, 3, mods)
                         : EmoteManager.osudroidLogo +
-                          " | " +
-                          BeatmapManager.showStatistics(beatmap, 3, mods) +
-                          "\n" +
-                          EmoteManager.osuLazerLogo +
-                          " | " +
-                          BeatmapManager.showStatistics(beatmap, 4, mods)) +
+                        " | " +
+                        BeatmapManager.showStatistics(beatmap, 3, mods) +
                         "\n" +
-                        BeatmapManager.showStatistics(beatmap, 5, mods) +
-                        "\n" +
-                        BeatmapManager.showStatistics(beatmap, 6, mods),
+                        EmoteManager.osuLazerLogo +
+                        " | " +
+                        BeatmapManager.showStatistics(beatmap, 4, mods)) +
+                    "\n" +
+                    BeatmapManager.showStatistics(beatmap, 5, mods) +
+                    "\n" +
+                    BeatmapManager.showStatistics(beatmap, 6, mods),
                 ),
             )
             .addSeparatorComponents(new SeparatorBuilder())
@@ -318,16 +317,15 @@ export abstract class EmbedCreator {
                     ),
                 )}`,
             )}\n` +
-                `${localization.getTranslation("totalPP")}: ${bold(
-                    `${player.pp.toFixed(2)} pp (${typeof ppRank === "number" ? `#${ppRank.toLocaleString(LocaleHelper.convertToBCP47(language))}` : "Unknown"})`,
-                )}\n` +
-                `${localization.getTranslation(
-                    "recommendedStarRating",
-                )}: ${bold(
-                    `${(Math.pow(player.pp, 0.4) * 0.225).toFixed(2)}${
-                        Symbols.star
-                    }`,
-                )}`,
+            `${localization.getTranslation("totalPP")}: ${bold(
+                `${player.pp.toFixed(2)} pp (${typeof ppRank === "number" ? `#${ppRank.toLocaleString(LocaleHelper.convertToBCP47(language))}` : "Unknown"})`,
+            )}\n` +
+            `${localization.getTranslation(
+                "recommendedStarRating",
+            )}: ${bold(
+                `${(Math.pow(player.pp, 0.4) * 0.225).toFixed(2)}${Symbols.star
+                }`,
+            )}`,
         );
 
         return embed;
@@ -416,10 +414,7 @@ export abstract class EmbedCreator {
         ) {
             const combo = calculationParams.combo ?? droidDiffAttribs.maxCombo;
             // Recompute accuracy to consider amount of objects.
-            calculationParams.accuracy = new Accuracy({
-                ...calculationParams.accuracy,
-                nobjects: beatmap.objects,
-            });
+            calculationParams.accuracy = Accuracy.fromHitCounts(calculationParams.accuracy, beatmap.objects);
 
             const { accuracy } = calculationParams;
 
@@ -434,18 +429,15 @@ export abstract class EmbedCreator {
                 .addTextDisplayComponents(
                     new TextDisplayBuilder().setContent(
                         `${combo}/${droidDiffAttribs.maxCombo}x | ${(
-                            accuracy.value() * 100
-                        ).toFixed(2)}% | [${accuracy.n300}/${accuracy.n100}/${
-                            accuracy.n50
+                            accuracy.value * 100
+                        ).toFixed(2)}% | [${accuracy.n300}/${accuracy.n100}/${accuracy.n50
                         }/${accuracy.nmiss}]` +
-                            "\n" +
-                            `${bold(
-                                `${underline(droidPerfAttribs.total.toFixed(2))}dpp`,
-                            )} (${droidDiffAttribs.starRating.toFixed(2)}${
-                                Symbols.star
-                            }) - ${bold(osuPerfAttribs.total.toFixed(2))}pp (${osuDiffAttribs.starRating.toFixed(2)}${
-                                Symbols.star
-                            })`,
+                        "\n" +
+                        `${bold(
+                            `${underline(droidPerfAttribs.total.toFixed(2))}dpp`,
+                        )} (${droidDiffAttribs.starRating.toFixed(2)}${Symbols.star
+                        }) - ${bold(osuPerfAttribs.total.toFixed(2))}pp (${osuDiffAttribs.starRating.toFixed(2)}${Symbols.star
+                        })`,
                     ),
                 );
         } else {
@@ -456,12 +448,12 @@ export abstract class EmbedCreator {
                     )} ${droidDiffAttribs.starRating.toFixed(
                         2,
                     )} ${localization.getTranslation("droidStars")}` +
-                        "\n" +
-                        `${Symbols.star.repeat(
-                            Math.min(10, Math.floor(osuDiffAttribs.starRating)),
-                        )} ${osuDiffAttribs.starRating.toFixed(
-                            2,
-                        )} ${localization.getTranslation("pcStars")}`,
+                    "\n" +
+                    `${Symbols.star.repeat(
+                        Math.min(10, Math.floor(osuDiffAttribs.starRating)),
+                    )} ${osuDiffAttribs.starRating.toFixed(
+                        2,
+                    )} ${localization.getTranslation("pcStars")}`,
                 ),
             );
         }
@@ -521,23 +513,23 @@ export abstract class EmbedCreator {
     static async createRecentPlayEmbed(
         score:
             | Pick<
-                  OfficialDatabaseScore,
-                  | "id"
-                  | "uid"
-                  | "hash"
-                  | "total_score"
-                  | "combo"
-                  | "mark"
-                  | "mods"
-                  | "date"
-                  | "filename"
-                  | "perfect"
-                  | "good"
-                  | "bad"
-                  | "miss"
-                  | "slider_tick_hit"
-                  | "slider_end_hit"
-              >
+                OfficialDatabaseScore,
+                | "id"
+                | "uid"
+                | "hash"
+                | "total_score"
+                | "combo"
+                | "mark"
+                | "mods"
+                | "date"
+                | "filename"
+                | "perfect"
+                | "good"
+                | "bad"
+                | "miss"
+                | "slider_tick_hit"
+                | "slider_end_hit"
+            >
             | Score
             | RecentPlay,
         embedColor?: ColorResolvable,
@@ -567,8 +559,8 @@ export abstract class EmbedCreator {
             score instanceof Score
                 ? score.score
                 : score instanceof RecentPlay
-                  ? score.totalScore
-                  : score.total_score;
+                    ? score.totalScore
+                    : score.total_score;
 
         const mods =
             score instanceof Score || score instanceof RecentPlay
@@ -592,13 +584,13 @@ export abstract class EmbedCreator {
                 score instanceof RecentPlay
                     ? score.droidAttribs
                     : (
-                          await PPProcessorRESTManager.getOnlineScoreAttributes(
-                              score.uid,
-                              score.hash,
-                              Modes.Droid,
-                              PPCalculationMethod.live,
-                          )
-                      )?.attributes;
+                        await PPProcessorRESTManager.getOnlineScoreAttributes(
+                            score.uid,
+                            score.hash,
+                            Modes.Droid,
+                            PPCalculationMethod.live,
+                        )
+                    )?.attributes;
         }
 
         if (osuAttribs === undefined && droidAttribs !== null) {
@@ -606,13 +598,13 @@ export abstract class EmbedCreator {
                 score instanceof RecentPlay
                     ? score.osuAttribs
                     : (
-                          await PPProcessorRESTManager.getOnlineScoreAttributes(
-                              score.uid,
-                              score.hash,
-                              Modes.Osu,
-                              PPCalculationMethod.live,
-                          )
-                      )?.attributes;
+                        await PPProcessorRESTManager.getOnlineScoreAttributes(
+                            score.uid,
+                            score.hash,
+                            Modes.Osu,
+                            PPCalculationMethod.live,
+                        )
+                    )?.attributes;
         }
 
         let beatmapInformation = `${arrow} ${EmoteManager.getRankEmote(
@@ -625,19 +617,17 @@ export abstract class EmbedCreator {
             score instanceof Score || score instanceof RecentPlay
                 ? score.accuracy
                 : new Accuracy({
-                      n300: score.perfect,
-                      n100: score.good,
-                      n50: score.bad,
-                      nmiss: score.miss,
-                  });
+                    n300: score.perfect,
+                    n100: score.good,
+                    n50: score.bad,
+                    nmiss: score.miss,
+                });
 
         if (!droidAttribs || !osuAttribs) {
             beatmapInformation +=
-                `${(accuracy.value() * 100).toFixed(2)}%\n` +
-                `${arrow} ${totalScore.toLocaleString(BCP47)} ${arrow} ${
-                    score.combo
-                }x ${arrow} [${accuracy.n300}/${accuracy.n100}/${
-                    accuracy.n50
+                `${(accuracy.value * 100).toFixed(2)}%\n` +
+                `${arrow} ${totalScore.toLocaleString(BCP47)} ${arrow} ${score.combo
+                }x ${arrow} [${accuracy.n300}/${accuracy.n100}/${accuracy.n50
                 }/${accuracy.nmiss}]`;
 
             embed.setDescription(beatmapInformation);
@@ -650,11 +640,9 @@ export abstract class EmbedCreator {
 
         embed
             .setAuthor({
-                name: `${beatmap.fullTitle} ${modString} [${droidAttribs.difficulty.starRating.toFixed(2)}${
-                    Symbols.star
-                } | ${osuAttribs.difficulty.starRating.toFixed(2)}${
-                    Symbols.star
-                }]`,
+                name: `${beatmap.fullTitle} ${modString} [${droidAttribs.difficulty.starRating.toFixed(2)}${Symbols.star
+                    } | ${osuAttribs.difficulty.starRating.toFixed(2)}${Symbols.star
+                    }]`,
                 iconURL: avatarURL,
                 url: beatmap.beatmapLink,
             })
@@ -704,17 +692,15 @@ export abstract class EmbedCreator {
                     2,
                 )}pp ${StringHelper.formatString(
                     localization.getTranslation("forFC"),
-                    (calcParams.accuracy.value() * 100).toFixed(2) + "%",
+                    (calcParams.accuracy.value * 100).toFixed(2) + "%",
                 )}) `;
             }
         }
 
         beatmapInformation +=
-            `${arrow} ${(accuracy.value() * 100).toFixed(2)}%\n` +
-            `${arrow} ${totalScore.toLocaleString(BCP47)} ${arrow} ${
-                score.combo
-            }x/${maxCombo}x ${arrow} [${accuracy.n300}/${
-                accuracy.n100
+            `${arrow} ${(accuracy.value * 100).toFixed(2)}%\n` +
+            `${arrow} ${totalScore.toLocaleString(BCP47)} ${arrow} ${score.combo
+            }x/${maxCombo}x ${arrow} [${accuracy.n300}/${accuracy.n100
             }/${accuracy.n50}/${accuracy.nmiss}]\n` +
             `${arrow} `;
 
@@ -813,19 +799,15 @@ export abstract class EmbedCreator {
                 beatmapInformation += `\n`;
 
                 if (score.sliderTickInformation) {
-                    beatmapInformation += ` ${arrow} ${
-                        score.sliderTickInformation.obtained
-                    }/${
-                        score.sliderTickInformation.total
-                    } ${localization.getTranslation("sliderTicks")}`;
+                    beatmapInformation += ` ${arrow} ${score.sliderTickInformation.obtained
+                        }/${score.sliderTickInformation.total
+                        } ${localization.getTranslation("sliderTicks")}`;
                 }
 
                 if (score.sliderEndInformation) {
-                    beatmapInformation += ` ${arrow} ${
-                        score.sliderEndInformation.obtained
-                    }/${
-                        score.sliderEndInformation.total
-                    } ${localization.getTranslation("sliderEnds")}`;
+                    beatmapInformation += ` ${arrow} ${score.sliderEndInformation.obtained
+                        }/${score.sliderEndInformation.total
+                        } ${localization.getTranslation("sliderEnds")}`;
                 }
             }
         } else {
@@ -846,13 +828,11 @@ export abstract class EmbedCreator {
 
             if (data && beatmap.hasDownloadedBeatmap()) {
                 if (sliderTickHits !== null && sliderEndHits !== null) {
-                    beatmapInformation += `\n${arrow} ${sliderTickHits}/${
-                        beatmap.beatmap!.hitObjects.sliderTicks
-                    } ${localization.getTranslation(
-                        "sliderTicks",
-                    )} ${arrow} ${sliderEndHits}/${
-                        beatmap.beatmap!.hitObjects.sliderEnds
-                    } ${localization.getTranslation("sliderEnds")}`;
+                    beatmapInformation += `\n${arrow} ${sliderTickHits}/${beatmap.beatmap!.hitObjects.sliderTicks
+                        } ${localization.getTranslation(
+                            "sliderTicks",
+                        )} ${arrow} ${sliderEndHits}/${beatmap.beatmap!.hitObjects.sliderEnds
+                        } ${localization.getTranslation("sliderEnds")}`;
                 }
 
                 replay.beatmap ??= beatmap.beatmap!;
@@ -971,8 +951,7 @@ export abstract class EmbedCreator {
             .setFooter({
                 text:
                     embed.data.footer!.text! +
-                    ` | ${localization.getTranslation("challengeId")}: ${
-                        challenge.challengeid
+                    ` | ${localization.getTranslation("challengeId")}: ${challenge.challengeid
                     } | ${localization.getTranslation(
                         "timeLeft",
                     )}: ${DateTimeFormatHelper.secondsToDHMS(
@@ -1021,19 +1000,17 @@ export abstract class EmbedCreator {
                         2,
                     )} ${localization.getTranslation("pcStars")}`,
                 value:
-                    `${bold(localization.getTranslation("points"))}: ${
-                        challenge.points
+                    `${bold(localization.getTranslation("points"))}: ${challenge.points
                     } ${localization.getTranslation("points")}\n` +
                     `${bold(
                         localization.getTranslation("passCondition"),
                     )}: ${challenge.getPassInformation()}\n` +
-                    `${bold(localization.getTranslation("constrain"))}: ${
-                        challenge.constrain
-                            ? StringHelper.formatString(
-                                  localization.getTranslation("modOnly"),
-                                  challenge.constrain.toUpperCase(),
-                              )
-                            : localization.getTranslation("rankableMods")
+                    `${bold(localization.getTranslation("constrain"))}: ${challenge.constrain
+                        ? StringHelper.formatString(
+                            localization.getTranslation("modOnly"),
+                            challenge.constrain.toUpperCase(),
+                        )
+                        : localization.getTranslation("rankableMods")
                     }\n\n` +
                     localization.getTranslation("challengeBonuses"),
             });
@@ -1086,21 +1063,20 @@ export abstract class EmbedCreator {
         embed
             .setTitle(localization.getTranslation("auctionInfo"))
             .setDescription(
-                `${bold(localization.getTranslation("auctionName"))}: ${
-                    auction.name
+                `${bold(localization.getTranslation("auctionName"))}: ${auction.name
                 }\n` +
-                    `${bold(
-                        localization.getTranslation("auctionAuctioneer"),
-                    )}: ${auction.auctioneer}\n` +
-                    `${bold(
-                        localization.getTranslation("creationDate"),
-                    )}: ${DateTimeFormatHelper.dateToLocaleString(
-                        new Date(auction.creationdate * 1000),
-                        language,
-                    )}\n` +
-                    `${bold(
-                        localization.getTranslation("auctionMinimumBid"),
-                    )}: ${coinEmoji}${auction.min_price} Mahiru coins`,
+                `${bold(
+                    localization.getTranslation("auctionAuctioneer"),
+                )}: ${auction.auctioneer}\n` +
+                `${bold(
+                    localization.getTranslation("creationDate"),
+                )}: ${DateTimeFormatHelper.dateToLocaleString(
+                    new Date(auction.creationdate * 1000),
+                    language,
+                )}\n` +
+                `${bold(
+                    localization.getTranslation("auctionMinimumBid"),
+                )}: ${coinEmoji}${auction.min_price} Mahiru coins`,
             )
             .addFields(
                 {
@@ -1128,8 +1104,7 @@ export abstract class EmbedCreator {
                             .first(5)
                             .map(
                                 (v, i) =>
-                                    `#${i + 1}: ${v.clan} - ${coinEmoji}\`${
-                                        v.amount
+                                    `#${i + 1}: ${v.clan} - ${coinEmoji}\`${v.amount
                                     }\` Mahiru coins`,
                             ),
                 },
@@ -1330,8 +1305,7 @@ export abstract class EmbedCreator {
             .setTitle(queue.information.title)
             .setThumbnail(queue.information.thumbnail ?? null)
             .setDescription(
-                `${localization.getTranslation("musicYoutubeChannel")}: ${
-                    queue.information.author.name
+                `${localization.getTranslation("musicYoutubeChannel")}: ${queue.information.author.name
                 }\n\n${localization.getTranslation(
                     "musicDuration",
                 )}: ${queue.information.duration.toString()}\n\n${StringHelper.formatString(
@@ -1358,9 +1332,8 @@ export abstract class EmbedCreator {
 
         const embed = this.createNormalEmbed({
             color: "Blurple",
-            footerText: `${localization.getTranslation("warningId")}: ${
-                warning.guildSpecificId
-            }`,
+            footerText: `${localization.getTranslation("warningId")}: ${warning.guildSpecificId
+                }`,
         });
 
         embed
@@ -1373,31 +1346,28 @@ export abstract class EmbedCreator {
                         warning.issuerId,
                     ),
                 )}\n\n` +
-                    `${bold(
-                        localization.getTranslation("warnedUser"),
-                    )}: ${userMention(warning.discordId)} (${
-                        warning.discordId
-                    })\n` +
-                    `${bold(
-                        localization.getTranslation("channel"),
-                    )}: ${channelMention(warning.channelId)} (${
-                        warning.channelId
-                    })\n` +
-                    `${bold(
-                        localization.getTranslation("creationDate"),
-                    )}: ${DateTimeFormatHelper.dateToLocaleString(
-                        new Date(warning.creationDate * 1000),
-                        language,
-                    )}\n` +
-                    `${bold(
-                        localization.getTranslation("expirationDate"),
-                    )}: ${DateTimeFormatHelper.dateToLocaleString(
-                        new Date(warning.expirationDate * 1000),
-                        language,
-                    )}\n\n` +
-                    `${bold(localization.getTranslation("reason"))}:\n${
-                        warning.reason
-                    }`,
+                `${bold(
+                    localization.getTranslation("warnedUser"),
+                )}: ${userMention(warning.discordId)} (${warning.discordId
+                })\n` +
+                `${bold(
+                    localization.getTranslation("channel"),
+                )}: ${channelMention(warning.channelId)} (${warning.channelId
+                })\n` +
+                `${bold(
+                    localization.getTranslation("creationDate"),
+                )}: ${DateTimeFormatHelper.dateToLocaleString(
+                    new Date(warning.creationDate * 1000),
+                    language,
+                )}\n` +
+                `${bold(
+                    localization.getTranslation("expirationDate"),
+                )}: ${DateTimeFormatHelper.dateToLocaleString(
+                    new Date(warning.expirationDate * 1000),
+                    language,
+                )}\n\n` +
+                `${bold(localization.getTranslation("reason"))}:\n${warning.reason
+                }`,
             );
 
         return embed;
