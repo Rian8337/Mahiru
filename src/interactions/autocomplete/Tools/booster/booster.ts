@@ -17,6 +17,7 @@ export const run: AutocompleteHandler["run"] = async (_, interaction) => {
                     name: emoji.name,
                     value: emoji.id,
                 }))
+                .slice(0, 25)
         );
     }
 };
