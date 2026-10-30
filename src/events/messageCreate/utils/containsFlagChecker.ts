@@ -24,12 +24,12 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
     const attachment = message.attachments.first()!;
     const { bitfield } = attachment.flags;
 
+    // Content scanning can run after the message is sent, so the flags may not be available immediately.
+    // If that's the case, the message update event will be triggered when the flags are available.
     if (bitfield === 0) {
         return;
     }
 
-    // Content scanning can run after the message is sent, so the flags may not be available immediately.
-    // We only want to tag the message if it has a new flag that it didn't have before.
     let tags: string[] = [];
 
     if (hasBit(bitfield, ExtraAttachmentFlags.Explicit)) {
