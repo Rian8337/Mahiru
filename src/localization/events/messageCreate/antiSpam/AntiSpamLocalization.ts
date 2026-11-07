@@ -14,6 +14,8 @@ export interface AntiSpamStrings {
     readonly channelId: string;
     readonly timeoutUserNotification: string;
     readonly untimeoutUserNotification: string;
+    readonly spamDetected: string;
+    readonly timestamps: string;
 }
 
 /**

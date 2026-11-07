@@ -6,7 +6,7 @@ import { MessageCreator } from "@utils/creators/MessageCreator";
 import { CommandHelper } from "@utils/helpers/CommandHelper";
 import { DateTimeFormatHelper } from "@utils/helpers/DateTimeFormatHelper";
 import { CacheManager } from "@utils/managers/CacheManager";
-import { bold, EmbedBuilder, Message, Snowflake } from "discord.js";
+import { bold, EmbedBuilder, Message, Snowflake, time } from "discord.js";
 
 interface MessageInformation {
     /**
@@ -87,18 +87,18 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
     }
 
     // More than 4 messages - consider as spam.
-    const logChannel = await guildConfig.getGuildLogChannel(message.guild);
+    const reportChannel = await message.guild.channels.fetch(Constants.reportChannel);
 
-    if (!logChannel?.isTextBased()) {
+    if (!reportChannel?.isTextBased()) {
         return;
     }
 
-    const botOwner = await message.guild.members.fetch(Config.botOwners[1]);
-    const duration = 180 * 1000;
-    const reason =
+    const timeoutDuration = 180 * 1000;
+
+    const timeoutReason =
         "[Automated Timeout] You were sending multiple similar messages too fast! Please calm down.";
 
-    await member.timeout(duration, reason);
+    await member.timeout(timeoutDuration, timeoutReason);
 
     for (const message of messageInformation.messages.values()) {
         await message.delete();
@@ -112,26 +112,30 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
         CommandHelper.getLocale(member.id)
     );
 
-    const timeoutEmbed = new EmbedBuilder()
-        .setAuthor({
-            name: botOwner.user.tag,
-            iconURL: botOwner.user.avatarURL()!,
-        })
-        .setTitle(localization.getTranslation("timeoutExecuted"))
+    const messages = Array.from(messageInformation.messages.values())
+        .sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+
+    const reportEmbed = new EmbedBuilder()
+        .setTitle(localization.getTranslation("spamDetected"))
         .setFooter({
             text: `${localization.getTranslation("userId")}: ${member.id}`,
         })
         .setTimestamp(new Date())
         .setDescription(
-            `${bold(
-                `${member.toString()}: ${DateTimeFormatHelper.secondsToDHMS(
-                    duration / 1000,
-                    localization.language
-                )}`
-            )}\n\n` +
-                `=========================\n\n` +
-                `${bold(localization.getTranslation("reason"))}:\n` +
-                reason
+            messages
+                .map((m, i) => {
+                    let str = `${i + 1}. ${m.channel.toString()}\n`;
+                    str += `${time(m.createdAt, "F")} (${time(m.createdAt, "R")})`;
+
+                    if (i > 0) {
+                        const prevMessage = messages[i - 1];
+                        const diff = m.createdTimestamp - prevMessage.createdTimestamp;
+                        str += ` (Δ ${DateTimeFormatHelper.secondsToDHMS(diff / 1000, localization.language)})`;
+                    }
+
+                    return str;
+                })
+                .join("\n")
         );
 
     const userTimeoutEmbed = new EmbedBuilder()
@@ -143,13 +147,13 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
         .setDescription(
             `${bold(
                 `${member.toString()}: ${DateTimeFormatHelper.secondsToDHMS(
-                    duration / 1000,
+                    timeoutDuration / 1000,
                     userLocalization.language
                 )}`
             )}\n\n` +
                 `=========================\n\n` +
                 `${bold(userLocalization.getTranslation("reason"))}:\n` +
-                reason
+                timeoutReason
         );
 
     await member
@@ -157,16 +161,16 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
             content: MessageCreator.createWarn(
                 userLocalization.getTranslation("timeoutUserNotification"),
                 DateTimeFormatHelper.secondsToDHMS(
-                    duration / 1000,
+                    timeoutDuration / 1000,
                     userLocalization.language
                 ),
-                reason
+                timeoutReason
             ),
             embeds: [userTimeoutEmbed],
         })
         .catch(() => null);
 
-    await logChannel.send({ embeds: [timeoutEmbed] });
+    await reportChannel.send({ embeds: [reportEmbed] });
 };
 
 export const config: EventUtil["config"] = {

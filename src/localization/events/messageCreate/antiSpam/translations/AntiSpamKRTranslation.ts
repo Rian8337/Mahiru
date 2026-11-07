@@ -17,5 +17,7 @@ export class AntiSpamKRTranslation extends Translation<AntiSpamStrings> {
             "저기, 당신은 %s 동안 다음 이유로 타임아웃 당했어요: %s. 죄송해요!",
         untimeoutUserNotification:
             "저기, 당신은 다음 이유로 타임아웃이 해제되었어요: %s.",
+        spamDetected: "스팸 감지됨",
+        timestamps: "타임스탬프",
     };
 }

@@ -16,5 +16,7 @@ export class AntiSpamENTranslation extends Translation<AntiSpamStrings> {
         untimeoutUserNotification: "Hey, you were untimeouted for %s.",
         userId: "User ID",
         channelId: "Channel ID",
+        spamDetected: "Potential spam detected",
+        timestamps: "Timestamps",
     };
 }
