@@ -120,22 +120,30 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
         .setFooter({
             text: `${localization.getTranslation("userId")}: ${member.id}`,
         })
+        .setColor("DarkVividPink")
         .setTimestamp(new Date())
-        .setDescription(
-            messages
-                .map((m, i) => {
-                    let str = `${i + 1}. ${m.channel.toString()}\n`;
-                    str += `${time(m.createdAt, "F")} (${time(m.createdAt, "R")})`;
+        .addFields(
+            {
+                name: localization.getTranslation("user"),
+                value: member.toString(),
+            },
+            {
+                name: localization.getTranslation("inChannel"),
+                value: messages
+                    .map((m, i) => {
+                        let str = `${i + 1}. ${m.channel.toString()}\n`;
+                        str += `${time(m.createdAt, "F")} (${time(m.createdAt, "R")})`;
 
-                    if (i > 0) {
-                        const prevMessage = messages[i - 1];
-                        const diff = m.createdTimestamp - prevMessage.createdTimestamp;
-                        str += ` (Δ ${DateTimeFormatHelper.secondsToDHMS(diff / 1000, localization.language)})`;
-                    }
+                        if (i > 0) {
+                            const prevMessage = messages[i - 1];
+                            const diff = m.createdTimestamp - prevMessage.createdTimestamp;
+                            str += ` (Δ ${DateTimeFormatHelper.secondsToDHMS(diff / 1000, localization.language)})`;
+                        }
 
-                    return str;
-                })
-                .join("\n")
+                        return str;
+                    })
+                    .join("\n")
+            },
         );
 
     const userTimeoutEmbed = new EmbedBuilder()
@@ -143,6 +151,7 @@ export const run: EventUtil["run"] = async (_, message: Message) => {
         .setFooter({
             text: `${userLocalization.getTranslation("userId")}: ${member.id}`,
         })
+        .setColor("DarkVividPink")
         .setTimestamp(new Date())
         .setDescription(
             `${bold(

@@ -18,6 +18,7 @@ export class AntiSpamESTranslation extends Translation<AntiSpamStrings> {
         untimeoutUserNotification:
             "Hey, se te fue retirada la restricción por %s.",
         spamDetected: "Posible spam detectado",
+        user: "Usuario",
         timestamps: "Tiempos",
     };
 }

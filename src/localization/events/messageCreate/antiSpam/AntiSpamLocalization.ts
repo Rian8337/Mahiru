@@ -15,6 +15,7 @@ export interface AntiSpamStrings {
     readonly timeoutUserNotification: string;
     readonly untimeoutUserNotification: string;
     readonly spamDetected: string;
+    readonly user: string;
     readonly timestamps: string;
 }
 

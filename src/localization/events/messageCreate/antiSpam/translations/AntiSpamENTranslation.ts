@@ -17,6 +17,7 @@ export class AntiSpamENTranslation extends Translation<AntiSpamStrings> {
         userId: "User ID",
         channelId: "Channel ID",
         spamDetected: "Potential spam detected",
+        user: "User",
         timestamps: "Timestamps",
     };
 }
