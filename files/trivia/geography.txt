@@ -13,7 +13,7 @@
 5 | 1 | - | The prefix Sino- (As in Sino-American) is used to refer to what nationality? | Chinese | Japanese | Russian | Indian
 1 | 1 | - | How many federal states does Germany have? | 16 | 13 | 32 | 25
 1 | 1 | - | What colour is the circle on the Japanese flag? | Red | White | Yellow | Black
-5 | 1 | - | Which country is completely landlocked by South Africa? | Lesotho | Swaziland | Botswana | Zimbabwe
+5 | 1 | - | Which country is completely landlocked by South Africa? | Lesotho | Eswatini | Botswana | Zimbabwe
 3 | 1 | - | Kuala Lumpur is the capital of which country? | Malaysia | Indonesia | Singapore | Thailand
 1 | 1 | - | What is the capital of Jamaica? | Kingston | Rio de Janeiro | Dar es Salaam | Kano
 5 | 1 | - | The mountainous Khyber Pass connects which of the two following countries? | Afghanistan and Pakistan | India and Nepal | Pakistan and India | Tajikistan and Kyrgyzstan
@@ -256,7 +256,7 @@
 3 | 2 | - | What is the capital of Brunei: | Bandar Seri Begawan | bandarseribegawan
 3 | 2 | - | What is the capital of Bulgaria? | Sofia
 3 | 2 | - | What is the capital of Burkina Faso? | Ouagadougou
-3 | 2 | - | What is the capital of Burundi? | Bujumbura
+3 | 2 | - | What is the capital of Burundi? | Gitega
 3 | 2 | - | What is the capital of Cabo Verde? | Praia
 3 | 2 | - | What is the capital of Cambodia? | Phnom Penh
 3 | 2 | - | What is the capital of Cameroon? | Yaoundé | yaounde
@@ -280,7 +280,7 @@
 3 | 2 | - | What is the capital of Ecuador? | Quito
 3 | 2 | - | What is the capital of Egypt? | Cairo
 3 | 2 | - | What is the capital of El Salvador? | San Salvador | sansalvador
-3 | 2 | - | What is the capital of Equatorial Guinea? | Malabo
+3 | 2 | - | What is the capital of Equatorial Guinea? | Ciudad de la Paz
 3 | 2 | - | What is the capital of Eritrea? | Asmara
 3 | 2 | - | What is the capital of Estonia? | Tallinn
 3 | 2 | - | What is the capital of eSwatini (Swaziland)? | Mbabane
@@ -328,7 +328,7 @@
 3 | 2 | - | What is the capital of Liechtenstein? | Vaduz
 3 | 2 | - | What is the capital of Lithuania? | Vilnius
 3 | 2 | - | What is the capital of Luxembourg? | Luxembourg
-3 | 2 | - | What is the capital of Macedonia? | Skopje
+3 | 2 | - | What is the capital of North Macedonia? | Skopje
 3 | 2 | - | What is the capital of Madagascar? | Antananarivo
 3 | 2 | - | What is the capital of Malawi? | Lilongwe
 3 | 2 | - | What is the capital of Malaysia? | Kuala Lumpur | kualalumpur
@@ -448,7 +448,7 @@
 3 | 2 | https://i.imgur.com/5TEduqP.png | What country is represented by this flag?  | United Kingdom | UK | GB | Great Britain | Britain
 3 | 2 | https://i.imgur.com/6UkAfly.png | What country is represented by this flag?  | Kenya
 3 | 2 | https://i.imgur.com/7qSsp7Z.png | What country is represented by this flag?  | Samoa
-3 | 2 | https://i.imgur.com/7weskDc.png | What country is represented by this flag?  | Macedonia
+3 | 2 | https://i.imgur.com/7weskDc.png | What country is represented by this flag?  | North Macedonia | Macedonia
 3 | 2 | https://i.imgur.com/8F5aqVG.png | What country is represented by this flag?  | Germany
 3 | 2 | https://i.imgur.com/8LFhQVn.png | What country is represented by this flag?  | North Korea | People's Republic of Korea
 3 | 2 | https://i.imgur.com/8OzbswS.png | What country is represented by this flag?  | Armenia
@@ -653,7 +653,7 @@
 3 | 2 | https://i.imgur.com/78BVep1.png | What country is highlighted on this map?  | Laos
 3 | 2 | https://i.imgur.com/7DXx3lu.png | What country is highlighted on this map?  | Antigua and Barbuda
 3 | 2 | https://i.imgur.com/7OqhNc4.png | What country is highlighted on this map?  | Peru
-3 | 2 | https://i.imgur.com/7XrAS6L.png | What country is highlighted on this map?  | Swaziland
+3 | 2 | https://i.imgur.com/7XrAS6L.png | What country is highlighted on this map?  | Eswatini | Swaziland
 3 | 2 | https://i.imgur.com/837JSrU.png | What country is highlighted on this map?  | Kosovo
 3 | 2 | https://i.imgur.com/8KwkBwG.png | What country is highlighted on this map?  | Tuvalu
 3 | 2 | https://i.imgur.com/8Q88Bgd.png | What country is highlighted on this map?  | Ireland
@@ -673,7 +673,7 @@
 3 | 2 | https://i.imgur.com/Df9bPdT.png | What country is highlighted on this map?  | Burundi
 3 | 2 | https://i.imgur.com/E6lQFbg.png | What country is highlighted on this map?  | Greece
 3 | 2 | https://i.imgur.com/EE9jicV.png | What country is highlighted on this map?  | Tonga
-3 | 2 | https://i.imgur.com/EQSChbH.png | What country is highlighted on this map?  | Macedonia | FYROM | the former Yugoslav Republic of Macedonia
+3 | 2 | https://i.imgur.com/EQSChbH.png | What country is highlighted on this map?  | North Macedonia | Macedonia | FYROM | the former Yugoslav Republic of Macedonia
 3 | 2 | https://i.imgur.com/EdETzhx.png | What country is highlighted on this map?  | Paraguay
 3 | 2 | https://i.imgur.com/FHCjY5w.png | What country is highlighted on this map?  | Kuwait
 3 | 2 | https://i.imgur.com/G3LOenX.png | What country is highlighted on this map?  | Armenia
